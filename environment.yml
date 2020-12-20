@@ -2,20 +2,6 @@ name: mask_children
 channels:
   - conda-forge
 dependencies:
-  - ca-certificates=2020.12.5=h033912b_0
-  - certifi=2020.12.5=py37hf985489_0
-  - libcxx=11.0.0=h4c3b8ed_1
-  - libffi=3.3=h046ec9c_2
-  - ncurses=6.2=h2e338ed_4
-  - openssl=1.1.1i=h35c211d_0
-  - pip=20.3.3=pyhd8ed1ab_0
-  - python=3.7.9=h6c3b2c9_0_cpython
-  - python_abi=3.7=1_cp37m
-  - readline=8.0=h0678c8f_2
-  - setuptools=49.6.0=py37h2987424_2
-  - sqlite=3.34.0=h17101e1_0
-  - tk=8.6.10=h0419947_1
-  - wheel=0.36.2=pyhd3deb0d_0
-  - xz=5.2.5=haf1e3a3_1
-  - zlib=1.2.11=h7795811_1010
+  - python=3.7
+  - nilearn==0.7.0
 prefix: /Users/alexander/opt/anaconda3/envs/mask_children
