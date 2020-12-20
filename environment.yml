@@ -1,0 +1,56 @@
+name: mask_children
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - brotlipy=0.7.0=py38h94c058a_1001
+  - ca-certificates=2020.12.5=h033912b_0
+  - cached-property=1.5.1=py_0
+  - certifi=2020.12.5=py38h50d1736_0
+  - cffi=1.14.4=py38h979bc6b_1
+  - chardet=4.0.0=py38h50d1736_0
+  - cryptography=3.3.1=py38h6b4ec92_0
+  - h5py=3.1.0=nompi_py38hebff1a9_100
+  - hdf5=1.10.6=nompi_h3e39495_100
+  - idna=2.10=pyh9f0ad1d_0
+  - joblib=1.0.0=pyhd8ed1ab_0
+  - libblas=3.9.0=3_openblas
+  - libcblas=3.9.0=3_openblas
+  - libcxx=10.0.0=1
+  - libedit=3.1.20191231=h1de35cc_1
+  - libffi=3.3=hb1e8313_2
+  - libgfortran=4.0.0=h50e675f_13
+  - libgfortran4=7.5.0=h50e675f_13
+  - liblapack=3.9.0=3_openblas
+  - libopenblas=0.3.12=openmp_h63d9170_1
+  - llvm-openmp=11.0.0=h73239a0_1
+  - ncurses=6.2=h0a44026_1
+  - nibabel=3.2.1=pyhd8ed1ab_0
+  - nilearn=0.7.0=pyhd8ed1ab_0
+  - numpy=1.19.4=py38h6ced74f_2
+  - openssl=1.1.1i=h35c211d_0
+  - packaging=20.8=pyhd3deb0d_0
+  - pandas=1.0.1=py38h4f17bb1_0
+  - pip=20.3.3=py38hecd8cb5_0
+  - pycparser=2.20=pyh9f0ad1d_2
+  - pydicom=2.1.2=pyhd3deb0d_0
+  - pyopenssl=20.0.1=pyhd8ed1ab_0
+  - pyparsing=2.4.7=pyh9f0ad1d_0
+  - pysocks=1.7.1=py38h5347e94_2
+  - python=3.8.5=h26836e1_1
+  - python-dateutil=2.8.1=py_0
+  - python_abi=3.8=1_cp38
+  - pytz=2020.4=pyhd8ed1ab_0
+  - readline=8.0=h1de35cc_0
+  - requests=2.25.1=pyhd3deb0d_0
+  - scikit-learn=0.22.1=py38h3dc85bc_1
+  - scipy=1.4.1=py38h38b60c6_3
+  - setuptools=51.0.0=py38hecd8cb5_2
+  - six=1.15.0=pyh9f0ad1d_0
+  - sqlite=3.33.0=hffcf06c_0
+  - tk=8.6.10=hb0a8c7a_0
+  - urllib3=1.26.2=pyhd8ed1ab_0
+  - wheel=0.36.2=pyhd3eb1b0_0
+  - xz=5.2.5=h1de35cc_0
+  - zlib=1.2.11=h1de35cc_3
+prefix: /Users/alexander/opt/anaconda3/envs/mask_children
