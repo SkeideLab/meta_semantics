@@ -1,56 +1,62 @@
 name: mask_children
 channels:
   - conda-forge
-  - defaults
 dependencies:
-  - brotlipy=0.7.0=py38h94c058a_1001
+  - brotlipy=0.7.0=py37h395d20d_1001
+  - c-ares=1.17.1=hc929b4f_0
   - ca-certificates=2020.12.5=h033912b_0
   - cached-property=1.5.1=py_0
-  - certifi=2020.12.5=py38h50d1736_0
-  - cffi=1.14.4=py38h979bc6b_1
-  - chardet=4.0.0=py38h50d1736_0
-  - cryptography=3.3.1=py38h6b4ec92_0
-  - h5py=3.1.0=nompi_py38hebff1a9_100
-  - hdf5=1.10.6=nompi_h3e39495_100
+  - certifi=2020.12.5=py37hf985489_0
+  - cffi=1.14.4=py37hc5b2277_1
+  - chardet=4.0.0=py37hf985489_0
+  - cryptography=3.3.1=py37haf76d9e_0
+  - h5py=3.1.0=nompi_py37h6dbf366_100
+  - hdf5=1.10.6=nompi_h0f9794f_1112
   - idna=2.10=pyh9f0ad1d_0
   - joblib=1.0.0=pyhd8ed1ab_0
+  - krb5=1.17.2=h60d9502_0
   - libblas=3.9.0=3_openblas
   - libcblas=3.9.0=3_openblas
-  - libcxx=10.0.0=1
-  - libedit=3.1.20191231=h1de35cc_1
-  - libffi=3.3=hb1e8313_2
-  - libgfortran=4.0.0=h50e675f_13
-  - libgfortran4=7.5.0=h50e675f_13
+  - libcurl=7.71.1=h9bf37e3_8
+  - libcxx=11.0.0=h4c3b8ed_1
+  - libedit=3.1.20191231=h0678c8f_2
+  - libev=4.33=haf1e3a3_1
+  - libffi=3.3=h046ec9c_2
+  - libgfortran=5.0.0=h7cc5361_13
+  - libgfortran5=9.3.0=h7cc5361_13
   - liblapack=3.9.0=3_openblas
-  - libopenblas=0.3.12=openmp_h63d9170_1
+  - libnghttp2=1.41.0=h7580e61_2
+  - libopenblas=0.3.12=openmp_h54245bb_1
+  - libssh2=1.9.0=h8a08a2b_5
   - llvm-openmp=11.0.0=h73239a0_1
-  - ncurses=6.2=h0a44026_1
+  - ncurses=6.2=h2e338ed_4
   - nibabel=3.2.1=pyhd8ed1ab_0
   - nilearn=0.7.0=pyhd8ed1ab_0
-  - numpy=1.19.4=py38h6ced74f_2
+  - numpy=1.19.4=py37hec87de9_2
   - openssl=1.1.1i=h35c211d_0
   - packaging=20.8=pyhd3deb0d_0
-  - pandas=1.0.1=py38h4f17bb1_0
-  - pip=20.3.3=py38hecd8cb5_0
+  - pandas=1.1.5=py37h010c265_0
+  - pip=20.3.3=pyhd8ed1ab_0
   - pycparser=2.20=pyh9f0ad1d_2
   - pydicom=2.1.2=pyhd3deb0d_0
   - pyopenssl=20.0.1=pyhd8ed1ab_0
   - pyparsing=2.4.7=pyh9f0ad1d_0
-  - pysocks=1.7.1=py38h5347e94_2
-  - python=3.8.5=h26836e1_1
+  - pysocks=1.7.1=py37h2987424_2
+  - python=3.7.9=h6c3b2c9_0_cpython
   - python-dateutil=2.8.1=py_0
-  - python_abi=3.8=1_cp38
+  - python_abi=3.7=1_cp37m
   - pytz=2020.4=pyhd8ed1ab_0
-  - readline=8.0=h1de35cc_0
+  - readline=8.0=h0678c8f_2
   - requests=2.25.1=pyhd3deb0d_0
-  - scikit-learn=0.22.1=py38h3dc85bc_1
-  - scipy=1.4.1=py38h38b60c6_3
-  - setuptools=51.0.0=py38hecd8cb5_2
+  - scikit-learn=0.23.2=py37ha0250bc_3
+  - scipy=1.5.3=py37h821cff1_0
+  - setuptools=49.6.0=py37h2987424_2
   - six=1.15.0=pyh9f0ad1d_0
-  - sqlite=3.33.0=hffcf06c_0
-  - tk=8.6.10=hb0a8c7a_0
+  - sqlite=3.34.0=h17101e1_0
+  - threadpoolctl=2.1.0=pyh5ca1d4c_0
+  - tk=8.6.10=h0419947_1
   - urllib3=1.26.2=pyhd8ed1ab_0
-  - wheel=0.36.2=pyhd3eb1b0_0
-  - xz=5.2.5=h1de35cc_0
-  - zlib=1.2.11=h1de35cc_3
+  - wheel=0.36.2=pyhd3deb0d_0
+  - xz=5.2.5=haf1e3a3_1
+  - zlib=1.2.11=h7795811_1010
 prefix: /Users/alexander/opt/anaconda3/envs/mask_children
