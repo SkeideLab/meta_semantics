@@ -4,5 +4,7 @@ channels:
 dependencies:
   - python=3.7
   - nilearn==0.7.0
-  - jupyter
+  - jupyter==1.0.0
+  - pip:
+      - nimare=0.0.3
 prefix: /Users/alexander/opt/anaconda3/envs/mask_children
