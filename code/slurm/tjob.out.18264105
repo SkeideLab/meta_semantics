@@ -1,0 +1,28 @@
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: aenge(42990)
+Job name:  mask_children
+Node list: dra[0161-0192]
+Job start: Fri Dec 25 15:47:03 CET 2020
+Job end:   Fri Dec 25 15:47:18 CET 2020
+Work dir:  /ptmp/aenge/mask_children/code/
+Command:   /draco/ptmp/aenge/mask_children/code/run.sh
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+       JobID    JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode 
+------------ ---------- ------ ------ ------ ------------ ------------ ---------- -------- 
+18264105     mask_chil+     32          2048                             00:00:15     15:0 
+18264105.0      ipython     32   1024   1024       28.78M       10.90M   00:00:14     0:15 
+  
+Maximum memory per node: 0.94304 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 0 %
+     
