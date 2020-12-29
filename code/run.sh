@@ -22,5 +22,6 @@
 
 # Run the program:
 module load anaconda
-srun jupyter nbconvert --to=notebook --ExecutePreprocessor.kernel_name=python3 \
---ExecutePreprocessor.timeout=-1 --execute nb01_ale.ipynb "$SLURM_CPUS_PER_TASK"
+srun jupyter nbconvert --to=notebook --execute --inplace \
+    --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.timeout=-1 \
+    nb01_ale.ipynb

@@ -5,9 +5,9 @@ Global information about the job:
   
 Job owner: aenge(42990)
 Job name:  mask_children
-Node list: dra[0161-0192]
-Job start: Sun Dec 27 00:57:28 CET 2020
-Job end:   Sun Dec 27 00:57:40 CET 2020
+Node list: dra0232
+Job start: Tue Dec 29 14:31:44 CET 2020
+Job end:   Tue Dec 29 14:40:03 CET 2020
 Work dir:  /ptmp/aenge/mask_children/code/
 Command:   /draco/ptmp/aenge/mask_children/code/run.sh
   
@@ -20,9 +20,9 @@ tasks of the per-task memory high-water marks; cf. "man sacct"):
   
        JobID    JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode 
 ------------ ---------- ------ ------ ------ ------------ ------------ ---------- -------- 
-18267370     mask_chil+     32          2048                             00:00:12     15:0 
-18267370.0      jupyter     32   1024   1024       87.27M        8.17M   00:00:11     0:15 
+18308966     mask_chil+      1            64                             00:08:19      1:0 
+18308966.0      jupyter      1      1     32    14795.87M    14795.87M   00:08:16      1:0 
   
-Maximum memory per node: 2.85952 GB (defined as MaxRSS*Ntasks/NNodes)
-CPU utilization: 8.3 %
+Maximum memory per node: 15.151 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 2.6 %
      
