@@ -22,6 +22,8 @@
 
 # Run the program:
 module load anaconda
-srun jupyter nbconvert --to=notebook --execute --inplace \
-    --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.timeout=-1 \
-    nb01_ale.ipynb
+JUPYTER_PARAMS=(--to=notebook --execute --inplace \
+    --ExecutePreprocessor.kernel_name=python3 \
+    --ExecutePreprocessor.timeout=-1)
+# srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb01_ale.ipynb
+srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb02_subtraction.ipynb

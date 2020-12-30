@@ -12,5 +12,4 @@ dependencies:
   - pip:
       - duecredit==0.8.0
       - nimare==0.0.3
-      - multiprocess==0.70.11.1
 prefix: /Users/alexander/opt/anaconda3/envs/mask_children
