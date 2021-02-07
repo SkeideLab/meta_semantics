@@ -2,7 +2,6 @@ name: mask_children
 channels:
   - conda-forge
 dependencies:
-  - openjdk==11.0.8
   - python==3.7
   - pandas==1.1.5
   - numpy==1.19.4
@@ -11,5 +10,5 @@ dependencies:
   - pip==20.3.3
   - pip:
       - duecredit==0.8.0
-      - nimare==0.0.3
+      - nimare==0.0.5
 prefix: /Users/alexander/opt/anaconda3/envs/mask_children

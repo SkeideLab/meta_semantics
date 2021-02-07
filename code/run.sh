@@ -13,17 +13,16 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
-#
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=enge@cbs.mpg.de
-#
 # Wall clock limit:
 #SBATCH --time=24:00:00
+# E-mail notifications
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=enge@cbs.mpg.de
 
 # Run the program:
 module load anaconda
 JUPYTER_PARAMS=(--to=notebook --execute --inplace \
     --ExecutePreprocessor.kernel_name=python3 \
     --ExecutePreprocessor.timeout=-1)
-# srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb01_ale.ipynb
+srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb01_ale.ipynb
 srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb02_subtraction.ipynb
