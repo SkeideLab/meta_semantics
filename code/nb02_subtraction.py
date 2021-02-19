@@ -13,17 +13,13 @@
 #     name: pycharm-2e5bb5f0
 # ---
 
-# %% [markdown] pycharm={"name": "#%% md\n"}
+# %% [markdown]
 # # Notebook #02: Subtraction Analyses
 
-# %% pycharm={"name": "#%%\n"}
-# Import modules
-from nilearn import image, plotting, reporting
-
-
+# %%
 # Define function for performing a single ALE subtraction analysis
 def run_subtraction(text_file1, text_file2, voxel_thresh, cluster_size, n_iters, output_dir):
-    print('SUBTRACTION ANALYSIS FOR "' + text_file1 + '" MINUS "' +
+    print('SUBTRACTION ANALYSIS FOR "' + text_file1 + '" VS. "' +
           text_file2 + '" WITH ' + str(n_iters) + ' PERMUTATIONS')
     # Read Sleuth files
     from nimare import io, meta
@@ -50,42 +46,45 @@ def run_subtraction(text_file1, text_file2, voxel_thresh, cluster_size, n_iters,
     save(img_z_thresh, filename=prefix + '_z_tresholded.nii.gz')
 
 
-# Create dictionary for which subtraction analyses to run
-subtrs = dict({'../results/ale/knowledge.txt': '../results/ale/nknowledge.txt'})#,
-               # '../results/ale/lexical.txt': '../results/ale/nlexical.txt',
-               # '../results/ale/objects.txt': '../results/ale/nobjects.txt',
-               # '../results/ale/older.txt': '../results/ale/younger.txt'})
+if __name__ == "__main__":
 
-# Use the function to perform the actual analyses
-for key, value in zip(subtrs.keys(), subtrs.values()):
-    run_subtraction(text_file1=key, text_file2=value, voxel_thresh=0.01, cluster_size=200,
-                    n_iters=10000, output_dir='../results/subtraction')
-    run_subtraction(text_file1=key, text_file2=value, voxel_thresh=0.01, cluster_size=200,
-                    n_iters=10000, output_dir='../results/subtraction2')
+    # Create dictionary for which subtraction analyses to run
+    subtrs = dict({'../results/ale/knowledge.txt': '../results/ale/nknowledge.txt'})#,
+                   # '../results/ale/lexical.txt': '../results/ale/nlexical.txt',
+                   # '../results/ale/objects.txt': '../results/ale/nobjects.txt',
+                   # '../results/ale/older.txt': '../results/ale/younger.txt'})
 
-# %% pycharm={"name": "#%%\n"}
-# Glass brain example
-img = image.load_img('../results/subtraction/knowledge_minus_nknowledge_z_tresholded.nii.gz')
-p = plotting.plot_glass_brain(img, display_mode='lyrz')
+    # Use the function to perform the actual analyses
+    for key, value in zip(subtrs.keys(), subtrs.values()):
+        run_subtraction(text_file1=key, text_file2=value, voxel_thresh=0.01, cluster_size=200,
+                        n_iters=10000, output_dir='../results/subtraction')
+        run_subtraction(text_file1=key, text_file2=value, voxel_thresh=0.01, cluster_size=200,
+                        n_iters=10000, output_dir='../results/subtraction2')
 
-# Cluster table example
-t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-t.style.format({'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
+# %%
+if __name__ == "__main__":
 
-# %% pycharm={"name": "#%%\n"}
-# Glass brain example
-img = image.load_img('../results/subtraction2/knowledge_minus_nknowledge_z_tresholded.nii.gz')
-p1 = plotting.plot_glass_brain(img, display_mode='lyrz')
+    # Import modules
+    from nilearn import image, plotting, reporting
 
-# Cluster table example
-t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-t.style.format({'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
+    # Glass brain example
+    img = image.load_img('../results/subtraction/knowledge_minus_nknowledge_z_tresholded.nii.gz')
+    p = plotting.plot_glass_brain(img, display_mode='lyrz', colorbar=True)
 
-# %% pycharm={"name": "#%%\n"}
-# Glass brain example
-img = image.load_img('../results/subtraction3/knowledge_minus_nknowledge_z_tresholded.nii.gz')
-p2 = plotting.plot_glass_brain(img, display_mode='lyrz')
+    # Cluster table example
+    t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
+    t.style.format({'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
 
-# Cluster table example
-t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-t.style.format({'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
+# %%
+if __name__ == "__main__":
+
+    # Import modules
+    from nilearn import image, plotting, reporting
+
+    # Glass brain example
+    img = image.load_img('../results/subtraction2/knowledge_minus_nknowledge_z_tresholded.nii.gz')
+    p1 = plotting.plot_glass_brain(img, display_mode='lyrz')
+
+    # Cluster table example
+    t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
+    t.style.format({'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
