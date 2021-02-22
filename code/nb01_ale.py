@@ -22,11 +22,11 @@
 
 # %%
 if __name__ == "__main__":
-
     # Import modules
     import pandas as pd
     import numpy as np
     from nimare.transforms import tal2mni
+    from os import makedirs
     from nilearn import image, plotting, reporting
 
     # Read table of included experiments
@@ -41,7 +41,6 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-
     # Fill in mean age if missing (replace with the midpoint of min and max)
     exps['age_mean'] = [np.mean([age_min, age_max])
                         if np.isnan(age_mean) else age_mean
@@ -56,7 +55,6 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-
     # Read peak coordinates from CSV files
     exps['fname'] = '../data/foci/' + exps['experiment'] + '.csv'
     exps['foci'] = [np.genfromtxt(fname, delimiter=',', skip_header=1)
@@ -73,6 +71,7 @@ if __name__ == "__main__":
                         for foci, foci_space in zip(exps['foci'], exps['foci_space'])]
 
     # Backup for reuse in other notebooks
+    makedirs('../results/', exist_ok=True)
     exps.to_pickle('../results/exps.pickle')
 
 
@@ -163,13 +162,12 @@ if __name__ == "__main__":
 
 # %%
 if __name__ == "__main__":
-
     # Glass brain example
     img = image.load_img('../results/ale/all_z_thresholded.nii.gz')
-    img = image.load_img('../results/subtraction/older_minus_younger_z.nii.gz')
     p = plotting.plot_glass_brain(img, display_mode='lyrz', colorbar=True)
 
     # Cluster table example
     t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-    t.style.format({'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
+    t.style.format(
+        {'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
 
