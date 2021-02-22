@@ -26,11 +26,14 @@
 # Run the program:
 export NUMEXPR_MAX_THREADS=64
 module load anaconda
+conda activate mask_children
+echo which python
 JUPYTER_PARAMS=(--to=notebook --execute --inplace \
     --ExecutePreprocessor.kernel_name=python3 \
     --ExecutePreprocessor.timeout=-1)
 #srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb01_ale.ipynb
 #srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb02_subtraction.ipynb
-srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb03_adults.ipynb
+#srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb03_adults.ipynb
+srun jupyter nbconvert "${JUPYTER_PARAMS[@]}" nb04_sdm.ipynb
 
-#srun python3 nb02_subtraction.py "$SLURM_CPUS_PER_TASK"
+#srun python3 nb04_sdm.py "$SLURM_CPUS_PER_TASK"
