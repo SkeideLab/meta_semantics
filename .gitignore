@@ -2,3 +2,4 @@
 code/slurm/
 software/
 results/
+*.sif
