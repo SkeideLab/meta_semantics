@@ -1,4 +1,8 @@
+.idea/
 .vscode/
+code/__pycache__/
+code/.ipynb_checkpoints/
 code/slurm/
 software/
 results/
+.DS_Store
