@@ -6,3 +6,4 @@ code/slurm/
 software/
 results/
 .DS_Store
+*.sif

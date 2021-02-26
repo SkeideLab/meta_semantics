@@ -4,7 +4,7 @@
 #SBATCH -o /ptmp/aenge/mask_children/code/slurm/tjob.out.%j
 #SBATCH -e /ptmp/aenge/mask_children/code/slurm/tjob.err.%j
 # Initial working directory:
-#SBATCH -D /ptmp/aenge/mask_children/code/
+#SBATCH -D /ptmp/aenge/mask_children/
 # Job Name:
 #SBATCH -J mask_children_sing
 # Queue (Partition):
@@ -22,12 +22,13 @@
 #SBATCH --mail-user=enge@cbs.mpg.de
 
 # Run the program:
-module load singularity
-singularity exec \
-    --no-home \
-    --bind /ptmp/aenge/mask_children:/home/mask_children \
-    ../mask_children_latest.sif \
-    /home/mask_children/code/sing_inside.sh
 
-# For debugging in the terminal:
+# Pull the docker image, if necessary
+module load singularity
+
+# Run the shell script (which executes the notebooks) in the container
+singularity exec --no-home --bind /ptmp/aenge/mask_children:/home/mask_children \
+    mask_children_latest.sif /home/mask_children/code/runall.sh
+
+# For debugging in the terminal
 #singularity shell --no-home --bind /ptmp/aenge/mask_children:/home/mask_children mask_children_latest.sif
