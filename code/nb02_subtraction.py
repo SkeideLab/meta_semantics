@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -6,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.10.0
+#       jupytext_version: 1.10.2
 #   kernelspec:
 #     display_name: PyCharm (mask_children)
 #     language: python
@@ -68,7 +69,7 @@ def dual_thresholding(
     return img_z_thresh
 
 
-#%%
+# %%
 # Define function for performing a single ALE subtraction analysis
 def run_subtraction(
     text_file1, text_file2, voxel_thresh, cluster_size, n_iters, output_dir
@@ -163,7 +164,7 @@ if __name__ == "__main__":
 
     # Cluster table example
     t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-    t.style.format(™™
+    t.style.format(
         {"X": "{:.0f}", "Y": "{:.0f}", "Z": "{:.0f}", "Peak Stat": "{:.2f}"}
     ).hide_index()
     print(t)

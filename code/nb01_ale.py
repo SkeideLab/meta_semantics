@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     # Read table of included experiments
     exps = pd.read_csv(
-        filepath="../data/literature_search/included.csv",
+        "../data/literature_search/included.csv",
         na_filter=False,
         converters={"age_mean": float, "age_min": float, "age_max": float},
     )
