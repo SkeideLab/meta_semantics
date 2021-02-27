@@ -22,15 +22,16 @@ from scipy import stats
 from os import makedirs
 from multiprocessing import cpu_count
 from subprocess import run
+from nilearn import image, plotting, reporting
 
 # %%
 # If necessary, unzip the SDM software
 if not glob('../software/*/sdm'):
     import tarfile
-    tar_sdm_path = glob('../software/Sdm*.tar.gz')[0]
-    tar_sdm = tarfile.open(tar_sdm_path)
-    tar_sdm.extractall('../software')
-    tar_sdm.close()
+    sdm_tar_path = glob('../software/Sdm*.tar.gz')[0]
+    sdm_tar = tarfile.open(sdm_tar_path)
+    sdm_tar.extractall('../software')
+    sdm_tar.close()
 
 # %%
 # Read table of experiments from ALE analysis
@@ -49,18 +50,19 @@ exps['tstats'] = [
     in zip(exps['foci'], exps['foci_stat'], exps['n'])
 ]
 
-# Replace infinite t-values with the maximum t-value of the experiment
-exps['tstats'] = [np.where(np.isinf(tstats), np.max(tstats[tstats != np.inf]), tstats)
-                  for tstats in exps['tstats']]
+# Replace missing or unrealistically high t-values with [p]ositive
+exps['tstats_corr'] = [np.where(tstats < 50, tstats, 'p')
+                       for tstats in exps['tstats']]
 
-# Replace missing t-values with [p]ositive
-exps['tstats'] = [np.where(np.isnan(tstats), 'p', tstats)
-                  for tstats in exps['tstats']]
+# How many of these do we have (absolute number and percentage)?
+tstats_explode = np.array(exps['tstats'].explode(), dtype='float')
+sum(np.isnan(tstats_explode)), sum(np.isnan(tstats_explode)) / tstats_explode.size
+sum(tstats_explode > 50), sum(tstats_explode > 50) / tstats_explode.size
 
 # Add new test statistics back to the foci
-exps['foci_sdm'] = [np.c_[foci, tstats]
-                    for foci, tstats
-                    in zip(exps['foci_mni'], exps['tstats'])]
+exps['foci_sdm'] = [np.c_[foci, tstats_corr]
+                    for foci, tstats_corr
+                    in zip(exps['foci_mni'], exps['tstats_corr'])]
 
 # Write the foci of each experiment to a text file
 makedirs('../results/sdm/', exist_ok=True)
@@ -134,50 +136,55 @@ exps_sdm[['study',
           'software']].to_csv('../results/sdm/sdm_table.txt', sep='\t', index=False)
 
 # %%
-# Store path of the SDM binary
-fname_sdm = "../" + glob('../software/*/sdm')[0]
+# Store path of the SDM binary and the working directory
+sdm_bin = "../" + glob('../software/*/sdm')[0]
+sdm_cwd = '../results/sdm/'
 
 # Specify no. of threads to use, no. of mean imputations, and no of. cFWE permutations
 n_threads = cpu_count() - 1
 n_imps = 50
 n_perms = 1000
 
-# Run preprocessing (specs: template, anisotropy, FWHM, mask, voxel size)
-run(fname_sdm + ' pp gray_matter,1.0,20,gray_matter,2',
-    shell=True, cwd='../results/sdm/')
+# Specify statistical thresholds
+thresh_voxel_p = 0.001
+thresh_cluster_k = 50
 
 # %%
-# Run mean analysis without covariates (specs: imputations, threads)
-run(fname_sdm + ' mean=mi ' + str(n_imps) + ',,,' + str(n_threads),
-    shell=True, cwd='../results/sdm/')
+# Run preprocessing (specs: template, anisotropy, FWHM, mask, voxel size)
+call_pp = sdm_bin + ' pp gray_matter,1.0,20,gray_matter,2'
+run(call_pp, shell=True, cwd=sdm_cwd)
 
-# Run mean analysis with covariates (specs: imputations, covariates, threads)
-run(fname_sdm + ' covs=mi 50,age_mean_c+modality_pres+modality_resp+software,,,' + str(n_threads),
-    shell=True, cwd='../results/sdm/')
+# %%
+# Run mean analysis without covariates
+call_mod1 = sdm_bin + ' mod1=mi ' + str(n_imps) + ',,,' + str(n_threads)
+run(call_mod1, shell=True, cwd=sdm_cwd)
 
-# Run linear model for the influence of age (specs: variables, hypotheses, imputations, threads)
-run(fname_sdm + ' age=mi_lm age_mean_c+age_mean_c_2,0+1+1+0+0,50,,' + str(n_threads),
-    shell=True, cwd='../results/sdm/')
+# Run mean analysis with covariates
+str_covs = 'age_mean_c+modality_pres+modality_resp+software'
+call_mod2 = sdm_bin + ' mod2=mi ' + str(n_imps) + ',' + str_covs + ',,' + str(n_threads)
+run(call_mod2, shell=True, cwd=sdm_cwd)
+
+# Run linear model for the influence of age
+str_lin = 'age_mean_c+age_mean_c_2,0+1+1+0+0'
+call_mod3 = sdm_bin + ' mod3=mi_lm ' + str_lin + ',' + str(n_imps) + ',,' + str(n_threads)
+run(call_mod3, shell=True, cwd=sdm_cwd)
 
 # %%
 # Family-wise error (FWE) correction for all models
-_ = [run(fname_sdm + ' perm ' + mod + ',' + str(n_perms) + ',' + str(n_threads),
-         shell=True, cwd='../results/sdm/')
-     for mod in ['mean', 'covs', 'age']]
+_ = [run(sdm_bin + ' perm ' + mod + ',' + str(n_perms) + ',' + str(n_threads),
+         shell=True, cwd=sdm_cwd)
+     for mod in ['mod1', 'mod2', 'mod3']]
 
 # %%
-# Thresholding for all models
-thresh_voxel_p = 0.001
-thresh_cluster_k = 50
-_ = [run(fname_sdm + ' threshold analysis_' + mod + '/corrp_voxel, analysis_' + mod +
-         '/' + mod + '_z, ' + str(thresh_voxel_p) +
-         ', ' + str(thresh_cluster_k),
-         shell=True, cwd='../results/sdm/')
-     for mod in ['mean', 'covs', 'age']]
+# Thresholding for all model
+_ = [run(sdm_bin + ' threshold analysis_' + mod + '/corrp_voxel, analysis_' + mod +
+         '/' + mod + '_z,' + str(thresh_voxel_p) + ',' + str(thresh_cluster_k),
+         shell=True, cwd=sdm_cwd)
+     for mod in ['mod1', 'mod2', 'mod3']]
 
 # %%
 # Glass brain example
-img = image.load_img('../results/sdm/analysis_mean/mean_z_voxelCorrected_p_0.00100_50_neg.nii.gz')
+img = image.load_img('../results/sdm/analysis_mod3/mod3_z_voxelCorrected_p_0.00100_50.nii.gz')
 p = plotting.plot_glass_brain(img, display_mode='lyrz', colorbar=True)
 
 # Cluster table example
