@@ -18,7 +18,9 @@
 
 # %%
 # Define helper function for dual threshold based on voxel-p and cluster size (in mm3)
-def dual_thresholding(img_z, voxel_thresh, cluster_size, two_sided=True, filename=None):
+def dual_thresholding(
+    stat_img, voxel_thresh, cluster_size, two_sided=True, fname_out=None
+):
 
     from nilearn import glm, image
     import numpy as np
@@ -36,7 +38,7 @@ def dual_thresholding(img_z, voxel_thresh, cluster_size, two_sided=True, filenam
 
     # Actual thresholding
     img_z_thresh, thresh_z = glm.threshold_stats_img(
-        stat_img=img_z,
+        stat_img=stat_img,
         alpha=voxel_thresh,
         height_control="fpr",
         cluster_threshold=k,
@@ -57,11 +59,11 @@ def dual_thresholding(img_z, voxel_thresh, cluster_size, two_sided=True, filenam
     )
 
     # If requested, save the thresholded map
-    if filename:
+    if fname_out:
 
         from nibabel import save
 
-        save(img_z_thresh, filename=filename)
+        save(img_z_thresh, filename=fname_out)
 
     return img_z_thresh
 
@@ -109,11 +111,11 @@ def run_subtraction(
 
     # Create and save thresholded z-map
     dual_thresholding(
-        img_z=img_z,
+        stat_img=img_z,
         voxel_thresh=voxel_thresh,
         cluster_size=cluster_size,
         two_sided=True,
-        filename=prefix + "_z_tresholded.nii.gz",
+        fname_out=prefix + "_z_thresh.nii.gz",
     )
 
 
@@ -155,13 +157,13 @@ if __name__ == "__main__":
 
     # Glass brain example
     img = image.load_img(
-        "../results/subtraction/knowledge_minus_nknowledge_z_tresholded.nii.gz"
+        "../results/subtraction/knowledge_minus_nknowledge_z_tresh.nii.gz"
     )
     p = plotting.plot_glass_brain(img, display_mode="lyrz", vmax=4, colorbar=True)
 
     # Cluster table example
     t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-    t.style.format(
+    t.style.format(™™
         {"X": "{:.0f}", "Y": "{:.0f}", "Z": "{:.0f}", "Peak Stat": "{:.2f}"}
     ).hide_index()
     print(t)
@@ -171,7 +173,7 @@ if __name__ == "__main__":
 
     # Glass brain example
     img = image.load_img(
-        "../results/subtraction2/knowledge_minus_nknowledge_z_tresholded.nii.gz"
+        "../results/subtraction2/knowledge_minus_nknowledge_z_tresh.nii.gz"
     )
     p1 = plotting.plot_glass_brain(img, display_mode="lyrz", vmax=4, colorbar=True)
 

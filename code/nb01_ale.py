@@ -137,29 +137,33 @@ if __name__ == "__main__":
 # %%
 # Define function for performing a single ALE analysis with FWE correction
 def run_ale(text_file, voxel_thresh, cluster_thresh, n_iters, output_dir):
-    print('ALE ANALYSIS FOR "' + text_file + '" WITH ' + str(n_iters) + " PERMUTATIONS")
-    # Run ALE
+
     from nimare import io, meta, correct
-
-    dset = io.convert_sleuth_to_dataset(text_file=text_file)
-    ale = meta.cbma.ALE()
-    res = ale.fit(dset)
-    # Perform FWE correction
-    corr = correct.FWECorrector(
-        method="montecarlo", voxel_thresh=voxel_thresh, n_iters=n_iters
-    )
-    cres = corr.transform(result=res)
-    # Save maps to ouput directory
     from os.path import basename
-
-    prefix = basename(text_file).replace(".txt", "")
-    res.save_maps(output_dir=output_dir, prefix=prefix)
-    cres.save_maps(output_dir=output_dir, prefix=prefix)
-    # Create cluster-level thresholded Z- and ALE-maps
     from scipy.stats import norm
     from nilearn.image import threshold_img, math_img
     from nibabel import save
 
+    # Print what we are going to do
+    print('ALE ANALYSIS FOR "' + text_file + '" WITH ' + str(n_iters) + " PERMUTATIONS")
+
+    # Actually perform the ALE
+    dset = io.convert_sleuth_to_dataset(text_file=text_file)
+    ale = meta.cbma.ALE()
+    res = ale.fit(dset)
+
+    # Perform the FWE correction
+    corr = correct.FWECorrector(
+        method="montecarlo", voxel_thresh=voxel_thresh, n_iters=n_iters
+    )
+    cres = corr.transform(result=res)
+
+    # Save maps to ouput directory
+    prefix = basename(text_file).replace(".txt", "")
+    res.save_maps(output_dir=output_dir, prefix=prefix)
+    cres.save_maps(output_dir=output_dir, prefix=prefix)
+
+    # Create cluster-level thresholded Z- and ALE-maps
     img_clust = cres.get_map("z_level-cluster_corr-FWE_method-montecarlo")
     img_z = cres.get_map("z")
     img_ale = cres.get_map("stat")
@@ -168,10 +172,12 @@ def run_ale(text_file, voxel_thresh, cluster_thresh, n_iters, output_dir):
     img_mask = math_img("np.where(img > 0, 1, 0)", img=img_clust_thresh)
     img_z_thresh = math_img("img1 * img2", img1=img_mask, img2=img_z)
     img_ale_thresh = math_img("img1 * img2", img1=img_mask, img2=img_ale)
-    save(img=img_z_thresh, filename=output_dir + "/" + prefix + "_z_thresholded.nii.gz")
+
+    # Save the maps to the output folder
+    save(img=img_z_thresh, filename=output_dir + "/" + prefix + "_z_thresh.nii.gz")
     save(
         img=img_ale_thresh,
-        filename=output_dir + "/" + prefix + "_stat_thresholded.nii.gz",
+        filename=output_dir + "/" + prefix + "_stat_thresh.nii.gz",
     )
 
 
@@ -195,7 +201,7 @@ if __name__ == "__main__":
 if __name__ == "__main__":
 
     # Glass brain example
-    img = image.load_img("../results/ale/all_z_thresholded.nii.gz")
+    img = image.load_img("../results/ale/all_z_thresh.nii.gz")
     p = plotting.plot_glass_brain(img, display_mode="lyrz", colorbar=True)
 
     # Cluster table example
