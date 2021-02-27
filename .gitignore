@@ -1,4 +1,5 @@
 .vscode/
+code/__pycache__/
 code/slurm/
 software/
 results/
