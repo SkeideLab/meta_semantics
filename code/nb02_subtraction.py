@@ -20,7 +20,7 @@
 # %%
 # Define helper function for dual threshold based on voxel-p and cluster size (in mm3)
 def dual_thresholding(
-    stat_img, voxel_thresh, cluster_size, two_sided=True, fname_out=None
+    img_z, voxel_thresh, cluster_size, two_sided=True, fname_out=None
 ):
 
     from nilearn import glm, image
@@ -39,7 +39,7 @@ def dual_thresholding(
 
     # Actual thresholding
     img_z_thresh, thresh_z = glm.threshold_stats_img(
-        stat_img=stat_img,
+        stat_img=img_z,
         alpha=voxel_thresh,
         height_control="fpr",
         cluster_threshold=k,
@@ -112,7 +112,7 @@ def run_subtraction(
 
     # Create and save thresholded z-map
     dual_thresholding(
-        stat_img=img_z,
+        img_z=img_z,
         voxel_thresh=voxel_thresh,
         cluster_size=cluster_size,
         two_sided=True,
