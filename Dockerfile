@@ -1,5 +1,12 @@
 FROM neurostuff/nimare:latest
 
+# Change user and give them the necessary permissions
+# (see https://mybinder.readthedocs.io/en/latest/tutorials/dockerfile.html)
+ARG NB_USER=neuro
+ENV HOME /home/
+RUN chown -R ${NB_USER} ${HOME}
+USER ${NB_USER}
+
 # Activate the conda environment
 ENV PATH=/opt/miniconda-latest/envs/nimare/bin:$PATH \
     CONDA_DEFAULT_ENV=nimare \
