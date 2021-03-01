@@ -1,5 +1,7 @@
 .git/
 .idea/
 .vscode/
+code/*.ipynb
+code/slurm/
 results/
-software/SdmPsiGui-linux64-v6.21/
+software/

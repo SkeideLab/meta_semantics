@@ -63,9 +63,9 @@ if __name__ == "__main__":
 if __name__ == "__main__":
 
     # Read peak coordinates from CSV files
-    exps["fname"] = "../data/foci/" + exps["experiment"] + ".csv"
+    exps["csv"] = "../data/foci/" + exps["experiment"] + ".csv"
     exps["foci"] = [
-        np.genfromtxt(fname, delimiter=",", skip_header=1) for fname in exps["fname"]
+        np.genfromtxt(csv, delimiter=",", skip_header=1) for csv in exps["csv"]
     ]
 
     # Make sure all foci are stored as 2D NumPy array
@@ -90,21 +90,22 @@ if __name__ == "__main__":
 
 # %%
 # Define function to write a certain subset of the experiments to a Sleuth text file
-def write_foci(fname, df, query):
+def write_foci(text_file, df, query):
 
     from os import makedirs, path
+    from numpy import savetxt
 
-    makedirs(path.dirname(fname), exist_ok=True)
-    f = open(file=fname, mode="w")
+    makedirs(path.dirname(text_file), exist_ok=True)
+    f = open(file=text_file, mode="w")
     f.write("// Reference=MNI\n")
     f.close()
-    f = open(file=fname, mode="a")
+    f = open(file=text_file, mode="a")
     df_sub = df.query(query)
     for experiment, n, foci_mni in zip(
         df_sub["experiment"], df_sub["n"], df_sub["foci_mni"]
     ):
         f.write("// " + experiment + "\n// Subjects=" + str(n) + "\n")
-        np.savetxt(f, foci_mni, fmt="%1.3f", delimiter="\t")
+        savetxt(f, foci_mni, fmt="%1.3f", delimiter="\t")
         f.write("\n")
     f.close()
 
@@ -128,7 +129,7 @@ if __name__ == "__main__":
 
     # Use the function to write the Sleuth files
     for key, value in zip(ales.keys(), ales.values()):
-        write_foci(fname=key, df=exps, query=value)
+        write_foci(text_file=key, df=exps, query=value)
 
 
 # %% [markdown]
@@ -145,7 +146,7 @@ def run_ale(text_file, voxel_thresh, cluster_thresh, n_iters, output_dir):
     from nibabel import save
 
     # Print what we are going to do
-    print('ALE ANALYSIS FOR "' + text_file + '" WITH ' + str(n_iters) + " PERMUTATIONS")
+    print("ALE ANALYSIS FOR '" + text_file + "' WITH " + str(n_iters) + " PERMUTATIONS")
 
     # Actually perform the ALE
     dset = io.convert_sleuth_to_dataset(text_file=text_file)

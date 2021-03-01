@@ -3,6 +3,7 @@
 .vscode/
 code/.ipynb_checkpoints/
 code/__pycache__/
+code/*.ipynb
 code/slurm/
 results/
 software/

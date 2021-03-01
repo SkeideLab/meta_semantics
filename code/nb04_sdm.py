@@ -26,17 +26,6 @@ from nb02_subtraction import dual_thresholding
 from nilearn import plotting, reporting
 
 # %%
-# If necessary, unzip the SDM software
-if not glob("../software/*/sdm"):
-
-    import tarfile
-
-    sdm_tar_path = glob("../software/Sdm*.tar.gz")[0]
-    sdm_tar = tarfile.open(sdm_tar_path)
-    sdm_tar.extractall("../software")
-    sdm_tar.close()
-
-# %%
 # Read table of experiments from ALE analysis
 exps = pd.read_pickle("../results/exps.pickle")
 
