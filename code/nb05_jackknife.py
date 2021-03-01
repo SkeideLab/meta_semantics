@@ -44,7 +44,7 @@ _ = [
     for text_file, exp in zip(text_files, exps["experiment"])
 ]
 
-#%%
+# %%
 
 # Perform all of these ALEs
 _ = [
@@ -58,7 +58,7 @@ _ = [
     for text_file in text_files
 ]
 
-#%%
+# %%
 
 # Load all the thresholded maps we've created
 img_files = [text_file.replace(".txt", "_z_thresh.nii.gz") for text_file in text_files]

@@ -24,6 +24,6 @@
 # Run the program:
 module load singularity
 srun singularity exec \
-    --no-home --pwd /home/workspaces/mask_children \
+    --no-home --pwd /home/workspaces/mask_children/code \
     --bind /ptmp/aenge/mask_children:/home/workspaces/mask_children \
     mask_children_latest.sif /home/workspaces/mask_children/code/runall.sh
