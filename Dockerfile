@@ -23,7 +23,7 @@ WORKDIR /home/workspaces/mask_children/
 
 # Change user and give them the necessary permissions
 # (see https://mybinder.readthedocs.io/en/latest/tutorials/dockerfile.html)
-ARG NB_USER=neuro
+ENV NB_USER=neuro
 RUN chown -R ${NB_USER} .
 USER ${NB_USER}
 
