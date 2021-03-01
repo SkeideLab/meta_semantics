@@ -252,9 +252,10 @@ fnames_maps = glob("../results/sdm/analysis_mod*/mod*_z_voxelCorrected*0.nii.gz"
 # Apply cluster-level threshold to these maps (SDM only does this for the HTML file)
 imgs = [
     dual_thresholding(
-        stat_img=fname,
+        img_z=fname,
         voxel_thresh=0.001,
         cluster_size=200,
+        two_sided=False,
         fname_out=sub("_voxelCorrected.*0.nii.gz", "_thresh.nii.gz", fname),
     )
     for fname in fnames_maps
