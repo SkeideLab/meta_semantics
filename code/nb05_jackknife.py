@@ -44,7 +44,7 @@ _ = [
     for text_file, exp in zip(text_files, exps["experiment"])
 ]
 
-#%%
+# %%
 
 # Perform all of these ALEs
 _ = [
@@ -58,7 +58,7 @@ _ = [
     for text_file in text_files
 ]
 
-#%%
+# %%
 
 # Load all the thresholded maps we've created
 img_files = [text_file.replace(".txt", "_z_thresh.nii.gz") for text_file in text_files]
@@ -67,9 +67,16 @@ imgs = [image.load_img(img_file) for img_file in img_files]
 # Convert to binary cluster maps
 masks = [image.math_img("np.where(img > 0, 1, 0)", img=img) for img in imgs]
 
-# Compute the averaged jackknife map
+# Compute and save the averaged jackknife map
 img_mean = image.mean_img(masks)
-
-# Save and plot
 save(img_mean, filename="../results/jackknife/jackknife_mean.nii.gz")
-p = plotting.plot_glass_brain(img_mean, colorbar=True)
+
+#%%
+
+# Plot on a glass brain
+p = plotting.plot_glass_brain(None, display_mode="lyrz", colorbar=True)
+p.add_overlay(img_mean, colorbar=True, cmap="RdYlGn", vmin=0, vmax=1)
+
+# Display cluster table
+t = reporting.get_clusters_table(img_mean, stat_threshold=0, min_distance=1000)
+display(t)

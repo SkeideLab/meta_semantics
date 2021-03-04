@@ -22,13 +22,8 @@
 #SBATCH --mail-user=enge@cbs.mpg.de
 
 # Run the program:
-
-# Pull the docker image, if necessary
 module load singularity
-
-# Run the shell script (which executes the notebooks) in the container
-singularity exec --no-home --bind /ptmp/aenge/mask_children:/home/mask_children \
-    mask_children_latest.sif /home/mask_children/code/runall.sh
-
-# For debugging in the terminal
-#singularity shell --no-home --bind /ptmp/aenge/mask_children:/home/mask_children mask_children_latest.sif
+srun singularity exec \
+    --no-home --pwd /home/workspaces/mask_children/code \
+    --bind /ptmp/aenge/mask_children:/home/workspaces/mask_children \
+    mask_children_latest.sif /home/workspaces/mask_children/code/runall.sh
