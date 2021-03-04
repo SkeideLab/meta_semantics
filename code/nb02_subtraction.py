@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -16,6 +15,11 @@
 
 # %% [markdown]
 # # Notebook #02: Subtraction Analyses
+
+# %%
+if __name__ == "__main__":
+
+    from nilearn import image, plotting, reporting
 
 # %%
 # Define helper function for dual threshold based on voxel-p and cluster size (in mm3)
@@ -94,9 +98,10 @@ def run_subtraction(
     dset1 = io.convert_sleuth_to_dataset(text_file=text_file1)
     dset2 = io.convert_sleuth_to_dataset(text_file=text_file2)
 
-    # # Set a random seed to make the results reproducible
-    # from numpy import random
-    # random.seed(1234)
+    # Set a random seed to make the results reproducible
+    from numpy import random
+
+    random.seed(1234)
 
     # Actually perform subtraction analysis
     sub = meta.cbma.ALESubtraction(n_iters=n_iters, low_memory=False)
@@ -126,9 +131,9 @@ if __name__ == "__main__":
     subtrs = dict(
         {
             "../results/ale/knowledge.txt": "../results/ale/nknowledge.txt",
-            # "../results/ale/lexical.txt": "../results/ale/nlexical.txt",
-            # "../results/ale/objects.txt": "../results/ale/nobjects.txt",
-            # "../results/ale/older.txt": "../results/ale/younger.txt",
+            "../results/ale/lexical.txt": "../results/ale/nlexical.txt",
+            "../results/ale/objects.txt": "../results/ale/nobjects.txt",
+            "../results/ale/older.txt": "../results/ale/younger.txt",
         }
     )
 
@@ -139,48 +144,30 @@ if __name__ == "__main__":
             text_file2=value,
             voxel_thresh=0.01,
             cluster_size=200,
-            n_iters=10,
+            n_iters=10000,
             output_dir="../results/subtraction",
         )
-        run_subtraction(
-            text_file1=key,
-            text_file2=value,
-            voxel_thresh=0.01,
-            cluster_size=200,
-            n_iters=10,
-            output_dir="../results/subtraction2",
-        )
-
-# %%
-if __name__ == "__main__":
-
-    from nilearn import image, plotting, reporting
-
-    # Glass brain example
-    img = image.load_img(
-        "../results/subtraction/knowledge_minus_nknowledge_z_tresh.nii.gz"
-    )
-    p = plotting.plot_glass_brain(img, display_mode="lyrz", vmax=4, colorbar=True)
-
-    # Cluster table example
-    t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-    t.style.format(
-        {"X": "{:.0f}", "Y": "{:.0f}", "Z": "{:.0f}", "Peak Stat": "{:.2f}"}
-    ).hide_index()
-    print(t)
 
 # %%
 if __name__ == "__main__":
 
     # Glass brain example
     img = image.load_img(
-        "../results/subtraction2/knowledge_minus_nknowledge_z_tresh.nii.gz"
+        "../results/subtraction/knowledge_minus_nknowledge_z_thresh.nii.gz"
     )
-    p1 = plotting.plot_glass_brain(img, display_mode="lyrz", vmax=4, colorbar=True)
+    p = plotting.plot_glass_brain(
+        img,
+        display_mode="lyrz",
+        colorbar=True,
+        vmax=4,
+        plot_abs=False,
+        symmetric_cbar=True,
+    )
 
     # Cluster table example
-    t = reporting.get_clusters_table(posimg, stat_threshold=0, min_distance=1000)
-    t.style.format(
-        {"X": "{:.0f}", "Y": "{:.0f}", "Z": "{:.0f}", "Peak Stat": "{:.2f}"}
-    ).hide_index()
-    print(t)
+    img_neg = image.math_img("img * -1", img=img)
+    t_pos = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
+    t_neg = reporting.get_clusters_table(img_neg, stat_threshold=0, min_distance=1000)
+    t_neg["Peak Stat"] = t_neg["Peak Stat"] * -1
+    t = t_pos.append(t_neg)
+    display(t)
