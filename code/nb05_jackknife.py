@@ -25,7 +25,8 @@ from nibabel import save
 
 # %%
 # Read table of experiments from ALE analysis
-exps = pd.read_pickle("../results/exps.pickle")
+exps = pd.read_json("../results/exps.json")
+exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
 
 # %%
 

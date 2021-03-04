@@ -85,8 +85,7 @@ if __name__ == "__main__":
 
     # Backup for reuse in other notebooks
     makedirs("../results/", exist_ok=True)
-    exps.to_pickle("../results/exps.pickle")
-
+    exps.to_json("../results/exps.json")
 
 # %% [markdown]
 # We then need to create the Sleuth text files on which can be read by GingerALE to perform the actual ALE meta-analyses. We therefore define a function which takes as its input the experiments DataFrame and a query for subsetting it (if we want to perform the analysis on a subset of all experiments). We can provide this information as a dictionary together with the desired file names for the text files.
