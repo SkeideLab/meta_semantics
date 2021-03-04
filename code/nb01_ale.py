@@ -29,6 +29,9 @@ if __name__ == "__main__":
     from os import makedirs
     from nilearn import image, plotting, reporting
 
+# %%
+if __name__ == "__main__":
+
     # Read table of included experiments
     exps = pd.read_csv(
         "../data/literature_search/included.csv",
@@ -37,7 +40,7 @@ if __name__ == "__main__":
     )
 
     # Let's take a look
-    exps
+    display(exps)
 
 # %% [markdown]
 # Next, we take care of the fact that two experiments don't report the mean age of the children in the article. To nevertheless be able to inlcude these experiments (when assessing the influence of age), we use the midpoint of the age range instead of the mean. We also compute the median accross the mean sample ages of all experiments, which we will use later on to perform a median split analysis (older vs. younger).
@@ -207,6 +210,4 @@ if __name__ == "__main__":
 
     # Cluster table example
     t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-    t.style.format(
-        {"X": "{:.0f}", "Y": "{:.0f}", "Z": "{:.0f}", "Peak Stat": "{:.2f}"}
-    ).hide_index()
+    display(t)

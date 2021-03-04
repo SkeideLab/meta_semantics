@@ -17,7 +17,6 @@
 # # Notebook #03: Comparison to Adult Meta-Analysis
 
 # %%
-# Import modules
 from os import makedirs
 from shutil import copy
 from nimare import io
@@ -28,38 +27,62 @@ from nilearn import image, plotting, reporting
 # %%
 
 # Copy Sleuth text files to the results folder
-makedirs('../results/adults', exist_ok=True)
-copy('../results/ale/all.txt', '../results/adults/children.txt')
-copy('../data/adults/adults.txt', '../results/adults/adults.txt')
+makedirs("../results/adults", exist_ok=True)
+copy("../results/ale/all.txt", "../results/adults/children.txt")
+copy("../data/adults/adults.txt", "../results/adults/adults.txt")
 
 # Read Sleuth text files for children and adults
-dset1 = io.convert_sleuth_to_dataset('../results/adults/children.txt')
-dset2 = io.convert_sleuth_to_dataset('../results/adults/adults.txt')
+dset1 = io.convert_sleuth_to_dataset("../results/adults/children.txt")
+dset2 = io.convert_sleuth_to_dataset("../results/adults/adults.txt")
 
 # %%
 # Perform the ALE analysis for adults
-run_ale(text_file='../results/adults/adults.txt', voxel_thresh=0.001, cluster_thresh=0.01,
-        n_iters=1000, output_dir='../results/adults')
+run_ale(
+    text_file="../results/adults/adults.txt",
+    voxel_thresh=0.001,
+    cluster_thresh=0.01,
+    n_iters=1000,
+    output_dir="../results/adults",
+)
 
 # %%
 # Perform subtraction analysis for children vs. adults
-run_subtraction(text_file1='../results/adults/children.txt',
-                text_file2='../results/adults/adults.txt',
-                voxel_thresh=0.01, cluster_size=200, n_iters=10000,
-                output_dir='../results/adults')
+run_subtraction(
+    text_file1="../results/adults/children.txt",
+    text_file2="../results/adults/adults.txt",
+    voxel_thresh=0.01,
+    cluster_size=200,
+    n_iters=10000,
+    output_dir="../results/adults",
+)
 
 # %%
 
-# Output for adults only
-img = image.load_img('../results/adults/adults_z_thresholded.nii.gz')
-p = plotting.plot_glass_brain(img, display_mode='lyrz', colorbar=True)
+# Glass brain for adults only
+img = image.load_img("../results/adults/adults_z_thresh.nii.gz")
+p = plotting.plot_glass_brain(img, display_mode="lyrz", colorbar=True)
+
+# Table for adults only
 t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-t.style.format({'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
+display(t)
 
 # %%
 
-# Output for children vs. adults
-img = image.load_img('../results/adults/children_minus_adults_z_tresholded.nii.gz')
-p = plotting.plot_glass_brain(img, display_mode='lyrz', colorbar=True, symmetric_cbar=True)
-t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-t.style.format({'X': '{:.0f}', 'Y': '{:.0f}', 'Z': '{:.0f}', 'Peak Stat': '{:.2f}'}).hide_index()
+# Glass brain for children vs. adults
+img_sub = image.load_img("../results/adults/children_minus_adults_z_thresh.nii.gz")
+p = plotting.plot_glass_brain(
+    img_sub,
+    display_mode="lyrz",
+    colorbar=True,
+    vmax=4,
+    plot_abs=False,
+    symmetric_cbar=True,
+)
+
+# Table brain for children vs. adults
+img_neg = image.math_img("img * -1", img=img_sub)
+t_pos = reporting.get_clusters_table(img_sub, stat_threshold=0, min_distance=1000)
+t_neg = reporting.get_clusters_table(img_neg, stat_threshold=0, min_distance=1000)
+t_neg["Peak Stat"] = t_neg["Peak Stat"] * -1
+t = t_pos.append(t_neg)
+display(t)
