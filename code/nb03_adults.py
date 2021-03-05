@@ -23,6 +23,7 @@ from nimare import io
 from nb01_ale import run_ale
 from nb02_subtraction import run_subtraction
 from nilearn import image, plotting, reporting
+from IPython.display import display
 
 # %%
 
