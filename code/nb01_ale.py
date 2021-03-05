@@ -152,7 +152,7 @@ def run_ale(text_file, voxel_thresh, cluster_thresh, n_iters, output_dir):
     print("ALE ANALYSIS FOR '" + text_file + "' WITH " + str(n_iters) + " PERMUTATIONS")
 
     # Actually perform the ALE
-    dset = io.convert_sleuth_to_dataset(text_file=text_file)
+    dset = io.convert_sleuth_to_dataset(text_file=text_file, target='ale_2mm')
     ale = meta.cbma.ALE()
     res = ale.fit(dset)
 
