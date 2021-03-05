@@ -24,6 +24,7 @@ from subprocess import run
 from re import sub
 from nb02_subtraction import dual_thresholding
 from nilearn import plotting, reporting
+from IPython.display import display
 
 # %%
 # Read table of experiments from ALE analysis
@@ -267,6 +268,4 @@ p = plotting.plot_glass_brain(imgs[0], display_mode="lyrz", colorbar=True)
 
 # Cluster table example
 t = reporting.get_clusters_table(imgs[0], stat_threshold=0, min_distance=1000)
-t.style.format(
-    {"X": "{:.0f}", "Y": "{:.0f}", "Z": "{:.0f}", "Peak Stat": "{:.2f}"}
-).hide_index()
+display(t)

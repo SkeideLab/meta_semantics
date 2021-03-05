@@ -20,6 +20,7 @@
 if __name__ == "__main__":
 
     from nilearn import image, plotting, reporting
+    from IPython.display import display
 
 # %%
 # Define helper function for dual threshold based on voxel-p and cluster size (in mm3)

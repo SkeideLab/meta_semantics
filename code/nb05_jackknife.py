@@ -22,6 +22,7 @@ import numpy as np
 from os import makedirs, path
 from nilearn import image, plotting
 from nibabel import save
+from IPython.display import display
 
 # %%
 # Read table of experiments from ALE analysis

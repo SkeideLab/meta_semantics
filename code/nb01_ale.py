@@ -28,6 +28,7 @@ if __name__ == "__main__":
     from nimare.transforms import tal2mni
     from os import makedirs
     from nilearn import image, plotting, reporting
+    from IPython.display import display
 
 # %%
 if __name__ == "__main__":
