@@ -11,11 +11,15 @@
 
 # %%
 
+import random
+
+# %%
+
 # Define function to generate a new data set with k null studies added
 def generate_null(
     text_file="foci.txt",
     space="ale_2mm",
-    k_null=200,
+    k_null=100,
     random_seed=None,
     output_dir="./",
 ):
@@ -107,7 +111,7 @@ def compute_fsn(
     from nibabel import save
 
     # Print what we're going to do
-    print("COMPUTING FSN FOR ALL CLUSTERS IN " + text_file + "\n")
+    print("\nCOMPUTING FSN FOR ALL CLUSTERS IN " + text_file + "\n")
 
     # Specify ALE and FWE transformers
     ale = meta.cbma.ALE()
@@ -130,7 +134,9 @@ def compute_fsn(
     img_orig = image.threshold_img(img_orig, threshold=cluster_thresh_z)
 
     # Create a table of the significant clusters
-    cl_table = reporting.get_clusters_table(img_orig, cluster_thresh_z)
+    cl_table = reporting.get_clusters_table(
+        stat_img=img_orig, stat_threshold=cluster_thresh_z, min_distance=1000
+    )
     cl_table[["FSN sampling", "FSN"]] = np.nan
 
     # Create a separate map for each significant cluster
@@ -252,22 +258,33 @@ def compute_fsn(
 # %%
 
 # List Sleuth files for which we want to perform an FSN analysis
-prefixes = ["objects"]
+prefixes = ["all", "knowledge", "lexical", "objects"]
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
 
-# Create output directory names
-output_dirs = ["../results/fsn/" + prefix for prefix in prefixes]
+# How many different filedrawers to compute for each text file?
+nr_filedrawers = 10
+filedrawers = ["filedrawer" + str(fd) for fd in range(nr_filedrawers)]
 
-# Apply to run all of the FSN analyses
+# Create a reproducible random seed for each filedrawer
+random.seed(1234)
+random_seeds = random.sample(range(0, 1000), k=nr_filedrawers)
+
+# Create output directory names
+output_dirs = ["../results/fsn/" + prefix + "/" for prefix in prefixes]
+
+# Use our function to compute multiple filedrawers for each text file
 _ = [
-    compute_fsn(
-        text_file=text_file,
-        space="ale_2mm",
-        voxel_thresh=0.001,
-        cluster_thresh=0.01,
-        n_iters=1000,
-        random_seed=None,
-        output_dir=output_dir,
-    )
+    [
+        compute_fsn(
+            text_file=text_file,
+            space="ale_2mm",
+            voxel_thresh=0.001,
+            cluster_thresh=0.01,
+            n_iters=1000,
+            random_seed=random_seed,
+            output_dir=output_dir + filedrawer,
+        )
+        for random_seed, filedrawer in zip(random_seeds, filedrawers)
+    ]
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
