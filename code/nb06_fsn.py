@@ -102,11 +102,12 @@ def compute_fsn(
     from scipy.stats import norm
     import numpy as np
     import logging
-    from os import makedirs
+    from os import makedirs, path
+    from re import sub
     from nibabel import save
 
     # Print what we're going to do
-    print("SAMPLING FSN FOR ALL CLUSTERS IN " + text_file)
+    print("COMPUTING FSN FOR ALL CLUSTERS IN " + text_file + "\n")
 
     # Specify ALE and FWE transformers
     ale = meta.cbma.ALE()
@@ -115,7 +116,7 @@ def compute_fsn(
     )
 
     # Perform ALE analysis for the original Sleuth file
-    print("\nRECREATING ORIGINAL ALE ANALYSIS (K = 0 NULL STUDIES)\n")
+    print("Recreating original ALE analysis (k = 0)")
     dset_orig = io.convert_sleuth_to_dataset(text_file=text_file, target=space)
     res_orig = ale.fit(dset_orig)
     cres_orig = corr.transform(res_orig)
@@ -159,7 +160,7 @@ def compute_fsn(
 
         # Print what we're going to do
         cl_id = cl_table["Cluster ID"][cl]
-        print("\nCOMPUTING FSN FOR CLUSTER " + str(cl_id) + " OF " + str(nr_cls) + "\n")
+        print("\nCOMPUTING FSN FOR CLUSTER #" + str(cl_id) + " OF " + str(nr_cls) + ":")
 
         # Extract the map containing only the current cluster
         img_cluster = image.index_img(imgs_orig, index=cl)
@@ -190,13 +191,13 @@ def compute_fsn(
             if key_k in cache_imgs:
 
                 # If so, just load the image from the cache
-                print("Loading image from cache for k = " + str(k))
+                print("Loading image from cache for k = " + str(k) + "... ", end="")
                 img_k = cache_imgs[key_k]
 
             else:
 
                 # If not, we compute a new ALE with k null studies added
-                print("Computing ALE for k = " + str(k))
+                print("Computing ALE for k = " + str(k) + "... ", end="")
 
                 # Create a new data set
                 ids_null = ["nullstudy" + str(x + 1) + "-" for x in range(k)]
@@ -215,13 +216,17 @@ def compute_fsn(
             img_k = image.threshold_img(img_k, threshold=cluster_thresh_z)
             img_check = image.math_img("img1 * img2", img1=img_cluster, img2=img_k)
             cluster_significant = np.any(img_check.get_fdata())
+            if cluster_significant:
+                print("significant.")
+            else:
+                print("not significant.")
 
             # Add the current iterations to the lists and continue
             ks = np.append(ks, k)
             sigs = np.append(sigs, cluster_significant)
 
         # Once we've found FSN, we create a map showing the FSN for the current cluster
-        print("\nDONE SAMPLING FOR CLUSTER #" + str(cl) + ": FSN = " + str(k) + "\n")
+        print("DONE SAMPLING FOR CLUSTER #" + str(cl) + ": FSN = " + str(k))
         formula = "np.where(img != 0, " + str(k) + ", 0)"
         img_cluster = image.math_img(formula=formula, img=img_cluster)
         imgs_fsn.append(img_cluster)
@@ -232,23 +237,37 @@ def compute_fsn(
 
     # Save and return the cluster table
     makedirs(output_dir, exist_ok=True)
-    cl_table.to_csv(output_dir + "/fsn_per_cluster.csv", index=False)
+    prefix = sub(".txt", "", path.basename(text_file))
+    cl_table.to_csv(output_dir + "/" + prefix + "_cluster_fsn.csv", index=False)
 
     # Compute and save the comple FSN map
     img_fsn = image.mean_img(imgs_fsn)
-    img_fsn = image.math_img("img * nr_cl", img=img_fsn, nr_cl=nr_cl)
-    save(img_fsn, output_dir + "/cluster_fsn.nii.gz")
+    formula = "img * " + str(nr_cls)
+    img_fsn = image.math_img(formula=formula, img=img_fsn)
+    save(img_fsn, output_dir + "/" + prefix + "_cluster_fsn.nii.gz")
 
     return cl_table, img_fsn
 
 
-# Apply the function
-_, _ = compute_fsn(
-    text_file="../results/ale/lexical.txt",
-    space="ale_2mm",
-    voxel_thresh=0.001,
-    cluster_thresh=0.01,
-    n_iters=200,
-    random_seed=None,
-    output_dir="../results/fsn/lexical/",
-)
+# %%
+
+# List Sleuth files for which we want to perform an FSN analysis
+prefixes = ["objects"]
+text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
+
+# Create output directory names
+output_dirs = ["../results/fsn/" + prefix for prefix in prefixes]
+
+# Apply to run all of the FSN analyses
+_ = [
+    compute_fsn(
+        text_file=text_file,
+        space="ale_2mm",
+        voxel_thresh=0.001,
+        cluster_thresh=0.01,
+        n_iters=1000,
+        random_seed=None,
+        output_dir=output_dir,
+    )
+    for text_file, output_dir in zip(text_files, output_dirs)
+]
