@@ -6,7 +6,7 @@ ENV PATH=/opt/miniconda-latest/envs/nimare/bin:$PATH \
     CONDA_PREFIX=/opt/miniconda-latest/envs/nimare
 
 # Install IPython, jupytext, and SDM (https://www.sdmproject.com/)
-RUN conda install -y -c conda-forge ipython==7.2.0 jupytext==1.10.2 \
+RUN pip install jupytext==1.10.2 duecredit==0.8.1 \
     && apt-get install -y wget \
     && wget https://www.sdmproject.com/software/updates/SdmPsiGui-linux64-v6.21.tar.gz \
     && mkdir -p /home/workspaces/mask_children/software/ \
