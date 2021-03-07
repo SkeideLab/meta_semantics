@@ -59,7 +59,7 @@ def generate_null(
 
     # Create the destination Sleuth file
     makedirs(output_dir, exist_ok=True)
-    text_file_basename = os.path.basename(text_file)
+    text_file_basename = path.basename(text_file)
     null_file_basename = sub(
         pattern=".txt", repl="_plus_k" + str(k_null) + ".txt", string=text_file_basename
     )
