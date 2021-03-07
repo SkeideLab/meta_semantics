@@ -58,7 +58,7 @@ def generate_null(
 
     # Create the destination Sleuth file
     makedirs(output_dir, exist_ok=True)
-    text_file_basename = os.path.basename(text_file)
+    text_file_basename = path.basename(text_file)
     null_file_basename = sub(
         pattern=".txt", repl="_plus_k" + str(k_null) + ".txt", string=text_file_basename
     )
@@ -208,10 +208,10 @@ print(fsn_per_cluster)
 # Save to pickle
 import pickle
 
-f = open("fsn_results.pickle", "wb")
+f = open("../results/fsn/objects/fsn_results.pickle", "wb")
 pickle.dump(fsn_per_cluster, f)
 f.close()
 
-f = open("fsn_cache.pickle", "wb")
+f = open("../results/fsn/objects/fsn_cache.pickle", "wb")
 pickle.dump(cache_imgs, f)
 f.close()
