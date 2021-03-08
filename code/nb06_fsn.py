@@ -111,7 +111,13 @@ def compute_fsn(
     from nibabel import save
 
     # Print what we're going to do
-    print("\nCOMPUTING FSN FOR ALL CLUSTERS IN " + text_file + "\n")
+    print(
+        "\nCOMPUTING FSN FOR ALL CLUSTERS IN "
+        + text_file
+        + " (random seed: "
+        + str(random_seed)
+        + ")\n"
+    )
 
     # Specify ALE and FWE transformers
     ale = meta.cbma.ALE()
@@ -135,12 +141,16 @@ def compute_fsn(
 
     # Create a table of the significant clusters
     cl_table = reporting.get_clusters_table(
-        stat_img=img_orig, stat_threshold=cluster_thresh_z, min_distance=1000
+        stat_img=img_orig, stat_threshold=cluster_thresh_z, min_distance=np.inf
     )
     cl_table[["FSN sampling", "FSN"]] = np.nan
 
     # Create a separate map for each significant cluster
-    imgs_orig, _ = regions.connected_regions(img_orig, min_region_size=0)
+    imgs_orig, _ = regions.connected_regions(
+        img_orig, min_region_size=0, extract_type="connected_components"
+    )
+
+    print(imgs_orig.shape[3] == len(cl_table))
 
     # Determine the maximal number of null studies to add (original studies x 10)
     k_max = len(dset_orig.ids) * 10
@@ -154,112 +164,115 @@ def compute_fsn(
         output_dir=output_dir,
     )
 
-    # Create an empty cache to store images that we've already computed
-    cache_imgs = dict()
+    # # Create an empty cache to store images that we've already computed
+    # cache_imgs = dict()
 
-    # Create an empty list where will store maps with the FSN for each cluster
-    imgs_fsn = list()
+    # # Create an empty list where will store maps with the FSN for each cluster
+    # imgs_fsn = list()
 
-    # Perform FSN sampling algorithm for each cluster
-    nr_cls = len(cl_table)
-    for cl in range(nr_cls):
+    # # Perform FSN sampling algorithm for each cluster
+    # nr_cls = len(cl_table)
+    # for cl in range(nr_cls):
 
-        # Print what we're going to do
-        cl_id = cl_table["Cluster ID"][cl]
-        print("\nCOMPUTING FSN FOR CLUSTER #" + str(cl_id) + " OF " + str(nr_cls) + ":")
+    #     # Print what we're going to do
+    #     cl_id = cl_table["Cluster ID"][cl]
+    #     print("\nCOMPUTING FSN FOR CLUSTER #" + str(cl_id) + " OF " + str(nr_cls) + ":")
 
-        # Extract the map containing only the current cluster
-        img_cluster = image.index_img(imgs_orig, index=cl)
+    #     # Extract the map containing only the current cluster
+    #     img_cluster = image.index_img(imgs_orig, index=cl)
 
-        # Create lists to keep track of the sampleing process:
-        # (1) How many null studies did we use at this step?
-        ks = np.array([0], dtype="int")
-        # (2) Was our cluster at this step significant or not?
-        sigs = np.array([True], dtype="bool")
+    #     # Create lists to keep track of the sampleing process:
+    #     # (1) How many null studies did we use at this step?
+    #     ks = np.array([0], dtype="int")
+    #     # (2) Was our cluster at this step significant or not?
+    #     sigs = np.array([True], dtype="bool")
 
-        # Start sampling different values for k
-        while True:
+    #     # Start sampling different values for k
+    #     while True:
 
-            # For the first iteration, k = k_max
-            if len(ks) == 1:
-                k = k_max
-            # If not, it is set to the midpoint between highest number of k where cl was
-            # significant and the lowest number of k where cl was not significant
-            else:
-                k = np.mean([ks[sigs].max(), ks[~sigs].min()], dtype="int")
+    #         # For the first iteration, k = k_max
+    #         if len(ks) == 1:
+    #             k = k_max
+    #         # If not, it is set to the midpoint between highest number of k where cl was
+    #         # significant and the lowest number of k where cl was not significant
+    #         else:
+    #             k = np.mean([ks[sigs].max(), ks[~sigs].min()], dtype="int")
 
-            # We've found our FSN as soon as we've encountered the same value twice
-            if k in ks:
-                break
+    #         # We've found our FSN as soon as we've encountered the same value twice
+    #         if k in ks:
+    #             break
 
-            # See if the necessary image is alread in the cache
-            key_k = "k" + str(k)
-            if key_k in cache_imgs:
+    #         # See if the necessary image is alread in the cache
+    #         key_k = "k" + str(k)
+    #         if key_k in cache_imgs:
 
-                # If so, just load the image from the cache
-                print("Loading image from cache for k = " + str(k) + "... ", end="")
-                img_k = cache_imgs[key_k]
+    #             # If so, just load the image from the cache
+    #             print("Loading image from cache for k = " + str(k) + "... ", end="")
+    #             img_k = cache_imgs[key_k]
 
-            else:
+    #         else:
 
-                # If not, we compute a new ALE with k null studies added
-                print("Computing ALE for k = " + str(k) + "... ", end="")
+    #             # If not, we compute a new ALE with k null studies added
+    #             print("Computing ALE for k = " + str(k) + "... ", end="")
 
-                # Create a new data set
-                ids_null = ["nullstudy" + str(x + 1) + "-" for x in range(k)]
-                ids = ids_orig + ids_null
-                dset_k = dset_null.slice(ids)
+    #             # Create a new data set
+    #             ids_null = ["nullstudy" + str(x + 1) + "-" for x in range(k)]
+    #             ids = ids_orig + ids_null
+    #             dset_k = dset_null.slice(ids)
 
-                # Compute the ALE
-                res_k = res = ale.fit(dset_k)
-                cres_k = corr.transform(result=res_k)
+    #             # Compute the ALE
+    #             res_k = res = ale.fit(dset_k)
+    #             cres_k = corr.transform(result=res_k)
 
-                # Write the image to the cache
-                img_k = cres_k.get_map("z_level-cluster_corr-FWE_method-montecarlo")
-                cache_imgs[key_k] = img_k
+    #             # Write the image to the cache
+    #             img_k = cres_k.get_map("z_level-cluster_corr-FWE_method-montecarlo")
+    #             cache_imgs[key_k] = img_k
 
-            # Check if the cluster has remained significant
-            img_k = image.threshold_img(img_k, threshold=cluster_thresh_z)
-            img_check = image.math_img("img1 * img2", img1=img_cluster, img2=img_k)
-            cluster_significant = np.any(img_check.get_fdata())
-            if cluster_significant:
-                print("significant.")
-            else:
-                print("not significant.")
+    #         # Check if the cluster has remained significant
+    #         img_k = image.threshold_img(img_k, threshold=cluster_thresh_z)
+    #         img_check = image.math_img("img1 * img2", img1=img_cluster, img2=img_k)
+    #         cluster_significant = np.any(img_check.get_fdata())
+    #         if cluster_significant:
+    #             print("significant.")
+    #         else:
+    #             print("not significant.")
 
-            # Add the current iterations to the lists and continue
-            ks = np.append(ks, k)
-            sigs = np.append(sigs, cluster_significant)
+    #         # Add the current iterations to the lists and continue
+    #         ks = np.append(ks, k)
+    #         sigs = np.append(sigs, cluster_significant)
 
-        # Once we've found FSN, we create a map showing the FSN for the current cluster
-        print("DONE SAMPLING FOR CLUSTER #" + str(cl) + ": FSN = " + str(k))
-        formula = "np.where(img != 0, " + str(k) + ", 0)"
-        img_cluster = image.math_img(formula=formula, img=img_cluster)
-        imgs_fsn.append(img_cluster)
+    #     # Once we've found FSN, we create a map showing the FSN for the current cluster
+    #     print("DONE SAMPLING FOR CLUSTER #" + str(cl) + ": FSN = " + str(k))
+    #     formula = "np.where(img != 0, " + str(k) + ", 0)"
+    #     img_cluster = image.math_img(formula=formula, img=img_cluster)
+    #     imgs_fsn.append(img_cluster)
 
-        # And, finally, we also add the FSN to the cluster table
-        cl_table["FSN sampling"][cl] = ks.astype(object)
-        cl_table["FSN"][cl] = k
+    #     # And, finally, we also add the FSN to the cluster table
+    #     cl_table["FSN sampling"][cl] = ks.astype(object)
+    #     cl_table["FSN"][cl] = k
 
-    # Save and return the cluster table
-    makedirs(output_dir, exist_ok=True)
-    prefix = sub(".txt", "", path.basename(text_file))
-    cl_table.to_csv(output_dir + "/" + prefix + "_cluster_fsn.csv", index=False)
+    # # Save and return the cluster table
+    # makedirs(output_dir, exist_ok=True)
+    # prefix = sub(".txt", "", path.basename(text_file))
+    # cl_table.to_csv(output_dir + "/" + prefix + "_cluster_fsn.csv", index=False)
 
-    # Compute and save the comple FSN map
-    img_fsn = image.mean_img(imgs_fsn)
-    formula = "img * " + str(nr_cls)
-    img_fsn = image.math_img(formula=formula, img=img_fsn)
-    save(img_fsn, output_dir + "/" + prefix + "_cluster_fsn.nii.gz")
+    # # Compute and save the comple FSN map
+    # img_fsn = image.mean_img(imgs_fsn)
+    # formula = "img * " + str(nr_cls)
+    # img_fsn = image.math_img(formula=formula, img=img_fsn)
+    # save(img_fsn, output_dir + "/" + prefix + "_cluster_fsn.nii.gz")
 
-    return cl_table, img_fsn
+    # return cl_table, img_fsn
 
 
 # %%
 
 # List Sleuth files for which we want to perform an FSN analysis
-prefixes = ["all", "knowledge", "lexical", "objects"]
+prefixes = ["objects"]
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
+
+# Create output directory based on these filenames
+output_dirs = ["../results/fsn/" + prefix + "/" for prefix in prefixes]
 
 # How many different filedrawers to compute for each text file?
 nr_filedrawers = 10
@@ -268,9 +281,6 @@ filedrawers = ["filedrawer" + str(fd) for fd in range(nr_filedrawers)]
 # Create a reproducible random seed for each filedrawer
 random.seed(1234)
 random_seeds = random.sample(range(0, 1000), k=nr_filedrawers)
-
-# Create output directory names
-output_dirs = ["../results/fsn/" + prefix + "/" for prefix in prefixes]
 
 # Use our function to compute multiple filedrawers for each text file
 _ = [
