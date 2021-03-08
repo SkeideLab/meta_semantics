@@ -80,8 +80,8 @@ def run_subtraction(
     text_file1, text_file2, voxel_thresh, cluster_size, random_seed, n_iters, output_dir
 ):
 
-    from nimare import io, meta
     from numpy import random
+    from nimare import io, meta
     from os import path, makedirs
     from nibabel import save
 

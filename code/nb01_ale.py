@@ -142,6 +142,7 @@ if __name__ == "__main__":
 # Define function for performing a single ALE analysis with FWE correction
 def run_ale(text_file, voxel_thresh, cluster_thresh, random_seed, n_iters, output_dir):
 
+    from numpy import random
     from nimare import io, meta, correct
     from os.path import basename
     from scipy.stats import norm
