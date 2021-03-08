@@ -77,10 +77,11 @@ def dual_thresholding(
 # %%
 # Define function for performing a single ALE subtraction analysis
 def run_subtraction(
-    text_file1, text_file2, voxel_thresh, cluster_size, n_iters, output_dir
+    text_file1, text_file2, voxel_thresh, cluster_size, random_seed, n_iters, output_dir
 ):
 
     from nimare import io, meta
+    from numpy import random
     from os import path, makedirs
     from nibabel import save
 
@@ -95,14 +96,13 @@ def run_subtraction(
         + " PERMUTATIONS"
     )
 
+    # Set a random seed to make the results reproducible
+    if random_seed:
+        random.seed(random_seed)
+
     # Read Sleuth files
     dset1 = io.convert_sleuth_to_dataset(text_file=text_file1)
     dset2 = io.convert_sleuth_to_dataset(text_file=text_file2)
-
-    # Set a random seed to make the results reproducible
-    from numpy import random
-
-    random.seed(1234)
 
     # Actually perform subtraction analysis
     sub = meta.cbma.ALESubtraction(n_iters=n_iters, low_memory=False)
@@ -145,6 +145,7 @@ if __name__ == "__main__":
             text_file2=value,
             voxel_thresh=0.01,
             cluster_size=200,
+            random_seed=1234,
             n_iters=10000,
             output_dir="../results/subtraction",
         )
@@ -166,9 +167,5 @@ if __name__ == "__main__":
     )
 
     # Cluster table example
-    img_neg = image.math_img("img * -1", img=img)
-    t_pos = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
-    t_neg = reporting.get_clusters_table(img_neg, stat_threshold=0, min_distance=1000)
-    t_neg["Peak Stat"] = t_neg["Peak Stat"] * -1
-    t = t_pos.append(t_neg)
+    t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
     display(t)

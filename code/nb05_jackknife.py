@@ -54,6 +54,7 @@ _ = [
         text_file=text_file,
         voxel_thresh=0.001,
         cluster_thresh=0.01,
+        random_seed=1234,
         n_iters=1000,
         output_dir=path.dirname(text_file),
     )

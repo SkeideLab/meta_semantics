@@ -42,6 +42,7 @@ run_ale(
     text_file="../results/adults/adults.txt",
     voxel_thresh=0.001,
     cluster_thresh=0.01,
+    random_seed=1234,
     n_iters=1000,
     output_dir="../results/adults",
 )
@@ -53,6 +54,7 @@ run_subtraction(
     text_file2="../results/adults/adults.txt",
     voxel_thresh=0.01,
     cluster_size=200,
+    random_seed=1234,
     n_iters=10000,
     output_dir="../results/adults",
 )
@@ -81,9 +83,5 @@ p = plotting.plot_glass_brain(
 )
 
 # Table brain for children vs. adults
-img_neg = image.math_img("img * -1", img=img_sub)
-t_pos = reporting.get_clusters_table(img_sub, stat_threshold=0, min_distance=1000)
-t_neg = reporting.get_clusters_table(img_neg, stat_threshold=0, min_distance=1000)
-t_neg["Peak Stat"] = t_neg["Peak Stat"] * -1
-t = t_pos.append(t_neg)
+t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
 display(t)
