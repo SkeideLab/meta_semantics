@@ -14,24 +14,29 @@
 # ---
 
 # %%
+
 from glob import glob
-import pandas as pd
-import numpy as np
-from scipy import stats
-from os import makedirs
 from multiprocessing import cpu_count
-from subprocess import run
+from os import makedirs
 from re import sub
-from nb02_subtraction import dual_thresholding
-from nilearn import plotting, reporting
+from subprocess import run
+
+import numpy as np
+import pandas as pd
 from IPython.display import display
+from nilearn import plotting, reporting
+from scipy import stats
+
+from nb02_subtraction import dual_thresholding
 
 # %%
+
 # Read table of experiments from ALE analysis
 exps = pd.read_json("../results/exps.json")
 exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
 
 # %%
+
 # Extract test statistics of individal foci
 exps["tstats"] = [
     # If there are t-values, we can use them directly
@@ -46,13 +51,16 @@ exps["tstats"] = [
     for foci, foci_stat, n in zip(exps["foci"], exps["foci_stat"], exps["n"])
 ]
 
-# Replace missing or unrealistically high t-values with [p]ositive
-exps["tstats_corr"] = [np.where(tstats < 50, tstats, "p") for tstats in exps["tstats"]]
+# Replace missing and unrealistically high t-values
+exps["tstats_corr"] = [
+    np.where(np.isnan(tstats), "p", np.where(tstats > 50, 50, tstats))
+    for tstats in exps["tstats"]
+]
 
 # How many of these do we have (absolute number and percentage)?
-tstats_explode = np.array(exps["tstats"].explode(), dtype="float")
-sum(np.isnan(tstats_explode)), sum(np.isnan(tstats_explode)) / tstats_explode.size
-sum(tstats_explode > 50), sum(tstats_explode > 50) / tstats_explode.size
+tstats_expl = np.array(exps["tstats"].explode(), dtype="float")
+print(sum(np.isnan(tstats_expl)), sum(np.isnan(tstats_expl)) / tstats_expl.size)
+print(sum(tstats_expl > 50), sum(tstats_expl > 50) / tstats_expl.size)
 
 # Add new test statistics back to the foci
 exps["foci_sdm"] = [
@@ -73,6 +81,7 @@ _ = exps.apply(
 )
 
 # %%
+
 # Convert some columns from str to float
 cols_thresh = ["thresh_vox_z", "thresh_vox_t", "thresh_vox_p"]
 exps[cols_thresh] = exps[cols_thresh].apply(pd.to_numeric, errors="coerce")
@@ -102,7 +111,11 @@ exps["t_thr"] = [
     )
 ]
 
+# Backup for reuse in other notebooks
+exps.to_json("../results/exps.json")
+
 # %%
+
 # Copy the table and rename some columns
 exps_sdm = exps.rename(columns=({"experiment": "study", "n": "n1"}))
 
@@ -159,9 +172,6 @@ exps_sdm[
 ].to_csv("../results/sdm/sdm_table.txt", sep="\t", index=False)
 
 # %%
-# Store path of the SDM binary and the working directory
-sdm_bin = "../" + glob("../software/*/sdm")[0]
-sdm_cwd = "../results/sdm/"
 
 # Specify no. of threads to use, no. of mean imputations, and no of. cFWE permutations
 n_threads = cpu_count() - 1
@@ -172,40 +182,45 @@ n_perms = 1000
 thresh_voxel_p = 0.001
 thresh_cluster_k = 50
 
-# %%
-# Run preprocessing (specs: template, anisotropy, FWHM, mask, voxel size)
-call_pp = sdm_bin + " pp gray_matter,1.0,20,gray_matter,2"
-run(call_pp, shell=True, cwd=sdm_cwd)
+# Store working directory for SDM
+cwd = "../results/sdm/"
 
 # %%
+
+# Run preprocessing (specs: template, anisotropy, FWHM, mask, voxel size)
+call_pp = "sdm pp gray_matter,1.0,20,gray_matter,2"
+_ = run(call_pp, shell=True, cwd=cwd)
+
+# %%
+
 # Run mean analysis without covariates
-call_mod1 = sdm_bin + " mod1=mi " + str(n_imps) + ",,," + str(n_threads)
-run(call_mod1, shell=True, cwd=sdm_cwd)
+call_mod1 = "sdm mod1=mi " + str(n_imps) + ",,," + str(n_threads)
+_ = run(call_mod1, shell=True, cwd=cwd)
 
 # Run mean analysis with covariates
 str_covs = "age_mean_c+modality_pres+modality_resp+software"
-call_mod2 = sdm_bin + " mod2=mi " + str(n_imps) + "," + str_covs + ",," + str(n_threads)
-run(call_mod2, shell=True, cwd=sdm_cwd)
+call_mod2 = "sdm mod2=mi " + str(n_imps) + "," + str_covs + ",," + str(n_threads)
+_ = run(call_mod2, shell=True, cwd=cwd)
 
 # Run linear model for the influence of age
 str_lin = "age_mean_c+age_mean_c_2,0+1+1+0+0"
-call_mod3 = (
-    sdm_bin + " mod3=mi_lm " + str_lin + "," + str(n_imps) + ",," + str(n_threads)
-)
-run(call_mod3, shell=True, cwd=sdm_cwd)
+call_mod3 = "sdm mod3=mi_lm " + str_lin + "," + str(n_imps) + ",," + str(n_threads)
+_ = run(call_mod3, shell=True, cwd=cwd)
 
 # %%
+
 # Family-wise error (FWE) correction for all models
 _ = [
     run(
-        sdm_bin + " perm " + mod + "," + str(n_perms) + "," + str(n_threads),
+        "sdm perm " + mod + "," + str(n_perms) + "," + str(n_threads),
         shell=True,
-        cwd=sdm_cwd,
+        cwd=cwd,
     )
     for mod in ["mod1", "mod2", "mod3"]
 ]
 
 # %%
+
 # Thresholding for all model (voxel-corrected)
 _ = [
     run(
@@ -221,12 +236,13 @@ _ = [
         + ","
         + str(thresh_cluster_k),
         shell=True,
-        cwd=sdm_cwd,
+        cwd=cwd,
     )
     for mod in ["mod1", "mod2", "mod3"]
 ]
 
 # %%
+
 # Thresholding for all model (cluster-corrected)
 _ = [
     run(
@@ -242,12 +258,13 @@ _ = [
         + ","
         + str(thresh_cluster_k),
         shell=True,
-        cwd=sdm_cwd,
+        cwd=cwd,
     )
     for mod in ["mod1", "mod2", "mod3"]
 ]
 
 # %%
+
 # Collect the filenames of the maps created in the previous step
 fnames_maps = glob("../results/sdm/analysis_mod*/mod*_z_voxelCorrected*0.nii.gz")
 
@@ -264,6 +281,7 @@ imgs = [
 ]
 
 # %%
+
 # Glass brain example
 p = plotting.plot_glass_brain(imgs[0], display_mode="lyrz", colorbar=True)
 

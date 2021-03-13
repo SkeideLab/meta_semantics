@@ -1,29 +1,30 @@
 FROM neurostuff/nimare:latest
 
-# Set environment variables for the project and Conda
+# Specify user and project names
 ENV NB_USER=neuro \
     PROJ=mask_children \
+    # Activate Conda environment
     PATH=/opt/miniconda-latest/envs/nimare/bin:$PATH \
     CONDA_DEFAULT_ENV=nimare \
     CONDA_PREFIX=/opt/miniconda-latest/envs/nimare
 
 # Set working directory
-RUN mkdir -p ${HOME}/${NB_USER}/${PROJ}/
-WORKDIR ${HOME}/${NB_USER}/${PROJ}/
+RUN mkdir -p /home/${NB_USER}/${PROJ}/
+WORKDIR /home/${NB_USER}/${PROJ}/
 
-# Install IPython, jupytext, Talairach Deamon, and SDM
-ENV URL_TD http://www.talairach.org/talairach.jar
-ENV URL_SDM https://www.sdmproject.com/software/updates/SdmPsiGui-linux64-v6.21.tar.gz
+# Install Talairach Deamon, SDM, and some Python packages
+ENV URL_TD=http://www.talairach.org/talairach.jar \
+    URL_SDM=https://www.sdmproject.com/software/updates/SdmPsiGui-linux64-v6.21.tar.gz \
+    PATH=/opt/SdmPsiGui-linux64-v6.21:${PATH}
 RUN pip install jupytext==1.10.2 duecredit==0.8.1 \
-    && apt-get install -y wget \
-    && mkdir software/ \
-    && wget -P software/ ${URL_TD} \
-    && wget -P software/ ${URL_SDM} \
-    && tar -xf software/SdmPsiGui-linux64-v6.21.tar.gz -C software/ \
-    && rm software/SdmPsiGui-linux64-v6.21.tar.gz
+    && apt-get install -y wget tex-gyre \
+    && wget ${URL_TD} \
+    && wget ${URL_SDM} \
+    && tar -xf SdmPsiGui-linux64-v6.21.tar.gz -C /opt/ \
+    && rm SdmPsiGui-linux64-v6.21.tar.gz
 
 # Install Tini (which is needed to run a jupyter server inside the container)
-ENV TINI_VERSION v0.6.0
+ENV TINI_VERSION=v0.6.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
 RUN chmod +x /usr/bin/tini
 
