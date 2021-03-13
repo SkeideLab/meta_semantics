@@ -20,7 +20,7 @@ import pandas as pd
 from nb01_ale import write_foci, run_ale
 import numpy as np
 from os import makedirs, path
-from nilearn import image, plotting
+from nilearn import image, plotting, reporting
 from nibabel import save
 from IPython.display import display
 
