@@ -167,5 +167,7 @@ if __name__ == "__main__":
     )
 
     # Cluster table example
-    t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
+    t = reporting.get_clusters_table(
+        img, stat_threshold=0, min_distance=1000, two_sided=True
+    )
     display(t)

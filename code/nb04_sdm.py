@@ -14,7 +14,6 @@
 # ---
 
 # %%
-
 from glob import glob
 from multiprocessing import cpu_count
 from os import makedirs
@@ -30,13 +29,11 @@ from scipy import stats
 from nb02_subtraction import dual_thresholding
 
 # %%
-
 # Read table of experiments from ALE analysis
 exps = pd.read_json("../results/exps.json")
 exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
 
 # %%
-
 # Extract test statistics of individal foci
 exps["tstats"] = [
     # If there are t-values, we can use them directly
@@ -70,18 +67,17 @@ exps["foci_sdm"] = [
 
 # Write the foci of each experiment to a text file
 makedirs("../results/sdm/", exist_ok=True)
-_ = exps.apply(
-    lambda x: np.savetxt(
-        fname="../results/sdm/" + x["experiment"] + ".other_mni.txt",
-        X=x["foci_sdm"],
+_ = [
+    np.savetxt(
+        fname="../results/sdm/" + exp + ".other_mni.txt",
+        X=foci,
         fmt="%s",
         delimiter=",",
-    ),
-    axis=1,
-)
+    )
+    for exp, foci in zip(exps["experiment"], exps["foci_sdm"])
+]
 
 # %%
-
 # Convert some columns from str to float
 cols_thresh = ["thresh_vox_z", "thresh_vox_t", "thresh_vox_p"]
 exps[cols_thresh] = exps[cols_thresh].apply(pd.to_numeric, errors="coerce")
@@ -115,7 +111,6 @@ exps["t_thr"] = [
 exps.to_json("../results/exps.json")
 
 # %%
-
 # Copy the table and rename some columns
 exps_sdm = exps.rename(columns=({"experiment": "study", "n": "n1"}))
 
@@ -172,7 +167,6 @@ exps_sdm[
 ].to_csv("../results/sdm/sdm_table.txt", sep="\t", index=False)
 
 # %%
-
 # Specify no. of threads to use, no. of mean imputations, and no of. cFWE permutations
 n_threads = cpu_count() - 1
 n_imps = 50
@@ -186,13 +180,11 @@ thresh_cluster_k = 50
 cwd = "../results/sdm/"
 
 # %%
-
 # Run preprocessing (specs: template, anisotropy, FWHM, mask, voxel size)
 call_pp = "sdm pp gray_matter,1.0,20,gray_matter,2"
 _ = run(call_pp, shell=True, cwd=cwd)
 
 # %%
-
 # Run mean analysis without covariates
 call_mod1 = "sdm mod1=mi " + str(n_imps) + ",,," + str(n_threads)
 _ = run(call_mod1, shell=True, cwd=cwd)
@@ -208,7 +200,6 @@ call_mod3 = "sdm mod3=mi_lm " + str_lin + "," + str(n_imps) + ",," + str(n_threa
 _ = run(call_mod3, shell=True, cwd=cwd)
 
 # %%
-
 # Family-wise error (FWE) correction for all models
 _ = [
     run(
@@ -220,7 +211,6 @@ _ = [
 ]
 
 # %%
-
 # Thresholding for all model (voxel-corrected)
 _ = [
     run(
@@ -241,7 +231,6 @@ _ = [
 ]
 
 # %%
-
 # Thresholding for all model (cluster-corrected)
 _ = [
     run(
@@ -262,7 +251,6 @@ _ = [
 ]
 
 # %%
-
 # Collect the filenames of the maps created in the previous step
 fnames_maps = glob("../results/sdm/analysis_mod*/mod*_z_voxelCorrected*0.nii.gz")
 
@@ -279,7 +267,6 @@ imgs = [
 ]
 
 # %%
-
 # Glass brain example
 p = plotting.plot_glass_brain(imgs[0], display_mode="lyrz", colorbar=True)
 

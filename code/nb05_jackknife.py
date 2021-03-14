@@ -30,7 +30,6 @@ exps = pd.read_json("../results/exps.json")
 exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
 
 # %%
-
 # Create names of the Sleuth files to write
 text_files = [
     "../results/jackknife/" + exp + "/" + exp + ".txt" for exp in exps["experiment"]
@@ -47,7 +46,6 @@ _ = [
 ]
 
 # %%
-
 # Perform all of these ALEs
 _ = [
     run_ale(
@@ -62,7 +60,6 @@ _ = [
 ]
 
 # %%
-
 # Load all the thresholded maps we've created
 img_files = [text_file.replace(".txt", "_z_thresh.nii.gz") for text_file in text_files]
 imgs = [image.load_img(img_file) for img_file in img_files]
@@ -75,8 +72,8 @@ img_mean = image.mean_img(masks)
 save(img_mean, filename="../results/jackknife/jackknife_mean.nii.gz")
 
 #%%
-
 # Plot on a glass brain
+img_mean = image.load_img("../results/jackknife/jackknife_mean.nii.gz")
 p = plotting.plot_glass_brain(None, display_mode="lyrz", colorbar=True)
 p.add_overlay(img_mean, colorbar=True, cmap="RdYlGn", vmin=0, vmax=1)
 
