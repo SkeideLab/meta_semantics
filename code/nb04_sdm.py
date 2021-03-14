@@ -224,8 +224,7 @@ _ = [
 # Thresholding for all model (voxel-corrected)
 _ = [
     run(
-        sdm_bin
-        + " threshold analysis_"
+        "sdm threshold analysis_"
         + mod
         + "/corrp_voxel, analysis_"
         + mod
@@ -246,8 +245,7 @@ _ = [
 # Thresholding for all model (cluster-corrected)
 _ = [
     run(
-        sdm_bin
-        + " threshold analysis_"
+        "sdm threshold analysis_"
         + mod
         + "/corrp_tfce, analysis_"
         + mod
