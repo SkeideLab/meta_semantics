@@ -10,7 +10,7 @@
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=2
+#SBATCH --nodes=4
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=40
 # Request main memory per node in units of MB:
@@ -38,5 +38,8 @@ SINGULARITY_PARAMS=(
 srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb01_ale.py
 
 # Then, perform all of the other analyses in parallel
-srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb02_subtraction.py &
-    srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb03_adults.py
+#srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb02_subtraction.py &
+    #srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb03_adults.py &
+    srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb04_sdm.py #&
+    #srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb05_jackknife.py #&
+    #srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb06_fsn.py

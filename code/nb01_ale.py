@@ -140,8 +140,9 @@ if __name__ == "__main__":
 
 # %%
 # Define function for performing a single ALE analysis with FWE correction
-def run_ale(text_file, voxel_thresh, cluster_thresh, n_iters, output_dir):
+def run_ale(text_file, voxel_thresh, cluster_thresh, random_seed, n_iters, output_dir):
 
+    from numpy import random
     from nimare import io, meta, correct
     from os.path import basename
     from scipy.stats import norm
@@ -151,8 +152,12 @@ def run_ale(text_file, voxel_thresh, cluster_thresh, n_iters, output_dir):
     # Print what we are going to do
     print("ALE ANALYSIS FOR '" + text_file + "' WITH " + str(n_iters) + " PERMUTATIONS")
 
+    # Set a random seed to make the results reproducible
+    if random_seed:
+        random.seed(random_seed)
+
     # Actually perform the ALE
-    dset = io.convert_sleuth_to_dataset(text_file=text_file, target='ale_2mm')
+    dset = io.convert_sleuth_to_dataset(text_file=text_file, target="ale_2mm")
     ale = meta.cbma.ALE()
     res = ale.fit(dset)
 
@@ -193,6 +198,7 @@ if __name__ == "__main__":
             text_file=key,
             voxel_thresh=0.001,
             cluster_thresh=0.01,
+            random_seed=1234,
             n_iters=1000,
             output_dir="../results/ale",
         )

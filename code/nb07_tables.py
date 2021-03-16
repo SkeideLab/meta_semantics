@@ -16,7 +16,6 @@
 # ---
 
 # %%
-
 from glob import glob
 from os import makedirs, path, remove
 from re import sub
@@ -28,7 +27,6 @@ from nilearn import image, reporting
 from nimare.utils import mni2tal
 
 # %%
-
 # Define function to print the clusters from multiple images as a table
 def combined_cluster_table(
     img_files_z=[],
@@ -147,7 +145,6 @@ test = combined_cluster_table(
 display(test)
 
 # %%
-
 # from nimare import utils
 # from nilearn import datasets, plotting
 
@@ -163,7 +160,6 @@ display(test)
 # dat = atlas.maps.get_fdata()[vox_coords[0], vox_coords[1], vox_coords[2]]
 
 # %%
-
 # import atlasreader
 
 # img = image.load_img("../results/ale/all_z_thresh.nii.gz")

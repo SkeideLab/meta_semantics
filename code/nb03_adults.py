@@ -13,7 +13,7 @@
 #     name: python3
 # ---
 
-# %% [markdown] pycharm={"name": "#%% md\n"}
+# %% [markdown]
 # # Notebook #03: Comparison to Adult Meta-Analysis
 
 # %%
@@ -26,7 +26,6 @@ from nilearn import image, plotting, reporting
 from IPython.display import display
 
 # %%
-
 # Copy Sleuth text files to the results folder
 makedirs("../results/adults", exist_ok=True)
 copy("../results/ale/all.txt", "../results/adults/children.txt")
@@ -42,6 +41,7 @@ run_ale(
     text_file="../results/adults/adults.txt",
     voxel_thresh=0.001,
     cluster_thresh=0.01,
+    random_seed=1234,
     n_iters=1000,
     output_dir="../results/adults",
 )
@@ -53,12 +53,12 @@ run_subtraction(
     text_file2="../results/adults/adults.txt",
     voxel_thresh=0.01,
     cluster_size=200,
+    random_seed=1234,
     n_iters=10000,
     output_dir="../results/adults",
 )
 
 # %%
-
 # Glass brain for adults only
 img = image.load_img("../results/adults/adults_z_thresh.nii.gz")
 p = plotting.plot_glass_brain(img, display_mode="lyrz", colorbar=True)
@@ -68,7 +68,6 @@ t = reporting.get_clusters_table(img, stat_threshold=0, min_distance=1000)
 display(t)
 
 # %%
-
 # Glass brain for children vs. adults
 img_sub = image.load_img("../results/adults/children_minus_adults_z_thresh.nii.gz")
 p = plotting.plot_glass_brain(
@@ -81,9 +80,7 @@ p = plotting.plot_glass_brain(
 )
 
 # Table brain for children vs. adults
-img_neg = image.math_img("img * -1", img=img_sub)
-t_pos = reporting.get_clusters_table(img_sub, stat_threshold=0, min_distance=1000)
-t_neg = reporting.get_clusters_table(img_neg, stat_threshold=0, min_distance=1000)
-t_neg["Peak Stat"] = t_neg["Peak Stat"] * -1
-t = t_pos.append(t_neg)
+t = reporting.get_clusters_table(
+    img, stat_threshold=0, min_distance=1000, two_sided=True
+)
 display(t)
