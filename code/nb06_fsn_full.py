@@ -198,7 +198,7 @@ def compute_fsn(
         for y in range(dat_k.shape[1]):
             for z in range(dat_k.shape[2]):
                 voxel_significant = dat_k[x, y, z, :]
-                dat_fsn[x, y, z] = np.argmax(~voxel_significant)
+                dat_fsn[x, y, z] = np.argmax(voxel_significant == 0)
 
     # Create a Nifti map with the per-voxel FSN
     img_fsn = nifti1.Nifti1Image(dat_fsn, affine=img_orig.affine)
@@ -209,14 +209,14 @@ def compute_fsn(
 # %%
 # List Sleuth files for which we want to perform an FSN analysis
 prefixes = ["all", "knowledge", "lexical", "objects"]
-prefixes = ["objects"]
+prefixes = ["knowledge", "objects"]
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
 
 # Create output directory based on these filenames
 output_dirs = ["../results/fsn_full/" + prefix + "/" for prefix in prefixes]
 
 # How many different filedrawers to compute for each text file?
-nr_filedrawers = 1
+nr_filedrawers = 10
 filedrawers = ["filedrawer" + str(fd) for fd in range(nr_filedrawers)]
 
 # Create a reproducible random seed for each filedrawer
