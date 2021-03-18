@@ -105,13 +105,7 @@ def compute_fsn(
     from nibabel import nifti1, save
 
     # Print what we're going to do
-    print(
-        "\nCOMPUTING FSN FOR ALL VOXELS IN "
-        + text_file
-        + " (random seed: "
-        + str(random_seed)
-        + ")\n"
-    )
+    print("\nCOMPUTING FSN FOR " + text_file + " (seed: " + str(random_seed) + ")")
 
     # Set random seeds if requested
     if random_seed:
@@ -179,10 +173,11 @@ def compute_fsn(
         img_k = image.math_img("np.where(img > 0, 1, 0)", img=img_k)
         img_mult = image.math_img("img1 * img2", img1=img_orig, img2=img_k)
 
-        # If there are any voxels left, store the image in our list
-        if np.any(img_mult.get_fdata()):
-            imgs_k.append(img_mult)
-        else:
+        # Add the current cluster image to our list
+        imgs_k.append(img_mult)
+
+        # Quit as soon as there are no significant clusters left
+        if not np.any(img_mult.get_fdata()):
             print("No more significant voxels - terminating.\n")
             break
 
