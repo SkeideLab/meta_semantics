@@ -181,7 +181,7 @@ def compute_fsn(
 
         # If there are any voxels left, store the image in our list
         if np.any(img_mult.get_fdata()):
-            list_imgs.append(img_mult)
+            imgs_k.append(img_mult)
         else:
             print("No more significant voxels - terminating.\n")
             break
