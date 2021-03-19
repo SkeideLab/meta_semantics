@@ -99,7 +99,7 @@ def compute_fsn(
 ):
 
     from nimare import io, meta, correct
-    from nilearn import image
+    from nilearn import image, reporting
     from scipy.stats import norm
     import numpy as np
     from nibabel import nifti1, save
@@ -198,8 +198,15 @@ def compute_fsn(
     # Create a Nifti map with the per-voxel FSN
     img_fsn = nifti1.Nifti1Image(dat_fsn, affine=img_orig.affine)
     save(img_fsn, filename=output_dir + "/fsn.nii.gz")
-    return img_fsn
+    
+    # Create cluster table
+    tab = reporting.get_clusters_table(img_fsn, stat_threshold=0, min_distance=1000)
 
+    x, y, z = [np.array(tab[col]) for col in ["X", "Y", "Z"]]
+    x, y, z = image.coord_transform(x=x, y=y, z=z, affine=np.linalg.inv(img_orig.affine))
+    x, y, z = [arr.astype("int") for arr in [x, y, z]]
+
+    img_fsn.get_fdata()[x, y, z]
 
 # %%
 # List Sleuth files for which we want to perform an FSN analysis
@@ -212,7 +219,7 @@ output_dirs = ["../results/fsn_full/" + prefix + "/" for prefix in prefixes]
 
 # How many different filedrawers to compute for each text file?
 nr_filedrawers = 10
-filedrawers = ["filedrawer" + str(fd) for fd in range(nr_filedrawers)]
+filedrawers = ["filedrawer" + str(fd) for fd in range(1, nr_filedrawers + 1)]
 
 # Create a reproducible random seed for each filedrawer
 random.seed(1234)
@@ -234,3 +241,7 @@ imgs_fsn = [
     ]
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
+
+# %%
+# Compute average FSN per cluster
+
