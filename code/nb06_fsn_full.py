@@ -205,7 +205,7 @@ def compute_fsn(
 # %%
 # List Sleuth files for which we want to perform an FSN analysis
 prefixes = ["all", "knowledge", "lexical", "objects"]
-prefixes = ["knowledge"]
+prefixes = ["objects", "knowledge", "lexical"]
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
 
 # Create output directory based on these filenames
