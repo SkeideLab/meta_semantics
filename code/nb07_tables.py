@@ -41,13 +41,17 @@ def combined_cluster_table(
     output_dir = path.dirname(output_file)
     makedirs(output_dir, exist_ok=True)
 
-    # Create a list of tables from the image files and concatenate
+    # Create a list of tables from the image files
     imgs_z = [image.load_img(filename) for filename in img_files_z]
-    tabs_z = [
+    dfs_z = [
         reporting.get_clusters_table(img, stat_threshold=0, min_distance=np.inf)
         for img in imgs_z
     ]
-    df = pd.concat(tabs_z, keys=stub_keys)
+
+    # Re-order by cluster size and concatenate
+    dfs_z = [df.sort_values("Cluster Size (mm3)", ascending=False, ignore_index=True) for df in dfs_z]
+    df = pd.concat(dfs_z, keys=stub_keys)
+    df["Cluster ID"] = df.index.get_level_values(1) + 1
 
     # Get gray matter labels from the Talairach Deamon (Lancaster et al., 1997, 2000)
     if td_jar:
@@ -80,12 +84,13 @@ def combined_cluster_table(
     # Do the same for the additional images and add to table (if requested)
     if img_files_ale:
         imgs_ale = [image.load_img(filename) for filename in img_files_ale]
-        tabs_ale = [
+        dfs_ale = [
             reporting.get_clusters_table(img, stat_threshold=0, min_distance=np.inf)
             for img in imgs_ale
         ]
-        df_ale = pd.concat(tabs_ale, keys=stub_keys)
-        df_ale["Peak Stat"] = df_ale["Peak Stat"].round(3)
+        dfs_ale = [df.sort_values("Cluster Size (mm3)", ascending=False, ignore_index=True) for df in dfs_ale]
+        df_ale = pd.concat(dfs_ale, keys=stub_keys)
+        df_ale["Peak Stat"] = ["{:,.3f}".format(x) for x in df_ale["Peak Stat"]]
         df.insert(4, column="Peak ALE", value=df_ale["Peak Stat"])
 
     # Add the stub column
@@ -109,7 +114,7 @@ def combined_cluster_table(
 
     # Re-format numerical columns
     df[["X", "Y", "Z"]] = df[["X", "Y", "Z"]].applymap(int)
-    df["Peak z"] = df["Peak z"].round(2)
+    df["Peak z"] = ["{:,.2f}".format(x) for x in df["Peak z"]]
     df["Size (mm3)"] = ["{:,}".format(x) for x in df["Size (mm3)"]]
 
     # Save the cluster table
@@ -118,7 +123,8 @@ def combined_cluster_table(
     return df
 
 
-test = combined_cluster_table(
+# Apply the function to create Table 2 (ALE results)
+tab2 = combined_cluster_table(
     img_files_z=[
         "../results/ale/all_z_thresh.nii.gz",
         "../results/ale/knowledge_z_thresh.nii.gz",
@@ -139,10 +145,9 @@ test = combined_cluster_table(
         "../results/ale/objects_stat_thresh.nii.gz",
     ],
     td_jar="../software/talairach.jar",
-    output_file="../results/tables/ale.tsv",
+    output_file="../results/tables/tab2.tsv",
 )
-
-display(test)
+display(tab2)
 
 # %%
 # from nimare import utils
