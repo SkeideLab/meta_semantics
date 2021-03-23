@@ -11,6 +11,7 @@
 
 # %%
 import random
+from sys import argv
 
 # %%
 # Define function to generate a new data set with k null studies added
@@ -125,7 +126,7 @@ def compute_fsn(
     ids_orig = dset_orig.ids.tolist()
 
     # Create a new data set with a large number null studies added
-    k_max = len(ids_orig) * 20
+    k_max = len(ids_orig) * 10
     dset_null = generate_null(
         text_file=text_file,
         space=space,
@@ -148,7 +149,7 @@ def compute_fsn(
     tab_fsn = reporting.get_clusters_table(img_z, stat_threshold=0, min_distance=1000)
 
     # Initialize the number of null studies
-    k = 1
+    k = 0
 
     # Iteratively add null studies
     while True:
@@ -175,7 +176,7 @@ def compute_fsn(
 
         # Use this to update the per-voxel FSN
         # (i.e., increase the value of the voxel by 1 as long as it remains significant)
-        count = k + 1
+        count = str(k + 1)
         formula = "np.where(img_fsn + img_k == " + count + ", img_fsn + 1, img_fsn)"
         img_fsn = image.math_img(formula, img_fsn=img_fsn, img_k=img_k)
 
@@ -203,9 +204,14 @@ def compute_fsn(
 
 
 # %%
+
+# # Define the Sleuth file names directly wihin the script
+# prefixes = ["all", "knowledge", "lexical", "objects"]
+
+# Get the Sleuth file names for which to compute the FSN from the command line
+prefixes = argv[1].split(",")
+
 # List Sleuth files for which we want to perform an FSN analysis
-prefixes = ["all", "knowledge", "lexical", "objects"]
-prefixes = ["objects", "knowledge", "lexical"]
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
 
 # Create output directory based on these filenames
