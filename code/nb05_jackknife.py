@@ -16,67 +16,103 @@
 # ---
 
 # %%
-import pandas as pd
-from nb01_ale import write_foci, run_ale
+from os import makedirs
+
 import numpy as np
-from os import makedirs, path
-from nilearn import image, plotting, reporting
 from nibabel import save
-from IPython.display import display
+from nilearn import image, plotting, reporting
+from nimare import correct, io, meta
+from scipy.stats import norm
+
 
 # %%
-# Read table of experiments from ALE analysis
-exps = pd.read_json("../results/exps.json")
-exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
+# Define function to perform a single jackknife analysis
+def compute_jackknife(
+    text_file="foci.txt",
+    space="ale_2mm",
+    voxel_thresh=0.001,
+    cluster_thresh=0.01,
+    n_iters=1000,
+    random_seed=None,
+    output_dir="./",
+):
 
-# %%
-# Create names of the Sleuth files to write
-text_files = [
-    "../results/jackknife/" + exp + "/" + exp + ".txt" for exp in exps["experiment"]
-]
+    # Set random seeds if requested
+    if random_seed:
+        np.random.seed(random_seed)
 
-# For each experiment, write a Sleuth file leaving this one out
-_ = [
-    write_foci(
-        text_file=text_file,
-        df=exps,
-        query="experiment != '" + exp + "'",
+    # Create NiMARE data set from the Sleuth file
+    dset_orig = io.convert_sleuth_to_dataset(text_file)
+    study_ids = dset_orig.ids
+
+    # Specify ALE and FWE transformers
+    ale = meta.cbma.ALE()
+    corr = correct.FWECorrector(
+        method="montecarlo", voxel_thresh=voxel_thresh, n_iters=n_iters
     )
-    for text_file, exp in zip(text_files, exps["experiment"])
-]
+
+    # Create output folder
+    _ = makedirs(output_dir, exist_ok=True)
+
+    # Create empty list to store the jackknife'd cluster images
+    imgs_jk = []
+
+    for study_id in study_ids:
+
+        # Create new data set with the current study removed
+        study_ids_jk = study_ids[study_ids != study_id]
+
+        # Fit the jackknife'd ALE
+        dset_jk = dset_orig.slice(study_ids_jk)
+        res_jk = ale.fit(dset_jk)
+        cres_jk = corr.transform(res_jk)
+
+        # Create and save the thresholded cluster mask
+        img_jk = cres_jk.get_map("z_level-cluster_corr-FWE_method-montecarlo")
+        cluster_thresh_z = norm.ppf(1 - cluster_thresh / 2)
+        formula = "np.where(img > " + str(cluster_thresh_z) + ", 1, 0)"
+        img_jk = image.math_img(formula, img=img_jk)
+
+        # Save to the output folder and to our list
+        study_id_short = study_id.replace("-", "")
+        save(img_jk, filename=output_dir + "/jk_" + study_id_short + ".nii.gz")
+        imgs_jk.append(img_jk)
+
+    # Create and save averaged jackknife image
+    img_mean = image.mean_img(imgs_jk)
+    save(img_mean, filename=output_dir + "/jk_mean.nii.gz")
+
+    return img_mean
+
 
 # %%
-# Perform all of these ALEs
-_ = [
-    run_ale(
+# List the Sleuth files for which to run a jackknife analysis
+prefixes = ["all", "knowledge", "lexical", "objects"]
+text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
+
+# Create output directory names
+output_dirs = ["../results/jackknife/" + prefix for prefix in prefixes]
+
+# Apply the jackknife function
+jks = [
+    compute_jackknife(
         text_file=text_file,
+        space="ale_2mm",
         voxel_thresh=0.001,
         cluster_thresh=0.01,
-        random_seed=1234,
         n_iters=1000,
-        output_dir=path.dirname(text_file),
+        random_seed=1234,
+        output_dir=output_dir,
     )
-    for text_file in text_files
+    for text_file, output_dir in zip(text_files, output_dirs)
 ]
 
-# %%
-# Load all the thresholded maps we've created
-img_files = [text_file.replace(".txt", "_z_thresh.nii.gz") for text_file in text_files]
-imgs = [image.load_img(img_file) for img_file in img_files]
-
-# Convert to binary cluster maps
-masks = [image.math_img("np.where(img > 0, 1, 0)", img=img) for img in imgs]
-
-# Compute and save the averaged jackknife map
-img_mean = image.mean_img(masks)
-save(img_mean, filename="../results/jackknife/jackknife_mean.nii.gz")
-
 #%%
-# Plot on a glass brain
-img_mean = image.load_img("../results/jackknife/jackknife_mean.nii.gz")
+# Glass brain example
+img_jk_all = image.load_img("../results/jackknife/objects/jk_mean.nii.gz")
 p = plotting.plot_glass_brain(None, display_mode="lyrz", colorbar=True)
-p.add_overlay(img_mean, colorbar=True, cmap="RdYlGn", vmin=0, vmax=1)
+p.add_overlay(img_jk_all, colorbar=True, cmap="RdYlGn", vmin=0, vmax=1)
 
-# Display cluster table
-t = reporting.get_clusters_table(img_mean, stat_threshold=0, min_distance=1000)
+# Cluster table example
+t = reporting.get_clusters_table(img_jk_all, stat_threshold=0, min_distance=1000)
 display(t)
