@@ -10,7 +10,7 @@
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=1
+#SBATCH --nodes=4
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=40
 # Request main memory per node in units of MB:
@@ -27,22 +27,24 @@
 module load singularity
 
 # Store the parameters for all calls to singularity exec
-SINGULARITY_PARAMS=(
-    --no-home
-    --pwd /home/neuro/mask_children/code \
-    --bind /ptmp/aenge/mask_children:/home/neuro/mask_children \
-    mask_children_latest.sif
+SG_EXEC=(
+    singularity exec \
+        --no-home
+        --pwd /home/neuro/mask_children/code \
+        --bind /ptmp/aenge/mask_children:/home/neuro/mask_children \
+        mask_children_latest.sif
 )
 
-# # First, perform only the actual ALE analyses
-# srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb01_ale.py
+# First, perform only the actual ALE analyses
+srun -n1 "${SG_EXEC[@]}" python3 nb01_ale.py
 
-# # Then, perform all of the other analyses in parallel
-# srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb02_subtraction.py &
-    # srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb03_adults.py #&
-    # srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb04_sdm.py #&
-    # srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb05_jackknife.py #&
-    srun -n1 singularity exec "${SINGULARITY_PARAMS[@]}" python3 nb06_fsn_full.py
+# Then, perform all of the other analyses in parallel
+srun -n1 "${SG_EXEC[@]}" python3 nb02_subtraction.py &
+    srun -n1 "${SG_EXEC[@]}" python3 nb03_adults.py #&
+    srun -n1 "${SG_EXEC[@]}" python3 nb04_sdm.py #&
+    srun -n1 "${SG_EXEC[@]}" python3 nb05_jackknife.py #&
+    # srun -n1 "${SG_EXEC[@]}" python3 nb06_fsn.py knowledge #&
+    # srun -n1 "${SG_EXEC[@]}" python3 nb06_fsn_full.py knowledge,lexical,objects
 
 # # For debugging, run:
 # singularity shell --no-home --pwd /home/neuro/mask_children/code --bind /ptmp/aenge/mask_children:/home/neuro/mask_children mask_children_latest.sif

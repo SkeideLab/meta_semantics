@@ -19,6 +19,7 @@
 from os import makedirs
 
 import numpy as np
+from IPython.display import display
 from nibabel import save
 from nilearn import image, plotting, reporting
 from nimare import correct, io, meta
@@ -80,7 +81,7 @@ def compute_jackknife(
 
     # Create and save averaged jackknife image
     img_mean = image.mean_img(imgs_jk)
-    save(img_mean, filename=output_dir + "/jk_mean.nii.gz")
+    save(img_mean, filename=output_dir + "/mean_jk.nii.gz")
 
     return img_mean
 

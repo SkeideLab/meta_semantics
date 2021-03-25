@@ -10,11 +10,10 @@
 # ---
 
 # %%
-
 import random
+from sys import argv
 
 # %%
-
 # Define function to generate a new data set with k null studies added
 def generate_null(
     text_file="foci.txt",
@@ -89,7 +88,6 @@ def generate_null(
 
 
 # %%
-
 # Define function to compute the FSN for all clusters from a Sleuth file
 def compute_fsn(
     text_file="foci.txt",
@@ -155,7 +153,7 @@ def compute_fsn(
     )
 
     # Determine the maximal number of null studies to add (original studies x 5)
-    k_max = len(dset_orig.ids) * 7
+    k_max = len(dset_orig.ids) * 15
 
     # Create a new data set with null studies added
     dset_null = generate_null(
@@ -268,9 +266,13 @@ def compute_fsn(
 
 
 # %%
+# # Define the Sleuth file names directly wihin the script
+# prefixes = ["all", "knowledge", "lexical", "objects"]
+
+# Get the Sleuth file names for which to compute the FSN from the command line
+prefixes = argv[1].split(",")
 
 # List Sleuth files for which we want to perform an FSN analysis
-prefixes = ["all", "knowledge", "lexical", "objects"]
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
 
 # Create output directory based on these filenames

@@ -21,14 +21,15 @@
 # We start by reading the table of experiments.
 
 # %%
-if __name__ == "__main__":
+from os import makedirs, path
 
-    import pandas as pd
-    import numpy as np
-    from nimare.transforms import tal2mni
-    from os import makedirs
-    from nilearn import image, plotting, reporting
-    from IPython.display import display
+import numpy as np
+import pandas as pd
+from IPython.display import display
+from nibabel import save
+from nilearn import image, plotting, reporting
+from nimare import correct, io, meta, transforms
+from scipy.stats import norm
 
 # %%
 if __name__ == "__main__":
@@ -80,7 +81,7 @@ if __name__ == "__main__":
 
     # Convert from Talairach to MNI space if necessary
     exps["foci_mni"] = [
-        tal2mni(foci[:, 0:3]) if foci_space == "TAL" else foci[:, 0:3]
+        transforms.tal2mni(foci[:, 0:3]) if foci_space == "TAL" else foci[:, 0:3]
         for foci, foci_space in zip(exps["foci"], exps["foci_space"])
     ]
 
@@ -95,9 +96,6 @@ if __name__ == "__main__":
 # Define function to write a certain subset of the experiments to a Sleuth text file
 def write_foci(text_file, df, query):
 
-    from os import makedirs, path
-    from numpy import savetxt
-
     makedirs(path.dirname(text_file), exist_ok=True)
     f = open(file=text_file, mode="w")
     f.write("// Reference=MNI\n")
@@ -108,7 +106,7 @@ def write_foci(text_file, df, query):
         df_sub["experiment"], df_sub["n"], df_sub["foci_mni"]
     ):
         f.write("// " + experiment + "\n// Subjects=" + str(n) + "\n")
-        savetxt(f, foci_mni, fmt="%1.3f", delimiter="\t")
+        np.savetxt(f, foci_mni, fmt="%1.3f", delimiter="\t")
         f.write("\n")
     f.close()
 
@@ -142,19 +140,12 @@ if __name__ == "__main__":
 # Define function for performing a single ALE analysis with FWE correction
 def run_ale(text_file, voxel_thresh, cluster_thresh, random_seed, n_iters, output_dir):
 
-    from numpy import random
-    from nimare import io, meta, correct
-    from os.path import basename
-    from scipy.stats import norm
-    from nilearn.image import threshold_img, math_img
-    from nibabel import save
-
     # Print what we are going to do
     print("ALE ANALYSIS FOR '" + text_file + "' WITH " + str(n_iters) + " PERMUTATIONS")
 
     # Set a random seed to make the results reproducible
     if random_seed:
-        random.seed(random_seed)
+        np.random.seed(random_seed)
 
     # Actually perform the ALE
     dset = io.convert_sleuth_to_dataset(text_file=text_file, target="ale_2mm")
@@ -168,7 +159,7 @@ def run_ale(text_file, voxel_thresh, cluster_thresh, random_seed, n_iters, outpu
     cres = corr.transform(result=res)
 
     # Save maps to ouput directory
-    prefix = basename(text_file).replace(".txt", "")
+    prefix = path.basename(text_file).replace(".txt", "")
     res.save_maps(output_dir=output_dir, prefix=prefix)
     cres.save_maps(output_dir=output_dir, prefix=prefix)
 
@@ -177,10 +168,10 @@ def run_ale(text_file, voxel_thresh, cluster_thresh, random_seed, n_iters, outpu
     img_z = cres.get_map("z")
     img_ale = cres.get_map("stat")
     cluster_thresh_z = norm.ppf(1 - cluster_thresh / 2)
-    img_clust_thresh = threshold_img(img=img_clust, threshold=cluster_thresh_z)
-    img_mask = math_img("np.where(img > 0, 1, 0)", img=img_clust_thresh)
-    img_z_thresh = math_img("img1 * img2", img1=img_mask, img2=img_z)
-    img_ale_thresh = math_img("img1 * img2", img1=img_mask, img2=img_ale)
+    img_clust_thresh = image.threshold_img(img=img_clust, threshold=cluster_thresh_z)
+    img_mask = image.math_img("np.where(img > 0, 1, 0)", img=img_clust_thresh)
+    img_z_thresh = image.math_img("img1 * img2", img1=img_mask, img2=img_z)
+    img_ale_thresh = image.math_img("img1 * img2", img1=img_mask, img2=img_ale)
 
     # Save the maps to the output folder
     save(img=img_z_thresh, filename=output_dir + "/" + prefix + "_z_thresh.nii.gz")

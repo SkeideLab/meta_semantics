@@ -17,19 +17,21 @@
 # # Notebook #02: Subtraction Analyses
 
 # %%
-if __name__ == "__main__":
+from os import makedirs, path
 
-    from nilearn import image, plotting, reporting
-    from IPython.display import display
+import numpy as np
+from IPython.display import display
+from nibabel import save
+from nilearn import glm, image, plotting, reporting
+from nimare import io, meta
+from numpy import random
+
 
 # %%
 # Define helper function for dual threshold based on voxel-p and cluster size (in mm3)
 def dual_thresholding(
     img_z, voxel_thresh, cluster_size, two_sided=True, fname_out=None
 ):
-
-    from nilearn import glm, image
-    import numpy as np
 
     # If img_z is a file path, we first need to read the image
     img_z = image.load_img(img=img_z)
@@ -66,9 +68,6 @@ def dual_thresholding(
 
     # If requested, save the thresholded map
     if fname_out:
-
-        from nibabel import save
-
         save(img_z_thresh, filename=fname_out)
 
     return img_z_thresh
@@ -79,11 +78,6 @@ def dual_thresholding(
 def run_subtraction(
     text_file1, text_file2, voxel_thresh, cluster_size, random_seed, n_iters, output_dir
 ):
-
-    from numpy import random
-    from nimare import io, meta
-    from os import path, makedirs
-    from nibabel import save
 
     # Print the current analysis
     print(
@@ -98,7 +92,7 @@ def run_subtraction(
 
     # Set a random seed to make the results reproducible
     if random_seed:
-        random.seed(random_seed)
+        np.random.seed(random_seed)
 
     # Read Sleuth files
     dset1 = io.convert_sleuth_to_dataset(text_file=text_file1)

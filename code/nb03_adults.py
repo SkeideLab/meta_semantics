@@ -19,11 +19,13 @@
 # %%
 from os import makedirs
 from shutil import copy
+
+from IPython.display import display
+from nilearn import image, plotting, reporting
 from nimare import io
+
 from nb01_ale import run_ale
 from nb02_subtraction import run_subtraction
-from nilearn import image, plotting, reporting
-from IPython.display import display
 
 # %%
 # Copy Sleuth text files to the results folder
