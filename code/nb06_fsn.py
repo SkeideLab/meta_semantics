@@ -8,10 +8,20 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.10.2
 # ---
-
 # %%
+import logging
 import random
+from os import makedirs, path
+from re import sub
+from shutil import copy
 from sys import argv
+
+import numpy as np
+from nibabel import save
+from nilearn import image, regions, reporting
+from nimare import correct, io, meta, utils
+from scipy.stats import norm
+
 
 # %%
 # Define function to generate a new data set with k null studies added
@@ -22,14 +32,6 @@ def generate_null(
     random_seed=None,
     output_dir="./",
 ):
-
-    from nimare import io, utils
-    import numpy as np
-    from nilearn import image
-    from os import makedirs, path
-    import random
-    from re import sub
-    from shutil import copy
 
     # Load NiMARE's gray matter template
     temp = utils.get_template(space=space, mask="gm")
@@ -95,18 +97,10 @@ def compute_fsn(
     voxel_thresh=0.001,
     cluster_thresh=0.01,
     n_iters=1000,
-    random_seed=None,
+    random_ale_seed=None,
+    random_filedrawer_seed=None,
     output_dir="./",
 ):
-
-    from nimare import io, meta, correct
-    from nilearn import image, reporting, regions
-    from scipy.stats import norm
-    import numpy as np
-    import logging
-    from os import makedirs, path
-    from re import sub
-    from nibabel import save
 
     # Print what we're going to do
     print(
@@ -117,9 +111,9 @@ def compute_fsn(
         + ")\n"
     )
 
-    # Set random seeds if requested
-    if random_seed:
-        np.random.seed(random_seed)
+    # Set random seed for original ALE if requested
+    if random_ale_seed:
+        np.random.seed(random_ale_seed)
 
     # Specify ALE and FWE transformers
     ale = meta.cbma.ALE()
@@ -154,6 +148,10 @@ def compute_fsn(
 
     # Determine the maximal number of null studies to add (original studies x 5)
     k_max = len(dset_orig.ids) * 15
+
+    # Set random seed for the filedrawer of null studies if requested
+    if random_filedrawer_seed:
+        np.random.seed(random_filedrawer_seed)
 
     # Create a new data set with null studies added
     dset_null = generate_null(
@@ -295,10 +293,43 @@ _ = [
             voxel_thresh=0.001,
             cluster_thresh=0.01,
             n_iters=1000,
-            random_seed=random_seed,
+            random_ale_seed=1234,
+            random_filedrawer_seed=random_seed,
             output_dir=output_dir + filedrawer,
         )
         for random_seed, filedrawer in zip(random_seeds, filedrawers)
     ]
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
+
+# %%
+# Read FSN tables
+tab = [
+    pd.read_csv(
+        "../results/fsn/knowledge/filedrawer" + str(fd) + "/knowledge_cluster_fsn.csv",
+    )
+    for fd in range(10)
+]
+tab = pd.concat(tab)
+
+# Compute summary statistics across filedrawers
+agg = tab.groupby(["X", "Y", "Z"])["FSN"].agg(["mean", "count", "std"])
+
+# Compute confidence intervals
+ci_level = 0.05
+z_crit = abs(norm.ppf(ci_level / 2))
+agg["se"] = [std / sqrt(count) for std, count in zip(agg["std"], agg["count"])]
+agg["ci_lower"] = agg["mean"] - z_crit * agg["se"]
+agg["ci_upper"] = agg["mean"] + z_crit * agg["se"]
+
+# %%
+# Plot mean FSN image across filedrawers
+imgs_knowledge = [
+    image.load_img(
+        "../results/fsn_full/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.nii.gz"
+    )
+    for fd in range(1, 11)
+]
+img_knowledge = image.mean_img(imgs_knowledge)
+p = plotting.plot_glass_brain(None)
+p.add_overlay(img_knowledge, colorbar=True, cmap="RdYlGn", vmin=0, vmax=100)

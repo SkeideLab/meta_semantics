@@ -11,7 +11,19 @@
 
 # %%
 import random
+from math import sqrt
+from os import makedirs, pat
+from re import sub
+from shutil import copy
 from sys import argv
+
+import numpy as np
+import pandas as pd
+from nibabel import save
+from nilearn import image, plotting, reporting
+from nimare import correct, io, meta, utils
+from scipy.stats import norm
+
 
 # %%
 # Define function to generate a new data set with k null studies added
@@ -22,14 +34,6 @@ def generate_null(
     random_seed=None,
     output_dir="./",
 ):
-
-    from nimare import io, utils
-    import numpy as np
-    from nilearn import image
-    from os import makedirs, path
-    import random
-    from re import sub
-    from shutil import copy
 
     # Load NiMARE's gray matter template
     temp = utils.get_template(space=space, mask="gm")
@@ -95,23 +99,17 @@ def compute_fsn(
     voxel_thresh=0.001,
     cluster_thresh=0.01,
     n_iters=1000,
-    random_seed=None,
+    random_ale_seed=None,
+    random_filedrawer_seed=None,
     output_dir="./",
 ):
-
-    from nimare import io, meta, correct
-    from nilearn import image, reporting
-    from scipy.stats import norm
-    import numpy as np
-    from os import path
-    from nibabel import save
 
     # Print what we're going to do
     print("\nCOMPUTING FSN FOR " + text_file + " (seed: " + str(random_seed) + ")")
 
-    # Set random seeds if requested
-    if random_seed:
-        np.random.seed(random_seed)
+    # Set random seed for original ALE if requested
+    if random_ale_seed:
+        np.random.seed(random_ale_seed)
 
     # Recreate the original ALE analysis
     ale = meta.cbma.ALE()
@@ -124,6 +122,10 @@ def compute_fsn(
 
     # Extract the original study IDs
     ids_orig = dset_orig.ids.tolist()
+
+    # Set random seed for the filedrawer of null studies if requested
+    if random_filedrawer_seed:
+        np.random.seed(random_filedrawer_seed)
 
     # Create a new data set with a large number null studies added
     k_max = len(ids_orig) * 10
@@ -225,6 +227,7 @@ filedrawers = ["filedrawer" + str(fd) for fd in range(1, nr_filedrawers + 1)]
 random.seed(1234)
 random_seeds = random.sample(range(0, 1000), k=nr_filedrawers)
 
+# %%
 # Use our function to compute multiple filedrawers for each text file
 tabs_fsn, imgs_fsn = [
     [
@@ -234,10 +237,44 @@ tabs_fsn, imgs_fsn = [
             voxel_thresh=0.001,
             cluster_thresh=0.01,
             n_iters=1000,
-            random_seed=random_seed,
+            random_ale_seed=1234,
+            random_filedrawer_seed=random_seed,
             output_dir=output_dir + filedrawer,
         )
         for random_seed, filedrawer in zip(random_seeds, filedrawers)
     ]
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
+
+# %%
+# Read FSN tables
+tab = [
+    pd.read_csv(
+        "../results/fsn_full/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.tsv",
+        delimiter="\t",
+    )
+    for fd in range(1, 11)
+]
+tab = pd.concat(tab)
+
+# Compute summary statistics across filedrawers
+agg = tab.groupby("Cluster ID")["FSN"].agg(["mean", "count", "std"])
+
+# Compute confidence intervals
+ci_level = 0.05
+z_crit = abs(norm.ppf(ci_level / 2))
+agg["se"] = [std / sqrt(count) for std, count in zip(agg["std"], agg["count"])]
+agg["ci_lower"] = agg["mean"] - z_crit * agg["se"]
+agg["ci_upper"] = agg["mean"] + z_crit * agg["se"]
+
+# %%
+# Plot mean FSN image across filedrawers
+imgs_knowledge = [
+    image.load_img(
+        "../results/fsn_full/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.nii.gz"
+    )
+    for fd in range(1, 11)
+]
+img_knowledge = image.mean_img(imgs_knowledge)
+p = plotting.plot_glass_brain(None)
+p.add_overlay(img_knowledge, colorbar=True, cmap="RdYlGn", vmin=0, vmax=100)
