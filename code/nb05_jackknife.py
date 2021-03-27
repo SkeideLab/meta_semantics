@@ -110,7 +110,7 @@ jks = [
 
 #%%
 # Glass brain example
-img_jk_all = image.load_img("../results/jackknife/objects/jk_mean.nii.gz")
+img_jk_all = image.load_img("../results/jackknife/all/mean_jk.nii.gz")
 p = plotting.plot_glass_brain(None, display_mode="lyrz", colorbar=True)
 p.add_overlay(img_jk_all, colorbar=True, cmap="RdYlGn", vmin=0, vmax=1)
 
