@@ -326,9 +326,9 @@ agg["ci_upper"] = agg["mean"] + z_crit * agg["se"]
 # Plot mean FSN image across filedrawers
 imgs_knowledge = [
     image.load_img(
-        "../results/fsn_full/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.nii.gz"
+        "../results/fsn/knowledge/filedrawer" + str(fd) + "/knowledge_cluster_fsn.nii.gz"
     )
-    for fd in range(1, 11)
+    for fd in range(10)
 ]
 img_knowledge = image.mean_img(imgs_knowledge)
 p = plotting.plot_glass_brain(None)
