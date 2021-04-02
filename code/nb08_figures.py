@@ -20,6 +20,7 @@ import pandas as pd
 import numpy as np
 from nilearn import image, plotting
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 from scipy import stats
 from os import makedirs
 
@@ -37,6 +38,153 @@ mm = 0.1 / 2.54
 # Read table of experiments from ALE analysis
 exps = pd.read_json("../results/exps.json")
 
+tasks, tasks_int = np.unique(exps["task_type"], return_inverse=True)
+
+norm = mpl.colors.Normalize(vmin=0, vmax=2 / 0.85, clip=True)
+mapper = mpl.cm.ScalarMappable(norm=norm, cmap="viridis")
+colors = [mapper.to_rgba(color) for color in range(len(tasks))]
+
+
+from scipy.stats import pearsonr
+
+
+def reg_coef(x, y, label=None, color=None, **kwargs):
+    ax = plt.gca()
+    r, p = pearsonr(x, y)
+    label = "r = {:.2f}".format(r).replace("0.", ".").replace("r", "$\it{r}$")
+    ax.annotate(label, xy=(0.5, 0.5), xycoords="axes fraction", ha="center")
+    ax.set_axis_off()
+
+
+def pairplot_custom(df, query, vars, hue, palette):
+
+    g = sns.PairGrid(exps.query(query), vars=vars, hue=hue, palette=palette)
+    g.map_diag(sns.histplot)
+    g.map_lower(sns.regplot)
+    g.map_upper(reg_coef)
+    return g
+
+exps["foo"] = "bar"
+
+pairs_all = pairplot_custom(
+        exps,
+        query="foo == 'bar'",
+        vars=["n", "foci_n", "age_mean"],
+        hue="foo",
+        palette={"bar": "gray"}
+)
+
+pairs_tasks = [
+    pairplot_custom(
+        exps,
+        query="task_type == '" + tasks[i] + "'",
+        vars=["n", "foci_n", "age_mean"],
+        hue="task_type",
+        palette=dict(zip(tasks, colors)),
+    )
+    for i in range(len(tasks))
+]
+
+pairs = [pairs_all, pairs_tasks]
+
+figsize = (190 * mm, 190 * mm)
+fig0 = plt.figure(figsize=figsize)
+ax1 = fig0.add_subplot()
+
+# %%
+
+fig, axs = plt.subplots(nrows=3, ncols=3, sharey=True)
+query = "task_type == 'knowledge'"
+_ = sns.histplot(x = "n", data = exps.query(query), ax=axs[0][0])
+_ = sns.regplot(x = "n", y = "foci_n", data = exps.query(query), ax=axs[1][0])
+_ = sns.histplot(x = "foci_n", data = exps.query(query), ax=axs[1][1])
+_ = sns.regplot(x = "n", y = "age_mean", data = exps.query(query), ax=axs[2][0])
+_ = sns.regplot(x = "foci_n", y = "age_mean", data = exps.query(query), ax=axs[2][1])
+_ = sns.histplot(x = "age_mean", data = exps.query(query), ax=axs[2][2])
+
+
+
+
+#%%
+
+
+foci_n_jitter = exps["foci_n"] + np.random.randn(len(exps["foci_n"])) * 0.1
+
+tasks_lookup, tasks_int = np.unique(exps["task_type"], return_inverse=True)
+
+
+def plot_pointrange(x, y, xmin, xmax, size, color, vmin, vmax):
+    norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax, clip=True)
+    mapper = mpl.cm.ScalarMappable(norm=norm, cmap="viridis")
+    color = mapper.to_rgba(color)
+    xerr = np.array([x - xmin, xmax - x + 0.8], ndmin=2).T
+    xerr = np.nan_to_num(xerr)
+    plt.errorbar(x=x, y=y, xerr=xerr, lw=1, color=color)
+
+
+figsize = (190 * mm, 190 * mm)
+fig1 = plt.figure(figsize=figsize)
+ax1 = fig1.add_subplot()
+
+# Specify smaller margins
+margins = {
+    "left": 16 * mm / figsize[0],
+    "bottom": 15 * mm / figsize[1],
+    "right": 1 - 5 * mm / figsize[0],
+    "top": 1 - 5 * mm / figsize[1],
+}
+_ = fig1.subplots_adjust(**margins)
+
+scatter = ax1.scatter(
+    x=exps["age_mean"],
+    y=foci_n_jitter,
+    s=exps["n"],
+    c=tasks_int,
+    vmin=0,
+    vmax=2 / 0.85,
+)
+legend1 = ax1.legend(
+    handles=scatter.legend_elements()[0],
+    labels=tasks_lookup.tolist(),
+    loc=(0, 0.8),
+    title="Task category",
+    frameon=False,
+)
+ax1.add_artist(legend1)
+handles, labels = scatter.legend_elements(prop="sizes", num=4)
+legend2 = ax1.legend(
+    handles, labels, loc=(0.28, 0.8), title="Sample size", frameon=False
+)
+plt.xlabel("Mean age (range)")
+plt.ylabel("# of peaks")
+plt.ylim(0, 50)
+
+_ = [
+    plot_pointrange(
+        x=age_mean,
+        y=n_foci,
+        xmin=age_min,
+        xmax=age_max,
+        size=n,
+        color=task,
+        vmin=0,
+        vmax=2 / 0.85,
+    )
+    for age_mean, n_foci, age_min, age_max, n, task in zip(
+        exps["age_mean"],
+        foci_n_jitter,
+        exps["age_min"],
+        exps["age_max"],
+        exps["n"],
+        tasks_int.tolist(),
+    )
+]
+
+# Save to PDF
+fig1.savefig("../results/figures/scatter.pdf")
+
+# %%
+
 # Extract all individual foci and their z-value
 foci_coords = np.array(exps["foci_mni"].explode().tolist())
 foci_zstat = [
@@ -49,7 +197,7 @@ idxs_p = np.where(np.isnan(foci_zstat))[0]
 
 # Create a new figure with four subplots
 figsize = (190 * mm, 265 * mm)
-fig2 = mpl.pyplot.figure(figsize=figsize)
+fig2 = plt.figure(figsize=figsize)
 gs = fig2.add_gridspec(255, 180)
 ax1 = fig2.add_subplot(gs[0:60, :])
 ax2 = fig2.add_subplot(gs[60:120, :])
@@ -154,10 +302,10 @@ p5.add_overlay(img_sdm, cmap="YlOrRd", vmin=0, vmax=8)
 
 # Add a joint colorbar
 ax_cbar = fig2.add_subplot(gs[65:110, 86:92])
-cmap = mpl.pyplot.get_cmap("YlOrRd")
+cmap = plt.get_cmap("YlOrRd")
 norm = mpl.colors.Normalize(vmin=0, vmax=8)
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
-mpl.pyplot.axhline(y=3.1, color="black", linewidth=1)
+plt.axhline(y=3.1, color="black", linewidth=1)
 
 # Save to PDF
 fig2.savefig("../results/figures/fig2.pdf")
@@ -169,7 +317,7 @@ foci_tasks_lookup, foci_types_int = np.unique(foci_tasks, return_inverse=True)
 
 # Create a new figure with four subplots
 figsize = (190 * mm, 265 * mm)
-fig3 = mpl.pyplot.figure(figsize=figsize)
+fig3 = plt.figure(figsize=figsize)
 gs = fig3.add_gridspec(255, 180)
 ax1 = fig3.add_subplot(gs[0:60, :])
 ax2 = fig3.add_subplot(gs[60:120, :])
@@ -254,10 +402,10 @@ ax_leg.set_axis_off()
 
 # Add a joint colorbar for the ALE maps
 ax_cbar = fig3.add_subplot(gs[65:110, 165:171])
-cmap = mpl.pyplot.get_cmap("YlOrRd")
+cmap = plt.get_cmap("YlOrRd")
 norm = mpl.colors.Normalize(vmin=0, vmax=8)
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
-mpl.pyplot.axhline(y=3.1, color="black", linewidth=1)
+plt.axhline(y=3.1, color="black", linewidth=1)
 
 # Save to PDF
 fig3.savefig("../results/figures/fig3.pdf")
@@ -265,7 +413,7 @@ fig3.savefig("../results/figures/fig3.pdf")
 # %%
 # Create a new figure with three subplots
 figsize = (190 * mm, 145 * mm)
-fig4 = mpl.pyplot.figure(figsize=figsize)
+fig4 = plt.figure(figsize=figsize)
 gs = fig4.add_gridspec(135, 180)
 ax1 = fig4.add_subplot(gs[0:45, :])
 ax2 = fig4.add_subplot(gs[45:90, :])
@@ -308,14 +456,14 @@ p3.add_overlay(img_conj, cmap="YlGn", vmin=0, vmax=8)
 # cmap = plotting.cm._cmap_d['black_red_r']
 # norm = mpl.colors.Normalize(vmin=0, vmax=12)
 # mpl.colorbar.ColorbarBase(ax1_cbar, cmap=cmap, norm=norm, label='$\it{Z}$-score', orientation='horizontal')
-# mpl.pyplot.axvline(x=3.1, color='black', linestyle=":", linewidth=1)
+# plt.axvline(x=3.1, color='black', linestyle=":", linewidth=1)
 
 # ax2_cbar = fig4.add_subplot(gs[46:48, 14:18])
 # cmap = plotting.cm._cmap_d['cold_white_hot']
 # norm = mpl.colors.Normalize(vmin=-5, vmax=5)
 # mpl.colorbar.ColorbarBase(ax2_cbar, cmap=cmap, norm=norm, label='Children > adults | Adults > children', orientation='horizontal')
-# mpl.pyplot.axvline(x=-3.1, color='black', linestyle=":", linewidth=1)
-# mpl.pyplot.axvline(x=3.1, color='black', linestyle=":", linewidth=1)
+# plt.axvline(x=-3.1, color='black', linestyle=":", linewidth=1)
+# plt.axvline(x=3.1, color='black', linestyle=":", linewidth=1)
 
 # ax3_cbar = fig4.add_subplot(gs[73:75, 15:17])
 # cmap = plotting.cm._cmap_d['black_green_r']
