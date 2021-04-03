@@ -23,8 +23,47 @@ from subprocess import run
 
 import numpy as np
 import pandas as pd
+from atlasreader import get_statmap_info
 from nilearn import image, reporting
 from nimare.utils import mni2tal
+
+# %%
+# Read included experiments (Table 1)
+exps = pd.read_json("../results/exps.json")
+exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
+exps["n_foci"] = [len(foci) for foci in exps["foci"]]
+
+# Compute summary statistics
+_ = [
+    print(
+        col + ":",
+        "sum",
+        exps[col].sum(),
+        "mean",
+        exps[col].mean(),
+        "median",
+        exps[col].median(),
+        "min",
+        exps[col].min(),
+        "max",
+        exps[col].max(),
+    )
+    for col in ["n", "age_mean", "age_min", "age_max", "n_foci"]
+]
+
+# Compute weighted mean age
+exps["age_mean_weighted"] = [age * n for age, n in zip(exps["age_mean"], exps["n"])]
+print("weighted mean age:", exps["age_mean_weighted"].sum() / exps["n"].sum())
+
+# Compute sex and handedness ratios
+print(exps["sex_female"].sum() / (exps["sex_female"].sum() + exps["sex_male"].sum()))
+print(exps["hand_right"].sum() / (exps["hand_right"].sum() + exps["hand_left"].sum()))
+
+# Count peaks with and without effect sizes
+tstats = exps["tstats_corr"].explode()
+print(len(tstats[tstats != "p"]))
+print(len(tstats[tstats != "p"]) / len(tstats))
+print(len(tstats[tstats == "p"]))
 
 # %%
 # Define function to print the clusters from multiple images as a table
@@ -33,6 +72,7 @@ def combined_cluster_table(
     img_files_ale=[],
     stub_keys=[],
     stub_colname="Analysis",
+    atlas="aal",
     td_jar=None,
     output_file="cluster_table.tsv",
 ):
@@ -41,57 +81,58 @@ def combined_cluster_table(
     output_dir = path.dirname(output_file)
     makedirs(output_dir, exist_ok=True)
 
-    # Create a list of tables from the image files
-    imgs_z = [image.load_img(filename) for filename in img_files_z]
-    dfs_z = [
-        reporting.get_clusters_table(img, stat_threshold=0, min_distance=np.inf)
-        for img in imgs_z
+    # Create a list of DataFrames with peak and cluster stats for each image
+    df_tuples = [
+        get_statmap_info(img_file, cluster_extent=0, atlas="aal", voxel_thresh=0)
+        for img_file in img_files_z
+    ]
+    dfs = [
+        pd.DataFrame(
+            {
+                "Cluster #": df_tuple[0]["cluster_id"],
+                "Size (mm3)": df_tuple[0]["volume_mm"],
+                "Cluster labels": df_tuple[0][atlas],
+                "Mean z": df_tuple[0]["cluster_mean"],
+                "Peak z": df_tuple[1]["peak_value"],
+                "Peak X": df_tuple[1]["peak_x"],
+                "Peak Y": df_tuple[1]["peak_y"],
+                "Peak Z": df_tuple[1]["peak_z"],
+                "Peak label": df_tuple[1][atlas],
+            }
+        )
+        for df_tuple in df_tuples
     ]
 
-    # Re-order by cluster size and concatenate
-    dfs_z = [df.sort_values("Cluster Size (mm3)", ascending=False, ignore_index=True) for df in dfs_z]
-    df = pd.concat(dfs_z, keys=stub_keys)
-    df["Cluster ID"] = df.index.get_level_values(1) + 1
+    # Concatenate into one big DataFrame
+    df = pd.concat(dfs, keys=stub_keys)
 
-    # Get gray matter labels from the Talairach Deamon (Lancaster et al., 1997, 2000)
-    if td_jar:
+    # Reformat numerical columns
+    df["Size (mm3)"] = df["Size (mm3)"].apply(lambda x: "{:,.0f}".format(x))
+    cols_int = ["Cluster #", "Peak X", "Peak Y", "Peak Z"]
+    df[cols_int] = df[cols_int].applymap(int)
+    cols_2f = ["Mean z", "Peak z"]
+    df[cols_2f] = df[cols_2f].applymap(lambda x: "{:,.2f}".format(x))
 
-        # Write a file with coordinates in Talairach space
-        coords_file = output_dir + "/coords.txt"
-        coords_mni = np.array(df[["X", "Y", "Z"]])
-        coords_tal = mni2tal(coords_mni)
-        np.savetxt(coords_file, coords_tal, fmt="%.2f", delimiter="\t")
-
-        # Run Talairach Deamon from the command line
-        call = "java -cp " + td_jar + " org.talairach.ExcelToTD 4, " + coords_file
-        run(call, shell=True)
-
-        # Read into new df
-        names = ["X", "Y", "Z", "Hem", "Lobe", "Struct", "Matter", "BA"]
-        df_td = pd.read_csv(coords_file + ".td", sep="\t", header=None, names=names)
-
-        # Reformat and add to main df
-        df_td["Hem"] = df_td["Hem"].str[0]
-        df_td["BA"] = "(" + df_td["BA"] + ")"
-        df_td["BA"] = df_td["BA"].str.replace("Brodmann area", "BA").replace("(*)", "")
-        labels = df_td["Hem"] + " " + df_td["Struct"] + " " + df_td["BA"]
-        labels.index = df.index
-        df.insert(6, column="Nearest gray matter", value=labels)
-
-        # Remove intermediate files
-        _ = [remove(f) for f in [coords_file, coords_file + ".td"]]
-
-    # Do the same for the additional images and add to table (if requested)
+    # Do all of this again for the ALE images if requested
     if img_files_ale:
-        imgs_ale = [image.load_img(filename) for filename in img_files_ale]
-        dfs_ale = [
-            reporting.get_clusters_table(img, stat_threshold=0, min_distance=np.inf)
-            for img in imgs_ale
+        df_tuples_ale = [
+            get_statmap_info(img_file, cluster_extent=0, atlas="aal", voxel_thresh=0)
+            for img_file in img_files_ale
         ]
-        dfs_ale = [df.sort_values("Cluster Size (mm3)", ascending=False, ignore_index=True) for df in dfs_ale]
+        dfs_ale = [
+            pd.DataFrame(
+                {
+                    "Mean ALE": df_tuple[0]["cluster_mean"],
+                    "Peak ALE": df_tuple[1]["peak_value"],
+                }
+            )
+            for df_tuple in df_tuples_ale
+        ]
         df_ale = pd.concat(dfs_ale, keys=stub_keys)
-        df_ale["Peak Stat"] = ["{:,.3f}".format(x) for x in df_ale["Peak Stat"]]
-        df.insert(4, column="Peak ALE", value=df_ale["Peak Stat"])
+        cols_3f = ["Mean ALE", "Peak ALE"]
+        df_ale[cols_3f] = df_ale[cols_3f].applymap(lambda x: "{:,.3f}".format(x))
+        df.insert(4, column="Mean ALE", value=df_ale["Mean ALE"])
+        df.insert(6, column="Peak ALE", value=df_ale["Peak ALE"])
 
     # Add the stub column
     df.index = df.index.set_names([stub_colname, ""])
@@ -99,31 +140,14 @@ def combined_cluster_table(
     mask = df[stub_colname].duplicated()
     df.loc[mask.values, [stub_colname]] = ""
 
-    # Rename columns
-    df.rename(
-        columns={
-            "Cluster ID": "Cluster",
-            "Peak Stat": "Peak z",
-        },
-        inplace=True,
-    )
-
-    # Move cluster size to another position
-    size = df.pop("Cluster Size (mm3)")
-    df.insert(2, column="Size (mm3)", value=size)
-
-    # Re-format numerical columns
-    df[["X", "Y", "Z"]] = df[["X", "Y", "Z"]].applymap(int)
-    df["Peak z"] = ["{:,.2f}".format(x) for x in df["Peak z"]]
-    df["Size (mm3)"] = ["{:,}".format(x) for x in df["Size (mm3)"]]
-
-    # Save the cluster table
+    # Save to CSV
     df.to_csv(output_file, sep="\t", index=False)
 
     return df
 
 
-# Apply the function to create Table 2 (ALE results)
+# %%
+# Create Table 2 (ALE results)
 tab2 = combined_cluster_table(
     img_files_z=[
         "../results/ale/all_z_thresh.nii.gz",
@@ -144,10 +168,27 @@ tab2 = combined_cluster_table(
         "../results/ale/lexical_stat_thresh.nii.gz",
         "../results/ale/objects_stat_thresh.nii.gz",
     ],
-    td_jar="../software/talairach.jar",
+    atlas="aal",
     output_file="../results/tables/tab2.tsv",
 )
 display(tab2)
+
+# %%
+# Create Table 3 (SDM results)
+tab3 = combined_cluster_table(
+    img_files_z=[
+        "../results/sdm/analysis_mod1/mod1_z_thresh.nii.gz",
+        "../results/sdm/analysis_mod2/mod2_z_thresh.nii.gz",
+    ],
+    stub_keys=[
+        "Without covariates",
+        "With covariates",
+    ],
+    stub_colname="SDM analysis",
+    atlas="aal",
+    output_file="../results/tables/tab3.tsv",
+)
+display(tab3)
 
 # %%
 # from nimare import utils
