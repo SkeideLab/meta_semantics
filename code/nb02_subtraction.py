@@ -137,7 +137,7 @@ if __name__ == "__main__":
         run_subtraction(
             text_file1=key,
             text_file2=value,
-            voxel_thresh=0.01,
+            voxel_thresh=0.001,
             cluster_size=200,
             random_seed=1234,
             n_iters=10000,
