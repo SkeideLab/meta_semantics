@@ -103,20 +103,15 @@ def combined_cluster_table(
         for df_tuple in df_tuples
     ]
 
-    # Concatenate into one big DataFrame
-    df = pd.concat(dfs, keys=stub_keys)
-
-    # Reformat numerical columns
-    df["Size (mm3)"] = df["Size (mm3)"].apply(lambda x: "{:,.0f}".format(x))
-    cols_int = ["Cluster #", "Peak X", "Peak Y", "Peak Z"]
-    df[cols_int] = df[cols_int].applymap(int)
-    cols_2f = ["Mean z", "Peak z"]
-    df[cols_2f] = df[cols_2f].applymap(lambda x: "{:,.2f}".format(x))
-
-    # Do all of this again for the ALE images if requested
+    # Add ALE values if available
     if img_files_ale:
         df_tuples_ale = [
             get_statmap_info(img_file, cluster_extent=0, atlas="aal", voxel_thresh=0)
+            if img_file
+            else (
+                pd.DataFrame({"cluster_mean": [float("nan")]}),
+                pd.DataFrame({"peak_value": [float("nan")]}),
+            )
             for img_file in img_files_ale
         ]
         dfs_ale = [
@@ -128,11 +123,23 @@ def combined_cluster_table(
             )
             for df_tuple in df_tuples_ale
         ]
-        df_ale = pd.concat(dfs_ale, keys=stub_keys)
+        for df, df_ale in zip(dfs, dfs_ale):
+            df.insert(4, column="Mean ALE", value=df_ale["Mean ALE"])
+            df.insert(6, column="Peak ALE", value=df_ale["Peak ALE"])
+
+    # Concatenate into one big DataFrame
+    df = pd.concat(dfs, keys=stub_keys)
+
+    # Reformat numerical columns
+    df["Size (mm3)"] = df["Size (mm3)"].apply(lambda x: "{:,.0f}".format(x))
+    cols_int = ["Cluster #", "Peak X", "Peak Y", "Peak Z"]
+    df[cols_int] = df[cols_int].applymap(int)
+    cols_2f = ["Mean z", "Peak z"]
+    df[cols_2f] = df[cols_2f].applymap(lambda x: "{:,.2f}".format(x))
+    if img_files_ale:
         cols_3f = ["Mean ALE", "Peak ALE"]
-        df_ale[cols_3f] = df_ale[cols_3f].applymap(lambda x: "{:,.3f}".format(x))
-        df.insert(4, column="Mean ALE", value=df_ale["Mean ALE"])
-        df.insert(6, column="Peak ALE", value=df_ale["Peak ALE"])
+        df[cols_3f] = df[cols_3f].applymap(lambda x: "{:,.3f}".format(x))
+        df[cols_3f] = df[cols_3f].replace("nan", "")
 
     # Add the stub column
     df.index = df.index.set_names([stub_colname, ""])
@@ -147,26 +154,23 @@ def combined_cluster_table(
 
 
 # %%
-# Create Table 2 (ALE results)
+# Create Table 2 (ALE & SDM results)
 tab2 = combined_cluster_table(
     img_files_z=[
         "../results/ale/all_z_thresh.nii.gz",
-        "../results/ale/knowledge_z_thresh.nii.gz",
-        "../results/ale/lexical_z_thresh.nii.gz",
-        "../results/ale/objects_z_thresh.nii.gz",
+        "../results/sdm/analysis_mod1/mod1_z_thresh.nii.gz",
+        "../results/sdm/analysis_mod2/mod2_z_thresh.nii.gz",
     ],
     stub_keys=[
-        "All experiments",
-        "Semantic knowledge",
-        "Lexical semantics",
-        "Visual semantics",
+        "Activation likelihood estimation",
+        "Seed-based d mapping",
+        "With covariates",
     ],
     stub_colname="ALE analysis",
     img_files_ale=[
         "../results/ale/all_stat_thresh.nii.gz",
-        "../results/ale/knowledge_stat_thresh.nii.gz",
-        "../results/ale/lexical_stat_thresh.nii.gz",
-        "../results/ale/objects_stat_thresh.nii.gz",
+        None,
+        None,
     ],
     atlas="aal",
     output_file="../results/tables/tab2.tsv",
@@ -174,43 +178,44 @@ tab2 = combined_cluster_table(
 display(tab2)
 
 # %%
-# Create Table 3 (SDM results)
+# Create Table 3 (task category ALEs)
 tab3 = combined_cluster_table(
     img_files_z=[
-        "../results/sdm/analysis_mod1/mod1_z_thresh.nii.gz",
-        "../results/sdm/analysis_mod2/mod2_z_thresh.nii.gz",
+        "../results/ale/knowledge_z_thresh.nii.gz",
+        "../results/ale/lexical_z_thresh.nii.gz",
+        "../results/ale/objects_z_thresh.nii.gz",
     ],
     stub_keys=[
-        "Without covariates",
-        "With covariates",
+        "Knowledge",
+        "Relatedness",
+        "Objects",
     ],
-    stub_colname="SDM analysis",
+    stub_colname="ALE analysis",
+    img_files_ale=[
+        "../results/ale/knowledge_stat_thresh.nii.gz",
+        "../results/ale/lexical_stat_thresh.nii.gz",
+        "../results/ale/objects_stat_thresh.nii.gz",
+    ],
     atlas="aal",
     output_file="../results/tables/tab3.tsv",
 )
 display(tab3)
 
 # %%
-# from nimare import utils
-# from nilearn import datasets, plotting
-
-# img = image.load_img("../results/ale/all_z_thresh.nii.gz")
-# coords = np.array(test[["X", "Y", "Z"]], dtype="int").T
-# coords = np.row_stack([coords, np.ones_like(coords[0])])
-# vox_coords = np.linalg.solve(img.affine, coords)[0:3].astype("int")
-
-# # i, j, k = image.coord_transform(test["X"], test["Y"], test["Z"], affine=inv_affine)
-# # ijk = np.array([i, j, k], dtype="int").transpose()
-
-# atlas = datasets.fetch_atlas_talairach("ba")
-# dat = atlas.maps.get_fdata()[vox_coords[0], vox_coords[1], vox_coords[2]]
-
-# %%
-# import atlasreader
-
-# img = image.load_img("../results/ale/all_z_thresh.nii.gz")
-
-# tab_clusters, tab_peaks = atlasreader.get_statmap_info(
-#     img, cluster_extent=0, atlas=atlasreader.atlasreader._ATLASES
-# )
-# display(tab_clusters)
+# Create Table 4 (differences between task categories)
+tab4 = combined_cluster_table(
+    img_files_z=[
+        "../results/subtraction/knowledge_minus_nknowledge_z_thresh.nii.gz",
+        "../results/subtraction/lexical_minus_nlexical_z_thresh.nii.gz",
+        "../results/subtraction/objects_minus_nobjects_z_thresh.nii.gz",
+    ],
+    stub_keys=[
+        "Knowledge > (relatedness + objects)",
+        "Relatedness > (knowledge + objects)",
+        "Objects > (knowledge + relatedness)",
+    ],
+    stub_colname="ALE subtraction",
+    atlas="aal",
+    output_file="../results/tables/tab4.tsv",
+)
+display(tab4)
