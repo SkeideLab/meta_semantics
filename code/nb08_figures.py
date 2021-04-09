@@ -16,27 +16,146 @@
 # ---
 
 # %%
-import pandas as pd
-import numpy as np
-from nilearn import image, plotting
-import matplotlib as mpl
-from scipy import stats
 from os import makedirs
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from nilearn import image, plotting
+from scipy import stats
+from scipy.stats import pearsonr
 
 # %%
 # Set fonts for matplotlib
-mpl.rcParams.update({"font.family": ["FreeSans"], "font.size": 15})
+mpl.rcParams.update({"font.family": ["FreeSans"], "font.size": 12})
 
 # Create output directory
 makedirs("../results/figures", exist_ok=True)
 
-# We want to be able to specify the figure size in mm
-mm = 0.1 / 2.54
+# Define scaling factor so we can set all the figure sizes in scaling
+scaling = 2 / 30
 
 # %%
 # Read table of experiments from ALE analysis
 exps = pd.read_json("../results/exps.json")
 
+# Capitalize the task type labels
+exps["task_type"] = exps["task_type"].str.capitalize()
+
+# Get numeric indices for task types
+tasks, tasks_int = np.unique(exps["task_type"], return_inverse=True)
+
+# Create a custom color palette for the task types
+vmax_viridis = 2 / 0.75
+norm = mpl.colors.Normalize(vmin=0, vmax=vmax_viridis, clip=True)
+mapper = mpl.cm.ScalarMappable(norm=norm, cmap="viridis")
+rgbas = [mapper.to_rgba(color) for color in range(3)]
+palette = dict(zip(tasks, rgbas))
+
+# Create a dummy plot so we can create a legend from it later on
+p = sns.scatterplot(
+    data=exps, x="n", y="n", hue="task_type", palette=palette, hue_order=tasks
+)
+handles, labels = plt.gca().get_legend_handles_labels()
+
+# %%
+# Create a new figure for the distributions of sample size, no. of foci, and mean age
+figsize = (90 * scaling, 90 * scaling)
+fig2, axs = plt.subplots(nrows=3, ncols=3, figsize=figsize)
+
+# Specify custom margins
+_ = fig2.subplots_adjust(
+    left=8 * scaling / figsize[0],
+    bottom=8 * scaling / figsize[1],
+    right=1 - 1 * scaling / figsize[0],
+    top=1 - 1 * scaling / figsize[1],
+)
+
+# Create a custom function for the histograms
+def histplot_custom(x, bins, ax):
+    plt.sca(ax)
+    plt.axis(xmin=bins.min(), xmax=bins.max())
+    p = sns.histplot(
+        data=exps,
+        x=x,
+        bins=bins,
+        hue="task_type",
+        hue_order=tasks,
+        palette=palette,
+        multiple="stack",
+        legend=False,
+    )
+    p.set_xticks(bins[0::2])
+    p.set_ylabel("")
+    p.set_xlabel("")
+    p.tick_params(axis="y", colors="white")
+
+
+# Create a custom function for the regression plots
+def regplot_custom(x, y, ax, xbins, ybins):
+    plt.sca(ax)
+    taks_colors = [palette[tasks[x]] for x in tasks_int]
+    plt.axis(xmin=xbins.min(), xmax=xbins.max(), ymin=ybins.min(), ymax=ybins.max())
+    p = sns.regplot(
+        data=exps,
+        x=x,
+        y=y,
+        color="gray",
+        scatter_kws=dict({"linewidths": 0, "color": taks_colors}),
+    )
+    p.set_xticks(xbins[0::2])
+    p.set_yticks(ybins[0::2])
+    p.set_ylabel("")
+    p.set_xlabel("")
+
+
+# Create a custom function to show the regression coefficient
+def plot_reg_coef(x, y, ax):
+    plt.sca(ax)
+    r, p = pearsonr(exps[x], exps[y])
+    label = "r = {:.2f}".format(r).replace("0.", ".").replace("r", "$\it{r}$")
+    plt.gca().annotate(label, xy=(0.5, 0.5), xycoords="axes fraction", ha="center")
+    plt.gca().set_axis_off()
+
+
+# Specify separate bin widths for each variable
+bins_n = np.arange(0, 80, step=10)
+bins_foci = np.arange(0, 51, step=5)
+bins_age = np.arange(4, 14, step=1)
+
+# Create the histograms
+histplot_custom(x="n", bins=bins_n, ax=axs[0][0])
+histplot_custom(x="foci_n", bins=bins_foci, ax=axs[1][1])
+histplot_custom(x="age_mean", bins=bins_age, ax=axs[2][2])
+
+# Create the regression plots
+regplot_custom(x="n", y="foci_n", ax=axs[1][0], xbins=bins_n, ybins=bins_foci)
+regplot_custom(x="n", y="age_mean", ax=axs[2][0], xbins=bins_n, ybins=bins_age)
+regplot_custom(x="foci_n", y="age_mean", ax=axs[2][1], xbins=bins_foci, ybins=bins_age)
+
+# Add the regression coefficients
+plot_reg_coef(x="foci_n", y="n", ax=axs[0][1])
+plot_reg_coef(x="age_mean", y="n", ax=axs[0][2])
+plot_reg_coef(x="age_mean", y="foci_n", ax=axs[1][2])
+
+# Add the legend
+bbox = (0.9, 0.2, 0, 0)
+axs[0][2].legend(handles, labels, bbox_to_anchor=bbox, frameon=False, handlelength=0.5)
+
+# Set axis labels to the outer plots
+axs[2][0].set_xlabel("Sample size")
+axs[2][1].set_xlabel("No. of foci")
+axs[2][2].set_xlabel("Mean age")
+axs[0][0].set_ylabel("Sample size")
+axs[1][0].set_ylabel("No. of foci")
+axs[2][0].set_ylabel("Mean age")
+
+# Save as PDF
+fig2.savefig("../results/figures/fig2.pdf")
+
+# %%
 # Extract all individual foci and their z-value
 foci_coords = np.array(exps["foci_mni"].explode().tolist())
 foci_zstat = [
@@ -48,30 +167,23 @@ foci_zstat = [
 idxs_p = np.where(np.isnan(foci_zstat))[0]
 
 # Create a new figure with four subplots
-figsize = (190 * mm, 265 * mm)
-fig2 = mpl.pyplot.figure(figsize=figsize)
-gs = fig2.add_gridspec(255, 180)
-ax1 = fig2.add_subplot(gs[0:60, :])
-ax2 = fig2.add_subplot(gs[60:120, :])
-ax3 = fig2.add_subplot(gs[120:165, :])
-ax4 = fig2.add_subplot(gs[165:210, :])
-ax5 = fig2.add_subplot(gs[210:255, :])
+figsize = (90 * scaling, 135 * scaling)
+fig3 = plt.figure(figsize=figsize)
+gs = fig3.add_gridspec(135, 90)
+ax1 = fig3.add_subplot(gs[0:30, :])
+ax2 = fig3.add_subplot(gs[30:60, :])
+ax3 = fig3.add_subplot(gs[60:85, :])
+ax4 = fig3.add_subplot(gs[85:110, :])
+ax5 = fig3.add_subplot(gs[110:135, :])
 
 # Specify smaller margins
-margin = 5 * mm
 margins = {
-    "left": margin / figsize[0],
-    "bottom": margin / figsize[1],
-    "right": 1 - margin / figsize[0],
-    "top": 1 - margin / figsize[1],
+    "left": 0,
+    "bottom": 0,
+    "right": 1 - 0.1 * scaling / figsize[0],
+    "top": 1 - 0.1 * scaling / figsize[1],
 }
-_ = fig2.subplots_adjust(**margins)
-
-# Add subplot labels
-_ = ax1.annotate("A", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax3.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax4.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax5.annotate("D", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = fig3.subplots_adjust(**margins)
 
 # Plot individual foci (without effect sizes)
 p1_1 = plotting.plot_markers(  # left and right
@@ -153,32 +265,11 @@ p5 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax5)
 p5.add_overlay(img_sdm, cmap="YlOrRd", vmin=0, vmax=8)
 
 # Add a joint colorbar
-ax_cbar = fig2.add_subplot(gs[65:110, 86:92])
-cmap = mpl.pyplot.get_cmap("YlOrRd")
+ax_cbar = fig3.add_subplot(gs[34:56, 43:46])
+cmap = plt.get_cmap("YlOrRd")
 norm = mpl.colors.Normalize(vmin=0, vmax=8)
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
-mpl.pyplot.axhline(y=3.1, color="black", linewidth=1)
-
-# Save to PDF
-fig2.savefig("../results/figures/fig2.pdf")
-
-# %%
-# Get task types of individual foci
-foci_tasks = exps.explode("tstats")["task_type"]
-foci_tasks_lookup, foci_types_int = np.unique(foci_tasks, return_inverse=True)
-
-# Create a new figure with four subplots
-figsize = (190 * mm, 265 * mm)
-fig3 = mpl.pyplot.figure(figsize=figsize)
-gs = fig3.add_gridspec(255, 180)
-ax1 = fig3.add_subplot(gs[0:60, :])
-ax2 = fig3.add_subplot(gs[60:120, :])
-ax3 = fig3.add_subplot(gs[120:165, :])
-ax4 = fig3.add_subplot(gs[165:210, :])
-ax5 = fig3.add_subplot(gs[210:255, :])
-
-# Specify smaller margins
-_ = fig3.subplots_adjust(**margins)
+plt.axhline(y=3.1, color="black", linewidth=1)
 
 # Add subplot labels
 _ = ax1.annotate("A", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
@@ -186,26 +277,47 @@ _ = ax3.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
 _ = ax4.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
 _ = ax5.annotate("D", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
 
+# Save to PDF
+fig3.savefig("../results/figures/fig3.pdf")
+
+# %%
+# Get task types of individual foci
+foci_tasks = exps.explode("tstats")["task_type"]
+_, foci_tasks = np.unique(foci_tasks, return_inverse=True)
+
+# Create a new figure with four subplots
+figsize = (90 * scaling, 135 * scaling)
+fig4 = plt.figure(figsize=figsize)
+gs = fig4.add_gridspec(135, 90)
+ax1 = fig4.add_subplot(gs[0:30, :])
+ax2 = fig4.add_subplot(gs[30:60, :])
+ax3 = fig4.add_subplot(gs[60:85, :])
+ax4 = fig4.add_subplot(gs[85:110, :])
+ax5 = fig4.add_subplot(gs[110:135, :])
+
+# Specify smaller margins
+_ = fig4.subplots_adjust(**margins)
+
 # Plot individual foci
 p1 = plotting.plot_markers(  # left and right
-    node_values=foci_types_int,
+    node_values=foci_tasks,
     node_coords=foci_coords,
     node_size=10,
     node_cmap="viridis",
     node_vmin=0,
-    node_vmax=2 / 0.85,
+    node_vmax=vmax_viridis,
     display_mode="lr",
     axes=ax1,
     node_kwargs=dict({"linewidths": 0}),
     colorbar=False,
 )
 p2 = plotting.plot_markers(  # coronal and horizontal
-    node_values=foci_types_int,
+    node_values=foci_tasks,
     node_coords=foci_coords,
     node_size=10,
     node_cmap="viridis",
     node_vmin=0,
-    node_vmax=2 / 0.85,
+    node_vmax=vmax_viridis,
     display_mode="yz",
     axes=ax2,
     node_kwargs=dict({"linewidths": 0}),
@@ -219,65 +331,37 @@ for task, ax_task in zip(["knowledge", "lexical", "objects"], [ax3, ax4, ax5]):
     p_task.add_overlay(img_task, cmap="YlOrRd", vmin=0, vmax=8)
 
 # Add a legend for the task types
-legend_elements = [
-    mpl.lines.Line2D(
-        [0],
-        [0],
-        marker="o",
-        color="w",
-        label="Knowledge",
-        markerfacecolor="#440154FF",
-        markersize=8,
-    ),
-    mpl.lines.Line2D(
-        [0],
-        [0],
-        marker="o",
-        color="w",
-        label="Lexical",
-        markerfacecolor="#277E8EFF",
-        markersize=8,
-    ),
-    mpl.lines.Line2D(
-        [0],
-        [0],
-        marker="o",
-        color="w",
-        label="Objects",
-        markerfacecolor="#9AD93CFF",
-        markersize=8,
-    ),
-]
-ax_leg = fig3.add_subplot(gs[65:100, 94])
-ax_leg.legend(handles=legend_elements, loc="center", frameon=False, handlelength=0)
+ax_leg = fig4.add_subplot(gs[35, 56])
+# ax_leg = fig4.add_subplot(gs[25, 54])  # if cbar in the center
+ax_leg.legend(handles, labels, frameon=False, handlelength=0.5)
 ax_leg.set_axis_off()
 
 # Add a joint colorbar for the ALE maps
-ax_cbar = fig3.add_subplot(gs[65:110, 165:171])
-cmap = mpl.pyplot.get_cmap("YlOrRd")
-norm = mpl.colors.Normalize(vmin=0, vmax=8)
+ax_cbar = fig4.add_subplot(gs[34:56, 81:84])
+# ax_cbar = fig4.add_subplot(gs[39:61, 43:46])  # if cbar in the center
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
-mpl.pyplot.axhline(y=3.1, color="black", linewidth=1)
-
-# Save to PDF
-fig3.savefig("../results/figures/fig3.pdf")
-
-# %%
-# Create a new figure with three subplots
-figsize = (190 * mm, 145 * mm)
-fig4 = mpl.pyplot.figure(figsize=figsize)
-gs = fig4.add_gridspec(135, 180)
-ax1 = fig4.add_subplot(gs[0:45, :])
-ax2 = fig4.add_subplot(gs[45:90, :])
-ax3 = fig4.add_subplot(gs[90:135, :])
-
-# Specify smaller margins
-_ = fig4.subplots_adjust(**margins)
+plt.axhline(y=3.1, color="black", linewidth=1)
 
 # Add subplot labels
 _ = ax1.annotate("A", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax2.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax3.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax4.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax5.annotate("D", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+
+# Save to PDF
+fig4.savefig("../results/figures/fig4.pdf")
+
+# %%
+# Create a new figure with three subplots
+figsize = (90 * scaling, 95 * scaling)
+fig5 = plt.figure(figsize=figsize)
+gs = fig5.add_gridspec(95, 90)
+ax1 = fig5.add_subplot(gs[0:25, :])
+ax2 = fig5.add_subplot(gs[30:55, :])
+ax3 = fig5.add_subplot(gs[60:85, :])
+
+# Specify smaller margins
+_ = fig5.subplots_adjust(**margins)
 
 # Plot ALE map for adults
 img_adults = image.load_img("../results/adults/adults_z_thresh.nii.gz")
@@ -303,24 +387,53 @@ img_conj = image.math_img(formula, img1=img_all, img2=img_adults)
 p3 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax3)
 p3.add_overlay(img_conj, cmap="YlGn", vmin=0, vmax=8)
 
-# # Add colorbars
-# ax1_cbar = fig4.add_subplot(gs[19:21, 15:17])
-# cmap = plotting.cm._cmap_d['black_red_r']
-# norm = mpl.colors.Normalize(vmin=0, vmax=12)
-# mpl.colorbar.ColorbarBase(ax1_cbar, cmap=cmap, norm=norm, label='$\it{Z}$-score', orientation='horizontal')
-# mpl.pyplot.axvline(x=3.1, color='black', linestyle=":", linewidth=1)
+# Add colorbar for adults
+ax1_cbar = fig5.add_subplot(gs[24:27, 36:54])
+cmap1 = plt.get_cmap("YlOrRd")
+norm = mpl.colors.Normalize(vmin=0, vmax=12)
+mpl.colorbar.ColorbarBase(
+    ax1_cbar, cmap=cmap1, norm=norm, orientation="horizontal", ticks=np.arange(0, 13, 4)
+)
+plt.axvline(x=3.1, color="black", linewidth=1)
 
-# ax2_cbar = fig4.add_subplot(gs[46:48, 14:18])
-# cmap = plotting.cm._cmap_d['cold_white_hot']
-# norm = mpl.colors.Normalize(vmin=-5, vmax=5)
-# mpl.colorbar.ColorbarBase(ax2_cbar, cmap=cmap, norm=norm, label='Children > adults | Adults > children', orientation='horizontal')
-# mpl.pyplot.axvline(x=-3.1, color='black', linestyle=":", linewidth=1)
-# mpl.pyplot.axvline(x=3.1, color='black', linestyle=":", linewidth=1)
+# Add colorbar for children > adults & adults > children
+ax2_cbar = fig5.add_subplot(gs[54:57, 36:54])
+cmap2 = plt.get_cmap("RdYlBu_r")
+norm = mpl.colors.Normalize(vmin=-4, vmax=4)
+mpl.colorbar.ColorbarBase(
+    ax2_cbar, cmap=cmap2, norm=norm, orientation="horizontal", ticks=np.arange(-4, 5, 2)
+)
+plt.axvline(x=-3.1, color="black", linewidth=1)
+plt.axvline(x=3.1, color="black", linewidth=1)
 
-# ax3_cbar = fig4.add_subplot(gs[73:75, 15:17])
-# cmap = plotting.cm._cmap_d['black_green_r']
-# norm = mpl.colors.Normalize(vmin=0, vmax=0.06)
-# mpl.colorbar.ColorbarBase(ax3_cbar, cmap=cmap, norm=norm, label='ALE value', orientation='horizontal')
+# Add colorbar for conjunction
+ax3_cbar = fig5.add_subplot(gs[84:87, 36:54])
+cmap3 = plt.get_cmap("YlGn")
+norm = mpl.colors.Normalize(vmin=0, vmax=8)
+mpl.colorbar.ColorbarBase(
+    ax3_cbar,
+    cmap=cmap3,
+    norm=norm,
+    orientation="horizontal",
+    ticks=np.arange(0, 9, 2),
+    label="$\it{z}$ score",
+)
+plt.axvline(x=3.1, color="black", linewidth=1)
+
+# Add colorbar labels
+for row, col, label in zip(
+    [26, 56, 56, 86],
+    [31, 31, 73, 31],
+    ["Adults", "Adults > children", "Children > adults", "Conjunction"],
+):
+    ax1_cbar_label = fig5.add_subplot(gs[row : row + 2, col + 2])
+    ax1_cbar_label.text(0, 0, label, horizontalalignment="right")
+    ax1_cbar_label.set_axis_off()
+
+# Add subplot labels
+_ = ax1.annotate("A", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax2.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
 
 # Save to PDF
-fig4.savefig("../results/figures/fig4.pdf")
+fig5.savefig("../results/figures/fig5.pdf")
