@@ -12,7 +12,7 @@
 # %%
 import random
 from math import sqrt
-from os import makedirs, pat
+from os import makedirs, path
 from re import sub
 from shutil import copy
 from sys import argv
@@ -100,12 +100,12 @@ def compute_fsn(
     cluster_thresh=0.01,
     n_iters=1000,
     random_ale_seed=None,
-    random_filedrawer_seed=None,
+    random_null_seed=None,
     output_dir="./",
 ):
 
     # Print what we're going to do
-    print("\nCOMPUTING FSN FOR " + text_file + " (seed: " + str(random_seed) + ")")
+    print("\nCOMPUTING FSN FOR " + text_file + " (seed: " + str(random_null_seed) + ")")
 
     # Set random seed for original ALE if requested
     if random_ale_seed:
@@ -123,17 +123,13 @@ def compute_fsn(
     # Extract the original study IDs
     ids_orig = dset_orig.ids.tolist()
 
-    # Set random seed for the filedrawer of null studies if requested
-    if random_filedrawer_seed:
-        np.random.seed(random_filedrawer_seed)
-
     # Create a new data set with a large number null studies added
-    k_max = len(ids_orig) * 10
+    k_max = len(ids_orig) * 2
     dset_null = generate_null(
         text_file=text_file,
         space=space,
         k_null=k_max,
-        random_seed=random_seed,
+        random_seed=random_null_seed,
         output_dir=output_dir,
     )
 
@@ -150,17 +146,11 @@ def compute_fsn(
     # Create cluster table where FSN will be added
     tab_fsn = reporting.get_clusters_table(img_z, stat_threshold=0, min_distance=1000)
 
-    # Initialize the number of null studies
-    k = 0
-
-    # Iteratively add null studies
-    while True:
-
-        # Add one null study
-        k = k + 1
+    # Iteratively add null studies up to a certain maximum
+    for k in range(1, k_max + 1):
 
         # Print message
-        print("Computing ALE for k = " + str(k) + " null studies added")
+        print("Computing ALE for k = " + str(k) + " null studies added...")
 
         # Create a new data set
         ids_null = ["nullstudy" + str(x) + "-" for x in range(1, k + 1)]
@@ -206,11 +196,11 @@ def compute_fsn(
 
 
 # %%
-# # Define the Sleuth file names directly wihin the script
-# prefixes = ["all", "knowledge", "lexical", "objects"]
+# Define the Sleuth file names directly wihin the script
+prefixes = ["all", "knowledge", "lexical", "objects"]
 
-# Get the Sleuth file names for which to compute the FSN from the command line
-prefixes = argv[1].split(",")
+# # Get the Sleuth file names for which to compute the FSN from the command line
+# prefixes = argv[1].split(",")
 
 # List Sleuth files for which we want to perform an FSN analysis
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
@@ -220,11 +210,12 @@ output_dirs = ["../results/fsn_full/" + prefix + "/" for prefix in prefixes]
 
 # How many different filedrawers to compute for each text file?
 nr_filedrawers = 10
-filedrawers = ["filedrawer" + str(fd) for fd in range(1, nr_filedrawers + 1)]
+filedrawers = ["filedrawer" + str(fd) for fd in range(nr_filedrawers)]
 
 # Create a reproducible random seed for each filedrawer
-random.seed(1234)
-random_seeds = random.sample(range(0, 1000), k=nr_filedrawers)
+random_master_seed = 1234
+random.seed(random_master_seed)
+random_null_seeds = random.sample(range(1000), k=nr_filedrawers)
 
 # %%
 # Use our function to compute multiple filedrawers for each text file
@@ -236,11 +227,11 @@ tabs_fsn, imgs_fsn = [
             voxel_thresh=0.001,
             cluster_thresh=0.01,
             n_iters=1000,
-            random_ale_seed=1234,
-            random_filedrawer_seed=random_seed,
+            random_ale_seed=random_master_seed,
+            random_null_seed=random_null_seed,
             output_dir=output_dir + filedrawer,
         )
-        for random_seed, filedrawer in zip(random_seeds, filedrawers)
+        for random_null_seed, filedrawer in zip(random_null_seeds, filedrawers)
     ]
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
@@ -252,7 +243,7 @@ tab = [
         "../results/fsn_full/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.tsv",
         delimiter="\t",
     )
-    for fd in range(1, 11)
+    for fd in range(nr_filedrawers)
 ]
 tab = pd.concat(tab)
 
@@ -272,7 +263,7 @@ imgs_knowledge = [
     image.load_img(
         "../results/fsn_full/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.nii.gz"
     )
-    for fd in range(1, 11)
+    for fd in range(nr_filedrawers)
 ]
 img_knowledge = image.mean_img(imgs_knowledge)
 p = plotting.plot_glass_brain(None)

@@ -98,7 +98,7 @@ def compute_fsn(
     cluster_thresh=0.01,
     n_iters=1000,
     random_ale_seed=None,
-    random_filedrawer_seed=None,
+    random_null_seed=None,
     output_dir="./",
 ):
 
@@ -107,7 +107,7 @@ def compute_fsn(
         "\nCOMPUTING FSN FOR ALL CLUSTERS IN "
         + text_file
         + " (random seed: "
-        + str(random_seed)
+        + str(random_null_seed)
         + ")\n"
     )
 
@@ -146,19 +146,15 @@ def compute_fsn(
         img_orig, min_region_size=0, extract_type="connected_components"
     )
 
-    # Determine the maximal number of null studies to add (original studies x 5)
+    # Determine the maximal number of null studies to add (original studies x 15)
     k_max = len(dset_orig.ids) * 15
-
-    # Set random seed for the filedrawer of null studies if requested
-    if random_filedrawer_seed:
-        np.random.seed(random_filedrawer_seed)
 
     # Create a new data set with null studies added
     dset_null = generate_null(
         text_file=text_file,
         space=space,
         k_null=k_max,
-        random_seed=random_seed,
+        random_seed=random_null_seed,
         output_dir=output_dir,
     )
 
@@ -281,8 +277,9 @@ nr_filedrawers = 10
 filedrawers = ["filedrawer" + str(fd) for fd in range(nr_filedrawers)]
 
 # Create a reproducible random seed for each filedrawer
-random.seed(1234)
-random_seeds = random.sample(range(0, 1000), k=nr_filedrawers)
+random_master_seed = 1234
+random.seed(random_master_seed)
+random_null_seeds = random.sample(range(0, 1000), k=nr_filedrawers)
 
 # Use our function to compute multiple filedrawers for each text file
 _ = [
@@ -293,11 +290,11 @@ _ = [
             voxel_thresh=0.001,
             cluster_thresh=0.01,
             n_iters=1000,
-            random_ale_seed=1234,
-            random_filedrawer_seed=random_seed,
+            random_ale_seed=random_master_seed,
+            random_null_seed=random_null_seed,
             output_dir=output_dir + filedrawer,
         )
-        for random_seed, filedrawer in zip(random_seeds, filedrawers)
+        for random_null_seed, filedrawer in zip(random_null_seeds, filedrawers)
     ]
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
