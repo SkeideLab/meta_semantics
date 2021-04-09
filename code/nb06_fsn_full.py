@@ -252,7 +252,7 @@ tab = [
         "../results/fsn_full/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.tsv",
         delimiter="\t",
     )
-    for fd in range(1, 11)
+    for fd in range(10)
 ]
 tab = pd.concat(tab)
 
