@@ -18,6 +18,7 @@
 # %%
 from os import makedirs
 
+import font_source_sans_pro
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,8 +29,9 @@ from scipy import stats
 from scipy.stats import pearsonr
 
 # %%
-# Set fonts for matplotlib
-mpl.rcParams.update({"font.family": ["FreeSans"], "font.size": 12})
+# Set Source Sans Pro as the font for all plot
+fontpaths = font_source_sans_pro.__file__.replace("__init__.py", "files/")
+_ = mpl.font_manager.findSystemFonts(fontpaths=fontpaths, fontext='ttf')
 
 # Create output directory
 makedirs("../results/figures", exist_ok=True)
