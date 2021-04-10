@@ -142,7 +142,7 @@ def combined_cluster_table(
         df[cols_3f] = df[cols_3f].replace("nan", "")
 
     # Add the stub column
-    df.index = df.index.set_names([stub_colname, ""])
+    df.index = df.index.set_names(stub_colname, level=0)
     df.reset_index(level=stub_colname, inplace=True)
     mask = df[stub_colname].duplicated()
     df.loc[mask.values, [stub_colname]] = ""
@@ -166,14 +166,14 @@ tab2 = combined_cluster_table(
         "Seed-based d mapping",
         "With covariates",
     ],
-    stub_colname="ALE analysis",
+    stub_colname="Analysis",
     img_files_ale=[
         "../results/ale/all_stat_thresh.nii.gz",
         None,
         None,
     ],
     atlas="aal",
-    output_file="../results/tables/tab2.tsv",
+    output_file="../results/tables/tab2_children.tsv",
 )
 display(tab2)
 
@@ -197,7 +197,7 @@ tab3 = combined_cluster_table(
         "../results/ale/objects_stat_thresh.nii.gz",
     ],
     atlas="aal",
-    output_file="../results/tables/tab3.tsv",
+    output_file="../results/tables/tab3_tasks.tsv",
 )
 display(tab3)
 
@@ -216,6 +216,22 @@ tab4 = combined_cluster_table(
     ],
     stub_colname="ALE subtraction",
     atlas="aal",
-    output_file="../results/tables/tab4.tsv",
+    output_file="../results/tables/tab4_subtraction.tsv",
 )
 display(tab4)
+
+# %%
+# Create Table 5 (adults)
+tab5 = combined_cluster_table(
+    img_files_z=[
+        "../results/adults/adults_z_thresh.nii.gz",
+        "../results/adults/children_minus_adults_z_thresh.nii.gz",
+        "../results/adults/children_conj_adults_z.nii.gz",
+    ],
+    stub_keys=["Adults", "Children > adults", "Conjunction"],
+    stub_colname="ALE analysis",
+    img_files_ale=["../results/adults/adults_stat_thresh.nii.gz", None, None],
+    atlas="aal",
+    output_file="../results/tables/tab5_adults.tsv",
+)
+display(tab5)

@@ -382,8 +382,7 @@ p2 = plotting.plot_glass_brain(
 )
 
 # Plot conjunction
-formula = "np.where(img1 * img2 > 0, np.minimum(img1, img2), 0)"
-img_conj = image.math_img(formula, img1=img_all, img2=img_adults)
+img_conj = image.load_img("../results/adults/children_conj_adults_z.nii.gz")
 p3 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax3)
 p3.add_overlay(img_conj, cmap="YlGn", vmin=0, vmax=8)
 
