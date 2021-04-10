@@ -29,9 +29,8 @@ from scipy import stats
 from scipy.stats import pearsonr
 
 # %%
-# Set Source Sans Pro as the font for all plot
-fontpaths = font_source_sans_pro.__file__.replace("__init__.py", "files/")
-_ = mpl.font_manager.findSystemFonts(fontpaths=fontpaths, fontext='ttf')
+# Specify default font
+mpl.rcParams.update({"font.family": ["Liberation Sans"], "font.size": 12})
 
 # Create output directory
 makedirs("../results/figures", exist_ok=True)
