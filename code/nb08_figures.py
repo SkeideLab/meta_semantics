@@ -173,9 +173,9 @@ fig3 = plt.figure(figsize=figsize)
 gs = fig3.add_gridspec(135, 90)
 ax1 = fig3.add_subplot(gs[0:30, :])
 ax2 = fig3.add_subplot(gs[30:60, :])
-ax3 = fig3.add_subplot(gs[60:85, :])
-ax4 = fig3.add_subplot(gs[85:110, :])
-ax5 = fig3.add_subplot(gs[110:135, :])
+ax3 = fig3.add_subplot(gs[60:85, 3:])
+ax4 = fig3.add_subplot(gs[85:110, 3:])
+ax5 = fig3.add_subplot(gs[110:135, 3:])
 
 # Specify smaller margins
 margins = {
@@ -274,9 +274,13 @@ plt.axhline(y=3.1, color="black", linewidth=1)
 
 # Add subplot labels
 _ = ax1.annotate("A", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax3.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax4.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax5.annotate("D", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("B", xy=(-0.03, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax4.annotate("C", xy=(-0.03, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax5.annotate("D", xy=(-0.03, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate("Foci", xy=(0, -0.1), xycoords="axes fraction", rotation=90, va="center")
+_ = ax3.annotate("ALE", xy=(-0.03, 0.5), xycoords="axes fraction", rotation=90, va="center")
+_ = ax4.annotate("SDM w/o covs.", xy=(-0.03, 0.5), xycoords="axes fraction", rotation=90, va="center")
+_ = ax5.annotate("SDM w/ covs.", xy=(-0.03, 0.5), xycoords="axes fraction", rotation=90, va="center")
 
 # Save to PDF
 fig3.savefig("../results/figures/fig3.pdf")
