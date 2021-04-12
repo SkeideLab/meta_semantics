@@ -18,6 +18,7 @@
 # %%
 from os import makedirs
 
+import font_source_sans_pro
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,8 +29,8 @@ from scipy import stats
 from scipy.stats import pearsonr
 
 # %%
-# Set fonts for matplotlib
-mpl.rcParams.update({"font.family": ["FreeSans"], "font.size": 12})
+# Specify default font
+mpl.rcParams.update({"font.family": ["Liberation Sans"], "font.size": 12})
 
 # Create output directory
 makedirs("../results/figures", exist_ok=True)
@@ -167,14 +168,14 @@ foci_zstat = [
 idxs_p = np.where(np.isnan(foci_zstat))[0]
 
 # Create a new figure with four subplots
-figsize = (90 * scaling, 135 * scaling)
+figsize = (90 * scaling, 145 * scaling)
 fig3 = plt.figure(figsize=figsize)
-gs = fig3.add_gridspec(135, 90)
-ax1 = fig3.add_subplot(gs[0:30, :])
-ax2 = fig3.add_subplot(gs[30:60, :])
-ax3 = fig3.add_subplot(gs[60:85, :])
-ax4 = fig3.add_subplot(gs[85:110, :])
-ax5 = fig3.add_subplot(gs[110:135, :])
+gs = fig3.add_gridspec(145, 90)
+ax1 = fig3.add_subplot(gs[0:35, :])
+ax2 = fig3.add_subplot(gs[35:70, :])
+ax3 = fig3.add_subplot(gs[70:95, :])
+ax4 = fig3.add_subplot(gs[95:120, :])
+ax5 = fig3.add_subplot(gs[120:145, :])
 
 # Specify smaller margins
 margins = {
@@ -265,17 +266,21 @@ p5 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax5)
 p5.add_overlay(img_sdm, cmap="YlOrRd", vmin=0, vmax=8)
 
 # Add a joint colorbar
-ax_cbar = fig3.add_subplot(gs[34:56, 43:46])
+ax_cbar = fig3.add_subplot(gs[42:64, 43:46])
 cmap = plt.get_cmap("YlOrRd")
 norm = mpl.colors.Normalize(vmin=0, vmax=8)
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
 plt.axhline(y=3.1, color="black", linewidth=1)
 
 # Add subplot labels
-_ = ax1.annotate("A", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax3.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax4.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax5.annotate("D", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate("A", xy=(0, 0.95), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax4.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax5.annotate("D", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate("Foci", xy=(0.035, 0.95), xycoords="axes fraction")
+_ = ax3.annotate("ALE", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax4.annotate("SDM", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax5.annotate("SDM + covariates", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
 fig3.savefig("../results/figures/fig3.pdf")
@@ -286,14 +291,14 @@ foci_tasks = exps.explode("tstats")["task_type"]
 _, foci_tasks = np.unique(foci_tasks, return_inverse=True)
 
 # Create a new figure with four subplots
-figsize = (90 * scaling, 135 * scaling)
+figsize = (90 * scaling, 145 * scaling)
 fig4 = plt.figure(figsize=figsize)
-gs = fig4.add_gridspec(135, 90)
-ax1 = fig4.add_subplot(gs[0:30, :])
-ax2 = fig4.add_subplot(gs[30:60, :])
-ax3 = fig4.add_subplot(gs[60:85, :])
-ax4 = fig4.add_subplot(gs[85:110, :])
-ax5 = fig4.add_subplot(gs[110:135, :])
+gs = fig4.add_gridspec(145, 90)
+ax1 = fig4.add_subplot(gs[0:35, :])
+ax2 = fig4.add_subplot(gs[35:70, :])
+ax3 = fig4.add_subplot(gs[70:95, :])
+ax4 = fig4.add_subplot(gs[95:120, :])
+ax5 = fig4.add_subplot(gs[120:145, :])
 
 # Specify smaller margins
 _ = fig4.subplots_adjust(**margins)
@@ -331,37 +336,81 @@ for task, ax_task in zip(["knowledge", "lexical", "objects"], [ax3, ax4, ax5]):
     p_task.add_overlay(img_task, cmap="YlOrRd", vmin=0, vmax=8)
 
 # Add a legend for the task types
-ax_leg = fig4.add_subplot(gs[35, 56])
-# ax_leg = fig4.add_subplot(gs[25, 54])  # if cbar in the center
+ax_leg = fig4.add_subplot(gs[33, 56])
 ax_leg.legend(handles, labels, frameon=False, handlelength=0.5)
 ax_leg.set_axis_off()
 
 # Add a joint colorbar for the ALE maps
-ax_cbar = fig4.add_subplot(gs[34:56, 81:84])
-# ax_cbar = fig4.add_subplot(gs[39:61, 43:46])  # if cbar in the center
+ax_cbar = fig4.add_subplot(gs[48:70, 43:46])
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
 plt.axhline(y=3.1, color="black", linewidth=1)
 
 # Add subplot labels
-_ = ax1.annotate("A", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax3.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax4.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
-_ = ax5.annotate("D", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate("A", xy=(0, 0.95), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax4.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax5.annotate("D", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate("Foci", xy=(0.035, 0.95), xycoords="axes fraction")
+_ = ax3.annotate("Knowledge", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax4.annotate("Relatedness", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax5.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
 fig4.savefig("../results/figures/fig4.pdf")
 
 # %%
-# Create a new figure with three subplots
-figsize = (90 * scaling, 95 * scaling)
+# Create a new figure with four subplots
+figsize = (90 * scaling, 87 * scaling)
 fig5 = plt.figure(figsize=figsize)
-gs = fig5.add_gridspec(95, 90)
-ax1 = fig5.add_subplot(gs[0:25, :])
-ax2 = fig5.add_subplot(gs[30:55, :])
-ax3 = fig5.add_subplot(gs[60:85, :])
+gs = fig5.add_gridspec(85, 90)
+ax1 = fig5.add_subplot(gs[1:26, :])
+ax2 = fig5.add_subplot(gs[26:51, :])
+ax3 = fig5.add_subplot(gs[51:76, :])
 
 # Specify smaller margins
 _ = fig5.subplots_adjust(**margins)
+
+# Plot z maps for the subtraction analyses
+for task, ax_sub in zip(["knowledge", "lexical", "objects"], [ax1, ax2, ax3]):
+    img_sub = image.load_img("../results/subtraction/" + task + "_minus_n" + task + "_z_thresh.nii.gz")
+    p_sub = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_sub)
+    p_sub.add_overlay(img_sub, cmap="YlOrRd", vmin=0, vmax=4)
+
+# Add colorbar
+ax_cbar = fig5.add_subplot(gs[75:78, 36:54])
+norm = mpl.colors.Normalize(vmin=0, vmax=4)
+mpl.colorbar.ColorbarBase(
+    ax_cbar,
+    cmap=cmap,
+    norm=norm,
+    orientation="horizontal",
+    ticks=np.arange(0, 5, 1),
+    label="$\it{z}$ score",
+)
+plt.axvline(x=3.1, color="black", linewidth=1)
+
+# Add subplot labels
+_ = ax1.annotate("A", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate("Knowledge > other", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax2.annotate("Relatedness > other", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax3.annotate("Objects > other", xy=(0.035, 0.96), xycoords="axes fraction")
+
+# Save to PDF
+fig5.savefig("../results/figures/fig5.pdf")
+
+# %%
+# Create a new figure with three subplots
+figsize = (90 * scaling, 95 * scaling)
+fig6 = plt.figure(figsize=figsize)
+gs = fig6.add_gridspec(95, 90)
+ax1 = fig6.add_subplot(gs[0:25, :])
+ax2 = fig6.add_subplot(gs[30:55, :])
+ax3 = fig6.add_subplot(gs[60:85, :])
+
+# Specify smaller margins
+_ = fig6.subplots_adjust(**margins)
 
 # Plot ALE map for adults
 img_adults = image.load_img("../results/adults/adults_z_thresh.nii.gz")
@@ -382,13 +431,12 @@ p2 = plotting.plot_glass_brain(
 )
 
 # Plot conjunction
-formula = "np.where(img1 * img2 > 0, np.minimum(img1, img2), 0)"
-img_conj = image.math_img(formula, img1=img_all, img2=img_adults)
+img_conj = image.load_img("../results/adults/children_conj_adults_z.nii.gz")
 p3 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax3)
 p3.add_overlay(img_conj, cmap="YlGn", vmin=0, vmax=8)
 
 # Add colorbar for adults
-ax1_cbar = fig5.add_subplot(gs[24:27, 36:54])
+ax1_cbar = fig6.add_subplot(gs[24:27, 36:54])
 cmap1 = plt.get_cmap("YlOrRd")
 norm = mpl.colors.Normalize(vmin=0, vmax=12)
 mpl.colorbar.ColorbarBase(
@@ -397,7 +445,7 @@ mpl.colorbar.ColorbarBase(
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add colorbar for children > adults & adults > children
-ax2_cbar = fig5.add_subplot(gs[54:57, 36:54])
+ax2_cbar = fig6.add_subplot(gs[54:57, 36:54])
 cmap2 = plt.get_cmap("RdYlBu_r")
 norm = mpl.colors.Normalize(vmin=-4, vmax=4)
 mpl.colorbar.ColorbarBase(
@@ -407,7 +455,7 @@ plt.axvline(x=-3.1, color="black", linewidth=1)
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add colorbar for conjunction
-ax3_cbar = fig5.add_subplot(gs[84:87, 36:54])
+ax3_cbar = fig6.add_subplot(gs[84:87, 36:54])
 cmap3 = plt.get_cmap("YlGn")
 norm = mpl.colors.Normalize(vmin=0, vmax=8)
 mpl.colorbar.ColorbarBase(
@@ -426,7 +474,7 @@ for row, col, label in zip(
     [31, 31, 73, 31],
     ["Adults", "Adults > children", "Children > adults", "Conjunction"],
 ):
-    ax1_cbar_label = fig5.add_subplot(gs[row : row + 2, col + 2])
+    ax1_cbar_label = fig6.add_subplot(gs[row : row + 2, col + 2])
     ax1_cbar_label.text(0, 0, label, horizontalalignment="right")
     ax1_cbar_label.set_axis_off()
 
@@ -436,4 +484,4 @@ _ = ax2.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
 _ = ax3.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
 
 # Save to PDF
-fig5.savefig("../results/figures/fig5.pdf")
+fig6.savefig("../results/figures/fig6.pdf")
