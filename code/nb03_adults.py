@@ -53,7 +53,7 @@ run_ale(
 run_subtraction(
     text_file1="../results/adults/children.txt",
     text_file2="../results/adults/adults.txt",
-    voxel_thresh=0.01,
+    voxel_thresh=0.001,
     cluster_size=200,
     random_seed=1234,
     n_iters=10000,
