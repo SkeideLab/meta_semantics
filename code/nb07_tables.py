@@ -190,7 +190,7 @@ tab3 = combined_cluster_table(
         "Relatedness",
         "Objects",
     ],
-    stub_colname="ALE analysis",
+    stub_colname="Analysis",
     img_files_ale=[
         "../results/ale/knowledge_stat_thresh.nii.gz",
         "../results/ale/lexical_stat_thresh.nii.gz",
@@ -214,7 +214,7 @@ tab4 = combined_cluster_table(
         "Relatedness > (knowledge + objects)",
         "Objects > (knowledge + relatedness)",
     ],
-    stub_colname="ALE subtraction",
+    stub_colname="Subtraction",
     atlas="aal",
     output_file="../results/tables/tab4_subtraction.tsv",
 )
@@ -225,11 +225,12 @@ display(tab4)
 tab5 = combined_cluster_table(
     img_files_z=[
         "../results/adults/adults_z_thresh.nii.gz",
-        "../results/adults/children_minus_adults_z_thresh.nii.gz",
+        "../results/adults/children_greater_adults_z_thresh.nii.gz",
+        "../results/adults/adults_greater_children_z_thresh.nii.gz",
         "../results/adults/children_conj_adults_z.nii.gz",
     ],
-    stub_keys=["Adults", "Children > adults", "Conjunction"],
-    stub_colname="ALE analysis",
+    stub_keys=["Adults", "Children > adults", "Adults > children", "Conjunction"],
+    stub_colname="Analysis",
     img_files_ale=["../results/adults/adults_stat_thresh.nii.gz", None, None],
     atlas="aal",
     output_file="../results/tables/tab5_adults.tsv",

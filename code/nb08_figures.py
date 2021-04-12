@@ -372,21 +372,33 @@ _ = fig5.subplots_adjust(**margins)
 
 # Plot z maps for the subtraction analyses
 for task, ax_sub in zip(["knowledge", "lexical", "objects"], [ax1, ax2, ax3]):
-    img_sub = image.load_img("../results/subtraction/" + task + "_minus_n" + task + "_z_thresh.nii.gz")
-    p_sub = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_sub)
-    p_sub.add_overlay(img_sub, cmap="YlOrRd", vmin=0, vmax=4)
+    img_sub = image.load_img(
+        "../results/subtraction/" + task + "_minus_n" + task + "_z_thresh.nii.gz"
+    )
+    _ = plotting.plot_glass_brain(
+        img_sub,
+        display_mode="lyrz",
+        axes=ax_sub,
+        cmap="RdYlBu_r",
+        vmin=0,
+        vmax=4,
+        plot_abs=False,
+        symmetric_cbar=True,
+    )
 
 # Add colorbar
 ax_cbar = fig5.add_subplot(gs[75:78, 36:54])
-norm = mpl.colors.Normalize(vmin=0, vmax=4)
+cmap = plt.get_cmap("RdYlBu_r")
+norm = mpl.colors.Normalize(vmin=-4, vmax=4)
 mpl.colorbar.ColorbarBase(
     ax_cbar,
     cmap=cmap,
     norm=norm,
     orientation="horizontal",
-    ticks=np.arange(0, 5, 1),
+    ticks=np.arange(-4, 5, 2),
     label="$\it{z}$ score",
 )
+plt.axvline(x=-3.1, color="black", linewidth=1)
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add subplot labels
@@ -418,9 +430,9 @@ p1 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax1)
 p1.add_overlay(img_adults, cmap="YlOrRd", vmin=0, vmax=12)
 
 # Plot children > adults & adults > children
-img_diff = image.load_img("../results/adults/children_minus_adults_z_thresh.nii.gz")
+img_sub = image.load_img("../results/adults/children_minus_adults_z_thresh.nii.gz")
 p2 = plotting.plot_glass_brain(
-    img_diff,
+    img_sub,
     display_mode="lyrz",
     axes=ax2,
     cmap="RdYlBu_r",

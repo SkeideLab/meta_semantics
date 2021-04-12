@@ -59,6 +59,14 @@ _ = run_subtraction(
 )
 
 # %%
+# Compute seperate difference maps for children > adults and adults > children
+img_sub = image.load_img(output_dir + "children_minus_adults_z_thresh.nii.gz")
+img_children_gt_adults = image.math_img("np.where(img > 0, img, 0)", img = img_sub)
+img_adults_gt_children = image.math_img("np.where(img < 0, img * -1, 0)", img = img_sub)
+_ = save(img_children_gt_adults, output_dir + "children_greater_adults_z_thresh.nii.gz")
+_ = save(img_adults_gt_children, output_dir + "adults_greater_children_z_thresh.nii.gz")
+
+# %%
 # Compute conjunction z map (= minimum voxel-wise z score across both groups)
 formula = "np.where(img1 * img2 > 0, np.minimum(img1, img2), 0)"
 img_adults_z = image.load_img(output_dir + "adults_z_thresh.nii.gz")
@@ -82,7 +90,6 @@ display(t)
 
 # %%
 # Glass brain for children vs. adults
-img_sub = image.load_img(output_dir + "children_minus_adults_z_thresh.nii.gz")
 p_sub = plotting.plot_glass_brain(
     img_sub,
     display_mode="lyrz",
