@@ -330,7 +330,7 @@ p2 = plotting.plot_markers(  # coronal and horizontal
 )
 
 # Plot z maps for the task-specific ALEs
-for task, ax_task in zip(["knowledge", "lexical", "objects"], [ax3, ax4, ax5]):
+for task, ax_task in zip(["knowledge", "relatedness", "objects"], [ax3, ax4, ax5]):
     img_task = image.load_img("../results/ale/" + task + "_z_thresh.nii.gz")
     p_task = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_task)
     p_task.add_overlay(img_task, cmap="YlOrRd", vmin=0, vmax=8)
@@ -371,7 +371,7 @@ ax3 = fig5.add_subplot(gs[51:76, :])
 _ = fig5.subplots_adjust(**margins)
 
 # Plot z maps for the subtraction analyses
-for task, ax_sub in zip(["knowledge", "lexical", "objects"], [ax1, ax2, ax3]):
+for task, ax_sub in zip(["knowledge", "relatedness", "objects"], [ax1, ax2, ax3]):
     img_sub = image.load_img(
         "../results/subtraction/" + task + "_minus_n" + task + "_z_thresh.nii.gz"
     )

@@ -48,10 +48,10 @@ _ = run_ale(
 
 # %%
 # Perform subtraction analysis for children vs. adults
-_ = run_subtraction(
-    text_file1=output_dir + "children.txt",
-    text_file2=output_dir + "adults.txt",
-    voxel_thresh=0.01,
+run_subtraction(
+    text_file1="../results/adults/children.txt",
+    text_file2="../results/adults/adults.txt",
+    voxel_thresh=0.001,
     cluster_size=200,
     random_seed=1234,
     n_iters=10000,

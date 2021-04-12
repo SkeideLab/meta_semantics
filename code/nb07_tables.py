@@ -182,7 +182,7 @@ display(tab2)
 tab3 = combined_cluster_table(
     img_files_z=[
         "../results/ale/knowledge_z_thresh.nii.gz",
-        "../results/ale/lexical_z_thresh.nii.gz",
+        "../results/ale/relatedness_z_thresh.nii.gz",
         "../results/ale/objects_z_thresh.nii.gz",
     ],
     stub_keys=[
@@ -193,7 +193,7 @@ tab3 = combined_cluster_table(
     stub_colname="Analysis",
     img_files_ale=[
         "../results/ale/knowledge_stat_thresh.nii.gz",
-        "../results/ale/lexical_stat_thresh.nii.gz",
+        "../results/ale/relatedness_stat_thresh.nii.gz",
         "../results/ale/objects_stat_thresh.nii.gz",
     ],
     atlas="aal",
@@ -206,7 +206,7 @@ display(tab3)
 tab4 = combined_cluster_table(
     img_files_z=[
         "../results/subtraction/knowledge_minus_nknowledge_z_thresh.nii.gz",
-        "../results/subtraction/lexical_minus_nlexical_z_thresh.nii.gz",
+        "../results/subtraction/relatedness_minus_nrelatedness_z_thresh.nii.gz",
         "../results/subtraction/objects_minus_nobjects_z_thresh.nii.gz",
     ],
     stub_keys=[

@@ -124,7 +124,7 @@ def compute_fsn(
     ids_orig = dset_orig.ids.tolist()
 
     # Create a new data set with a large number null studies added
-    k_max = len(ids_orig) * 2
+    k_max = len(ids_orig) * 8
     dset_null = generate_null(
         text_file=text_file,
         space=space,
@@ -147,7 +147,7 @@ def compute_fsn(
     tab_fsn = reporting.get_clusters_table(img_z, stat_threshold=0, min_distance=1000)
 
     # Iteratively add null studies up to a certain maximum
-    for k in range(1, k_max + 1):
+    for k in range(1, k_max):
 
         # Print message
         print("Computing ALE for k = " + str(k) + " null studies added...")
@@ -197,10 +197,10 @@ def compute_fsn(
 
 # %%
 # Define the Sleuth file names directly wihin the script
-prefixes = ["all", "knowledge", "lexical", "objects"]
+prefixes = ["all", "knowledge", "relatedness", "objects"]
 
-# # Get the Sleuth file names for which to compute the FSN from the command line
-# prefixes = argv[1].split(",")
+# Or get the Sleuth file names for which to compute the FSN from the command line
+prefixes = argv[1].split(",")
 
 # List Sleuth files for which we want to perform an FSN analysis
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]

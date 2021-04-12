@@ -137,7 +137,7 @@ exps_sdm[cols_convert] = pd.DataFrame(
         for colname, categories in zip(
             cols_convert,
             [
-                ["lexical", "knowledge", "objects"],
+                ["relatedness", "knowledge", "objects"],
                 ["visual", "audiovisual", "auditory_visual", "auditory"],
                 ["none", "manual", "covert", "overt"],
                 ["SPM", "FSL"],

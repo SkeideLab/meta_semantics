@@ -126,7 +126,7 @@ if __name__ == "__main__":
     subtrs = dict(
         {
             "../results/ale/knowledge.txt": "../results/ale/nknowledge.txt",
-            "../results/ale/lexical.txt": "../results/ale/nlexical.txt",
+            "../results/ale/relatedness.txt": "../results/ale/nrelatedness.txt",
             "../results/ale/objects.txt": "../results/ale/nobjects.txt",
             "../results/ale/older.txt": "../results/ale/younger.txt",
         }
