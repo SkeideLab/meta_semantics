@@ -42,7 +42,7 @@ SINGEXEC=(
 # srun -n1 "${SINGEXEC[@]}" python3 nb04_sdm.py &
 # srun -n1 "${SINGEXEC[@]}" python3 nb05_jackknife.py
 
-srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn_full.py knowledge,lexical,objects #&
+srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn_full.py knowledge,relatedness,objects #&
     #srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn_full.py knowledge,all
 
 # Always wait for all parallel jobs to finish

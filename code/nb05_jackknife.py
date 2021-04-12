@@ -88,7 +88,7 @@ def compute_jackknife(
 
 # %%
 # List the Sleuth files for which to run a jackknife analysis
-prefixes = ["all", "knowledge", "lexical", "objects"]
+prefixes = ["all", "knowledge", "relatedness", "objects"]
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
 
 # Create output directory names

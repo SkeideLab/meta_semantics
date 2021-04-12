@@ -197,7 +197,7 @@ def compute_fsn(
 
 # %%
 # Define the Sleuth file names directly wihin the script
-prefixes = ["all", "knowledge", "lexical", "objects"]
+prefixes = ["all", "knowledge", "relatedness", "objects"]
 
 # Or get the Sleuth file names for which to compute the FSN from the command line
 prefixes = argv[1].split(",")
