@@ -413,16 +413,79 @@ _ = ax3.annotate("Objects > other", xy=(0.035, 0.96), xycoords="axes fraction")
 fig5.savefig("../results/figures/fig5.pdf")
 
 # %%
-# Create a new figure with three subplots
-figsize = (90 * scaling, 95 * scaling)
+# Create a new figure with two subplots
+figsize = (90 * scaling, 62 * scaling)
 fig6 = plt.figure(figsize=figsize)
-gs = fig6.add_gridspec(95, 90)
-ax1 = fig6.add_subplot(gs[0:25, :])
-ax2 = fig6.add_subplot(gs[30:55, :])
-ax3 = fig6.add_subplot(gs[60:85, :])
+gs = fig6.add_gridspec(60, 90)
+ax1 = fig6.add_subplot(gs[1:26, :])
+ax2 = fig6.add_subplot(gs[26:51, :])
 
 # Specify smaller margins
 _ = fig6.subplots_adjust(**margins)
+
+# Plot z map for ALE median split
+p1 = plotting.plot_glass_brain(
+    "../results/subtraction/older_minus_younger_z_thresh.nii.gz",
+    display_mode="lyrz",
+    axes=ax1,
+    cmap="RdYlBu_r",
+    vmin=0,
+    vmax=4,
+    plot_abs=False,
+    symmetric_cbar=True,
+)
+
+# Plot z map for SDM meta-regression
+p2 = plotting.plot_glass_brain(
+    "../results/sdm/analysis_mod3/mod3_z.nii.gz",
+    display_mode="lyrz",
+    axes=ax2,
+    cmap="RdYlBu_r",
+    vmin=0,
+    vmax=4,
+    plot_abs=False,
+    symmetric_cbar=True,
+)
+
+# Add colorbar
+ax_cbar = fig6.add_subplot(gs[50:53, 36:54])
+cmap = plt.get_cmap("RdYlBu_r")
+norm = mpl.colors.Normalize(vmin=-4, vmax=4)
+mpl.colorbar.ColorbarBase(
+    ax_cbar,
+    cmap=cmap,
+    norm=norm,
+    orientation="horizontal",
+    ticks=np.arange(-4, 5, 2),
+    label="$\it{z}$ score",
+)
+plt.axvline(x=-3.1, color="black", linewidth=1)
+plt.axvline(x=3.1, color="black", linewidth=1)
+
+# Add subplot labels
+_ = ax1.annotate("A", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate(
+    "ALE median split (older > younger)", xy=(0.035, 0.96), xycoords="axes fraction"
+)
+_ = ax2.annotate(
+    "SDM meta-regression (uncorrected)", xy=(0.035, 0.96), xycoords="axes fraction"
+)
+
+# Save to PDF
+fig6.savefig("../results/figures/fig6.pdf")
+
+# %%
+# Create a new figure with three subplots
+figsize = (90 * scaling, 95 * scaling)
+fig7 = plt.figure(figsize=figsize)
+gs = fig7.add_gridspec(95, 90)
+ax1 = fig7.add_subplot(gs[0:25, :])
+ax2 = fig7.add_subplot(gs[30:55, :])
+ax3 = fig7.add_subplot(gs[60:85, :])
+
+# Specify smaller margins
+_ = fig7.subplots_adjust(**margins)
 
 # Plot ALE map for adults
 img_adults = image.load_img("../results/adults/adults_z_thresh.nii.gz")
@@ -448,7 +511,7 @@ p3 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax3)
 p3.add_overlay(img_conj, cmap="YlGn", vmin=0, vmax=8)
 
 # Add colorbar for adults
-ax1_cbar = fig6.add_subplot(gs[24:27, 36:54])
+ax1_cbar = fig7.add_subplot(gs[24:27, 36:54])
 cmap1 = plt.get_cmap("YlOrRd")
 norm = mpl.colors.Normalize(vmin=0, vmax=12)
 mpl.colorbar.ColorbarBase(
@@ -457,7 +520,7 @@ mpl.colorbar.ColorbarBase(
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add colorbar for children > adults & adults > children
-ax2_cbar = fig6.add_subplot(gs[54:57, 36:54])
+ax2_cbar = fig7.add_subplot(gs[54:57, 36:54])
 cmap2 = plt.get_cmap("RdYlBu_r")
 norm = mpl.colors.Normalize(vmin=-4, vmax=4)
 mpl.colorbar.ColorbarBase(
@@ -467,7 +530,7 @@ plt.axvline(x=-3.1, color="black", linewidth=1)
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add colorbar for conjunction
-ax3_cbar = fig6.add_subplot(gs[84:87, 36:54])
+ax3_cbar = fig7.add_subplot(gs[84:87, 36:54])
 cmap3 = plt.get_cmap("YlGn")
 norm = mpl.colors.Normalize(vmin=0, vmax=8)
 mpl.colorbar.ColorbarBase(
@@ -486,7 +549,7 @@ for row, col, label in zip(
     [31, 31, 73, 31],
     ["Adults", "Adults > children", "Children > adults", "Conjunction"],
 ):
-    ax1_cbar_label = fig6.add_subplot(gs[row : row + 2, col + 2])
+    ax1_cbar_label = fig7.add_subplot(gs[row : row + 2, col + 2])
     ax1_cbar_label.text(0, 0, label, horizontalalignment="right")
     ax1_cbar_label.set_axis_off()
 
@@ -496,4 +559,4 @@ _ = ax2.annotate("B", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
 _ = ax3.annotate("C", xy=(0, 0.9), xycoords="axes fraction", weight="bold")
 
 # Save to PDF
-fig6.savefig("../results/figures/fig6.pdf")
+fig7.savefig("../results/figures/fig7.pdf")
