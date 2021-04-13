@@ -221,8 +221,20 @@ tab4 = combined_cluster_table(
 display(tab4)
 
 # %%
-# Create Table 5 (adults)
+# Create Table 5 (age-related changes)
 tab5 = combined_cluster_table(
+    img_files_z=["../results/subtraction/older_minus_younger_z_thresh.nii.gz"],
+    stub_keys=["Older > younger"],
+    stub_colname="Contrast",
+    img_files_ale=[None],
+    atlas="aal",
+    output_file="../results/tables/tab5_age.tsv",
+)
+display(tab5)
+
+# %%
+# Create Table 5 (adults)
+tab6 = combined_cluster_table(
     img_files_z=[
         "../results/adults/adults_z_thresh.nii.gz",
         "../results/adults/children_greater_adults_z_thresh.nii.gz",
@@ -233,6 +245,6 @@ tab5 = combined_cluster_table(
     stub_colname="Analysis",
     img_files_ale=["../results/adults/adults_stat_thresh.nii.gz", None, None],
     atlas="aal",
-    output_file="../results/tables/tab5_adults.tsv",
+    output_file="../results/tables/tab6_adults.tsv",
 )
-display(tab5)
+display(tab6)
