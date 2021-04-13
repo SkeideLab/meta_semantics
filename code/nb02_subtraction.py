@@ -1,16 +1,16 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:percent
+#     formats: py:percent
 #     text_representation:
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.10.2
+#       jupytext_version: 1.11.1
 #   kernelspec:
-#     display_name: PyCharm (mask_children)
+#     display_name: Python 3
 #     language: python
-#     name: pycharm-2e5bb5f0
+#     name: python3
 # ---
 
 # %% [markdown]

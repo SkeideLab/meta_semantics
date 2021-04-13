@@ -1,17 +1,15 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:percent
+#     formats: py:percent
 #     text_representation:
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.10.2
+#       jupytext_version: 1.11.1
 #   kernelspec:
-#     display_name: 'Python 3.6.13 64-bit (''nimare'': conda)'
-#     metadata:
-#       interpreter:
-#         hash: 4514b7299076417b8e187233bf4c34d62c86c82f88944b861e2dca408b3b9212
+#     display_name: Python 3
+#     language: python
 #     name: python3
 # ---
 
@@ -108,7 +106,7 @@ jks = [
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
 
-#%%
+# %%
 # Glass brain example
 img_jk_all = image.load_img("../results/jackknife/all/mean_jk.nii.gz")
 p = plotting.plot_glass_brain(None, display_mode="lyrz", colorbar=True)
