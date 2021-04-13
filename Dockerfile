@@ -18,5 +18,5 @@ COPY data/ data/
 
 # Add permissions for default user
 USER root
-RUN chown -R ${NB_UID} ${PROJDIR}
+RUN chown -R ${NB_UID} ${HOME}
 USER ${NB_USER}
