@@ -195,7 +195,7 @@ call_mod2 = "sdm mod2=mi " + str(n_imps) + "," + str_covs + ",," + str(n_threads
 _ = run(call_mod2, shell=True, cwd=cwd)
 
 # Run linear model for the influence of age
-str_lin = "age_mean_c+age_mean_c_2,0+1+1+0+0"
+str_lin = "age_mean_c,0+1+0+0+0"
 call_mod3 = "sdm mod3=mi_lm " + str_lin + "," + str(n_imps) + ",," + str(n_threads)
 _ = run(call_mod3, shell=True, cwd=cwd)
 
