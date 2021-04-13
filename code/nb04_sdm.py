@@ -211,57 +211,6 @@ _ = [
 ]
 
 # %%
-# Thresholding for all model (voxel-corrected)
-_ = [
-    run(
-        "sdm threshold analysis_"
-        + mod
-        + "/corrp_voxel, analysis_"
-        + mod
-        + "/"
-        + mod
-        + "_z,"
-        + str(thresh_voxel_p)
-        + ","
-        + str(thresh_cluster_k),
-        shell=True,
-        cwd=cwd,
-    )
-    for mod in ["mod1", "mod2", "mod3"]
-]
-
-# %%
-# Thresholding for all model (cluster-corrected, post hoc)
-_ = [
-    run(
-        "sdm threshold analysis_"
-        + mod
-        + "/corrp_tfce, analysis_"
-        + mod
-        + "/"
-        + mod
-        + "_z,"
-        + str(thresh_voxel_p)
-        + ","
-        + str(thresh_cluster_k),
-        shell=True,
-        cwd=cwd,
-    )
-    for mod in ["mod1", "mod2", "mod3"]
-]
-
-# %%
-# Threshold the linear model for age again, using a more lenient threshold (post hoc)
-_ = run(
-    "sdm threshold analysis_mod3/corrp_voxel, analysis_mod3/mod3_z,"
-    + str(thresh_voxel_p)
-    + ","
-    + str(thresh_cluster_k),
-    shell=True,
-    cwd=cwd,
-)
-
-# %%
 # Collect the filenames of the maps created in the previous step
 fnames_maps = glob("../results/sdm/analysis_mod*/mod*_z_voxelCorrected*0.nii.gz")
 
