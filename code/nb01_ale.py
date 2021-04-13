@@ -28,7 +28,7 @@ import pandas as pd
 from IPython.display import display
 from nibabel import save
 from nilearn import image, plotting, reporting
-from nimare import correct, io, meta, transforms
+from nimare import correct, io, meta, utils
 from scipy.stats import norm
 
 # %%
@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
     # Convert from Talairach to MNI space if necessary
     exps["foci_mni"] = [
-        transforms.tal2mni(foci[:, 0:3]) if foci_space == "TAL" else foci[:, 0:3]
+        utils.tal2mni(foci[:, 0:3]) if foci_space == "TAL" else foci[:, 0:3]
         for foci, foci_space in zip(exps["foci"], exps["foci_space"])
     ]
 
