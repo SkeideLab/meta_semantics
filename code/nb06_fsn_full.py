@@ -128,7 +128,7 @@ def compute_fsn(
     ids_orig = dset_orig.ids.tolist()
 
     # Create a new data set with a large number null studies added
-    k_max = len(ids_orig) * 8
+    k_max = len(ids_orig) * 5
     dset_null = generate_null(
         text_file=text_file,
         space=space,

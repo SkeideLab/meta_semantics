@@ -1,10 +1,7 @@
 .devcontainer/
 .idea/
 .vscode/
-code/.ipynb_checkpoints/
 code/__pycache__/
-code/*.ipynb
-code/*.R
 code/slurm/
 data/literature_search/articles/
 results/

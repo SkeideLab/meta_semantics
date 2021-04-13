@@ -1,7 +1,6 @@
 .git/
 .idea/
 .vscode/
-code/*.ipynb
 code/slurm/
 results/
 software/

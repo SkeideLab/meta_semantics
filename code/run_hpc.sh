@@ -10,7 +10,7 @@
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=1
+#SBATCH --nodes=6
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=40
 # Request main memory per node in units of MB:
@@ -33,17 +33,18 @@ SINGEXEC=(
         mask_children_latest.sif
 )
 
-# # First, perform only the actual ALE analyses
-# srun -n1 "${SINGEXEC[@]}" python3 nb01_ale.py
+# First, perform only the actual ALE analyses
+srun -n1 "${SINGEXEC[@]}" python3 nb01_ale.py
 
-# # Then, perform all of the other analyses in parallel
-# srun -n1 "${SINGEXEC[@]}" python3 nb02_subtraction.py &
-# srun -n1 "${SINGEXEC[@]}" python3 nb03_adults.py &
-# srun -n1 "${SINGEXEC[@]}" python3 nb04_sdm.py &
-# srun -n1 "${SINGEXEC[@]}" python3 nb05_jackknife.py
-
-srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn_full.py knowledge,relatedness,objects #&
-    #srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn_full.py knowledge,all
-
-# Always wait for all parallel jobs to finish
+# Then, perform all of the other analyses in parallel
+srun -n1 "${SINGEXEC[@]}" python3 nb02_subtraction.py &
+    srun -n1 "${SINGEXEC[@]}" python3 nb03_adults.py &
+    srun -n1 "${SINGEXEC[@]}" python3 nb04_sdm.py &
+    srun -n1 "${SINGEXEC[@]}" python3 nb05_jackknife.py &
+    srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn_full.py all &
+    srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn_full.py knowledge,relatedness,objects
 wait
+
+# Create output tables and figures
+srun -n1 "${SINGEXEC[@]}" python3 nb07_tables.py &
+    srun -n1 "${SINGEXEC[@]}" python3 nb08_figures.py
