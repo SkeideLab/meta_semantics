@@ -246,3 +246,44 @@ tab6 = combined_cluster_table(
     output_file="../results/tables/tab6_adults.tsv",
 )
 display(tab6)
+
+# %%
+# Extract jackknife and FSN values from peaks
+def extract_value_at_peaks(img_peaks, img_values, colname_value):
+
+    # Extract original peak coordinates
+    img_peaks = image.load_img(img_peaks)
+    df, _ = get_statmap_info(img_peaks, cluster_extent=0, atlas="aal")
+    x, y, z = [df[col] for col in ["peak_x", "peak_y", "peak_z"]]
+
+    # Convert from MNI to array space
+    affine = np.linalg.inv(img_peaks.affine)
+    coords_ijk = image.coord_transform(x, y, z, affine=affine)
+    coords_ijk = np.array(coords_ijk, dtype="int").T
+
+    # Extract values at these peaks from the other image
+    img_values = image.load_img(img_values)
+    dat = img_values.get_fdata()
+    peak_values = [dat[tuple(coords_ijk[ix])] for ix in range(len(coords_ijk))]
+
+    # Append to table and return
+    df[colname_value] = peak_values
+
+    return df
+
+
+# Apply to retrieve the jackknife values
+prefixes = ["all", "knowledge", "relatedness", "objects"]
+imgs_peaks = ["../results/ale/" + prefix + "_z_thresh.nii.gz" for prefix in prefixes]
+imgs_values = [
+    "../results/jackknife/" + prefix + "/mean_jk.nii.gz" for prefix in prefixes
+]
+dfs_jk = [
+    extract_value_at_peaks(img_peaks, img_values, colname_value="jk")
+    for img_peaks, img_values in zip(imgs_peaks, imgs_values)
+]
+
+# Display mean jackknife values and range
+for i in range(len(prefixes)):
+    print("Mean:", dfs_jk[i]["jk"].mean())
+    print("Range:", dfs_jk[i]["jk"].min(), "–", dfs_jk[i]["jk"].max())
