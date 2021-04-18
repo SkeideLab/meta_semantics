@@ -23,7 +23,7 @@ from subprocess import run
 import numpy as np
 import pandas as pd
 from IPython.display import display
-from nilearn import plotting, reporting
+from nilearn import image, plotting, reporting
 from scipy import stats
 
 from nb02_subtraction import dual_thresholding
@@ -211,8 +211,32 @@ _ = [
 ]
 
 # %%
+# Voxel-corrected thresholding for all models
+_ = [
+    run(
+        "sdm threshold analysis_"
+        + mod
+        + "/corrp_voxel, analysis_"
+        + mod
+        + "/"
+        + mod
+        + "_z,"
+        + str(thresh_voxel_p)
+        + ","
+        + str(thresh_cluster_k),
+        shell=True,
+        cwd=cwd,
+    )
+    for mod in ["mod1", "mod2", "mod3"]
+]
+
+# %%
 # Collect the filenames of the maps created in the previous step
-fnames_maps = glob("../results/sdm/analysis_mod*/mod*_z_voxelCorrected*0.nii.gz")
+fnames_maps = glob("../results/sdm/analysis_mod*/corrp_voxel.nii.gz")
+
+img = image.load_img(fnames_maps[0])
+dat_z = p_to_z(img.get_fdata(), tail="two")
+img_z = Nifti1Image(dat_z, affine=img.affine)
 
 # Apply cluster-level threshold to these maps (SDM only does this for the HTML file)
 imgs = [
