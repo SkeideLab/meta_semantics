@@ -232,11 +232,7 @@ _ = [
 
 # %%
 # Collect the filenames of the maps created in the previous step
-fnames_maps = glob("../results/sdm/analysis_mod*/corrp_voxel.nii.gz")
-
-img = image.load_img(fnames_maps[0])
-dat_z = p_to_z(img.get_fdata(), tail="two")
-img_z = Nifti1Image(dat_z, affine=img.affine)
+fnames_maps = glob("../results/sdm/analysis_mod*/mod*_z_voxelCorrected*0.nii.gz")
 
 # Apply cluster-level threshold to these maps (SDM only does this for the HTML file)
 imgs = [
