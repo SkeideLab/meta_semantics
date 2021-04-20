@@ -205,7 +205,7 @@ def compute_fsn(
 prefixes = ["all", "knowledge", "relatedness", "objects"]
 
 # Or get the Sleuth file names for which to compute the FSN from the command line
-prefixes = argv[1].split(",")
+#prefixes = argv[1].split(",")
 
 # List Sleuth files for which we want to perform an FSN analysis
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
@@ -214,13 +214,11 @@ text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
 output_dirs = ["../results/fsn/" + prefix + "/" for prefix in prefixes]
 
 # How many different filedrawers to compute for each text file?
-nr_filedrawers = 10
-filedrawers = ["filedrawer" + str(fd) for fd in range(nr_filedrawers)]
+nr_filedrawers = 5
 
-# Create a reproducible random seed for each filedrawer
-random_master_seed = 1234
-random.seed(random_master_seed)
+# Create random seeds for filedrawers
 random_null_seeds = random.sample(range(1000), k=nr_filedrawers)
+filedrawers = ["filedrawer" + str(seed) for seed in random_null_seeds]
 
 # %%
 # Use our function to compute multiple filedrawers for each text file
@@ -232,8 +230,8 @@ _ = [
             voxel_thresh=0.001,
             cluster_thresh=0.01,
             n_iters=1000,
-            k_max_factor=3,
-            random_ale_seed=random_master_seed,
+            k_max_factor=5,
+            random_ale_seed=1234,
             random_null_seed=random_null_seed,
             output_dir=output_dir + filedrawer,
         )
@@ -242,35 +240,35 @@ _ = [
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
 
-# %%
-# Read FSN tables
-tab = [
-    pd.read_csv(
-        "../results/fsn/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.tsv",
-        delimiter="\t",
-    )
-    for fd in range(nr_filedrawers)
-]
-tab = pd.concat(tab)
+# # %%
+# # Read FSN tables
+# tab = [
+#     pd.read_csv(
+#         "../results/fsn/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.tsv",
+#         delimiter="\t",
+#     )
+#     for fd in range(nr_filedrawers)
+# ]
+# tab = pd.concat(tab)
 
-# Compute summary statistics across filedrawers
-agg = tab.groupby("Cluster ID")["FSN"].agg(["mean", "count", "std"])
+# # Compute summary statistics across filedrawers
+# agg = tab.groupby("Cluster ID")["FSN"].agg(["mean", "count", "std"])
 
-# Compute confidence intervals
-ci_level = 0.05
-z_crit = abs(norm.ppf(ci_level / 2))
-agg["se"] = [std / sqrt(count) for std, count in zip(agg["std"], agg["count"])]
-agg["ci_lower"] = agg["mean"] - z_crit * agg["se"]
-agg["ci_upper"] = agg["mean"] + z_crit * agg["se"]
+# # Compute confidence intervals
+# ci_level = 0.05
+# z_crit = abs(norm.ppf(ci_level / 2))
+# agg["se"] = [std / sqrt(count) for std, count in zip(agg["std"], agg["count"])]
+# agg["ci_lower"] = agg["mean"] - z_crit * agg["se"]
+# agg["ci_upper"] = agg["mean"] + z_crit * agg["se"]
 
-# %%
-# Plot mean FSN image across filedrawers
-imgs_knowledge = [
-    image.load_img(
-        "../results/fsn/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.nii.gz"
-    )
-    for fd in range(nr_filedrawers)
-]
-img_knowledge = image.mean_img(imgs_knowledge)
-p = plotting.plot_glass_brain(None)
-p.add_overlay(img_knowledge, colorbar=True, cmap="RdYlGn", vmin=0, vmax=100)
+# # %%
+# # Plot mean FSN image across filedrawers
+# imgs_knowledge = [
+#     image.load_img(
+#         "../results/fsn/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.nii.gz"
+#     )
+#     for fd in range(nr_filedrawers)
+# ]
+# img_knowledge = image.mean_img(imgs_knowledge)
+# p = plotting.plot_glass_brain(None)
+# p.add_overlay(img_knowledge, colorbar=True, cmap="RdYlGn", vmin=0, vmax=100)
