@@ -205,7 +205,7 @@ def compute_fsn(
 prefixes = ["all", "knowledge", "relatedness", "objects"]
 
 # Or get the Sleuth file names for which to compute the FSN from the command line
-#prefixes = argv[1].split(",")
+prefixes = argv[1].split(",")
 
 # List Sleuth files for which we want to perform an FSN analysis
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
