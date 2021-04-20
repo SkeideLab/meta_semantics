@@ -63,6 +63,13 @@ print(len(tstats[tstats != "p"]))
 print(len(tstats[tstats != "p"]) / len(tstats))
 print(len(tstats[tstats == "p"]))
 
+# Cut peaks in left vs. right hemisphere
+foci = exps["foci_mni"].explode()
+foci_x = [focus[0] for focus in foci]
+foci_left = [x for x in foci_x if x < 0]
+print(len(foci_left))
+print(len(foci_left) / len(foci_x))
+
 # %%
 # Define function to print the clusters from multiple images as a table
 def combined_cluster_table(
