@@ -64,7 +64,7 @@ p = sns.scatterplot(
 handles, labels = plt.gca().get_legend_handles_labels()
 
 # %%
-# Create a new figure for the distributions of sample size, no. of foci, and mean age
+# Create empty figure for study-level descriptive variables
 figsize = (90 * scaling, 90 * scaling)
 fig2, axs = plt.subplots(nrows=3, ncols=3, figsize=figsize)
 
@@ -169,7 +169,7 @@ foci_zstat = [
 # Get indices of foci without an effect size
 idxs_p = np.where(np.isnan(foci_zstat))[0]
 
-# Create a new figure with four subplots
+# Create empty figure for main ALE and SDM analyses
 figsize = (90 * scaling, 145 * scaling)
 fig3 = plt.figure(figsize=figsize)
 gs = fig3.add_gridspec(145, 90)
@@ -291,7 +291,7 @@ fig3.savefig("../results/figures/fig3.pdf")
 # Get task types of individual foci
 foci_tasks = exps.explode("tstats")["task_type"].cat.codes
 
-# Create a new figure with four subplots
+# Create empty figure for task category-specific ALEs
 figsize = (90 * scaling, 145 * scaling)
 fig4 = plt.figure(figsize=figsize)
 gs = fig4.add_gridspec(145, 90)
@@ -360,7 +360,7 @@ _ = ax5.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 fig4.savefig("../results/figures/fig4.pdf")
 
 # %%
-# Create a new figure with four subplots
+# Create empty figure for differences between task categories
 figsize = (90 * scaling, 87 * scaling)
 fig5 = plt.figure(figsize=figsize)
 gs = fig5.add_gridspec(85, 90)
@@ -414,7 +414,7 @@ _ = ax3.annotate("Objects > other", xy=(0.035, 0.96), xycoords="axes fraction")
 fig5.savefig("../results/figures/fig5.pdf")
 
 # %%
-# Create a new figure with two subplots
+# Create empty figure for age-related changes
 figsize = (90 * scaling, 62 * scaling)
 fig6 = plt.figure(figsize=figsize)
 gs = fig6.add_gridspec(60, 90)
@@ -477,7 +477,7 @@ _ = ax2.annotate(
 fig6.savefig("../results/figures/fig6.pdf")
 
 # %%
-# Create a new figure with three subplots
+# Create empty figure for comparison with adults
 figsize = (90 * scaling, 95 * scaling)
 fig7 = plt.figure(figsize=figsize)
 gs = fig7.add_gridspec(96, 90)
@@ -555,7 +555,7 @@ _ = ax3.annotate("Conjunction", xy=(0.035, 0.96), xycoords="axes fraction")
 fig7.savefig("../results/figures/fig7.pdf")
 
 # %%
-# Create a new figure with four subplots
+# Create empty figure for leave-one-out analysis
 figsize = (90 * scaling, 110 * scaling)
 fig8 = plt.figure(figsize=figsize)
 gs = fig8.add_gridspec(110, 90)
@@ -568,10 +568,10 @@ ax4 = fig8.add_subplot(gs[76:101, :])
 _ = fig8.subplots_adjust(**margins)
 
 # Plot mean jackknife reliability maps
-for task, ax_jk in zip(["all", "knowledge", "relatedness", "objects"], [ax1, ax2, ax3, ax4]):
-    img_jk = image.load_img(
-        "../results/jackknife/" + task + "/mean_jk.nii.gz"
-    )
+for task, ax_jk in zip(
+    ["all", "knowledge", "relatedness", "objects"], [ax1, ax2, ax3, ax4]
+):
+    img_jk = image.load_img("../results/jackknife/" + task + "/mean_jk.nii.gz")
     img_jk = image.math_img("img * 100", img=img_jk)
     p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_jk)
     p.add_overlay(img_jk, cmap="RdYlGn", vmin=0, vmax=100)
@@ -601,3 +601,55 @@ _ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
 fig8.savefig("../results/figures/fig8.pdf")
+
+# %%
+# Create empty figure for FSN
+figsize = (90 * scaling, 110 * scaling)
+fig9 = plt.figure(figsize=figsize)
+gs = fig9.add_gridspec(110, 90)
+ax1 = fig9.add_subplot(gs[1:26, :])
+ax2 = fig9.add_subplot(gs[26:51, :])
+ax3 = fig9.add_subplot(gs[51:76, :])
+ax4 = fig9.add_subplot(gs[76:101, :])
+
+# Specify smaller margins
+_ = fig9.subplots_adjust(**margins)
+
+# Plot mean FSN maps (scaled by the total number of experiments)
+n_studies_per_task = [len(exps)] + exps["task_type"].value_counts().to_list()
+for task, ax_fsn, n_studies in zip(
+    ["all", "knowledge", "relatedness", "objects"],
+    [ax1, ax2, ax3, ax4],
+    n_studies_per_task,
+):
+    img_fsn = image.load_img("../results/fsn/" + task + "/" + task + "_mean_fsn.nii.gz")
+    formula = "100 * img / " + str(n_studies)
+    img_perc = image.math_img(formula=formula, img=img_fsn)
+    p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_fsn)
+    p.add_overlay(img_perc, cmap="RdYlGn", vmin=0, vmax=60)
+
+# Add colorbar
+ax_cbar = fig9.add_subplot(gs[100:103, 36:54])
+cmap = plt.get_cmap("RdYlGn")
+norm = mpl.colors.Normalize(vmin=0, vmax=60)
+mpl.colorbar.ColorbarBase(
+    ax_cbar,
+    cmap=cmap,
+    norm=norm,
+    orientation="horizontal",
+    ticks=[0, 30, 60],
+    label="Fail-safe N (%)",
+)
+
+# Add subplot labels
+_ = ax1.annotate("A", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax4.annotate("D", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate("All semantic cognition", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax2.annotate("Knowledge", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax3.annotate("Relatedness", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
+
+# Save to PDF
+fig9.savefig("../results/figures/fig9.pdf")
