@@ -201,20 +201,21 @@ def compute_fsn(
 
 
 # %%
-# Define the Sleuth file names directly wihin the script
-prefixes = ["all", "knowledge", "relatedness", "objects"]
-
-# Or get the Sleuth file names for which to compute the FSN from the command line
+# Get which FSN analyses to perform from the command line
 prefixes = argv[1].split(",")
 
-# List Sleuth files for which we want to perform an FSN analysis
+# Get number of filedrawers per analysis from the command line
+nr_filedrawers = int(argv[2])
+
+# # Or define them here for debugging
+# prefixes = ["all", "knowledge", "relatedness", "objects"]
+# nr_filedrawers = 5
+
+# List the filenames of the Sleuth text files
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
 
-# Create output directory based on these filenames
+# Create output directory names
 output_dirs = ["../results/fsn/" + prefix + "/" for prefix in prefixes]
-
-# How many different filedrawers to compute for each text file?
-nr_filedrawers = 5
 
 # Create random seeds for filedrawers
 random_null_seeds = random.sample(range(1000), k=nr_filedrawers)
@@ -240,35 +241,38 @@ _ = [
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
 
-# # %%
-# # Read FSN tables
-# tab = [
-#     pd.read_csv(
-#         "../results/fsn/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.tsv",
-#         delimiter="\t",
-#     )
-#     for fd in range(nr_filedrawers)
-# ]
-# tab = pd.concat(tab)
+# %%
+# Compute mean FSN across filedrawers
+for prefix in prefixes:
 
-# # Compute summary statistics across filedrawers
-# agg = tab.groupby("Cluster ID")["FSN"].agg(["mean", "count", "std"])
+    # Read FSN maps from all filedrawers
+    fnames_maps = glob(
+        "../results/fsn/" + prefix + "/filedrawer*/" + prefix + "_fsn.nii.gz"
+    )
+    imgs_fsn = [image.load_img(fname) for fname in fnames_maps]
 
-# # Compute confidence intervals
-# ci_level = 0.05
-# z_crit = abs(norm.ppf(ci_level / 2))
-# agg["se"] = [std / sqrt(count) for std, count in zip(agg["std"], agg["count"])]
-# agg["ci_lower"] = agg["mean"] - z_crit * agg["se"]
-# agg["ci_upper"] = agg["mean"] + z_crit * agg["se"]
+    # Average and save
+    img_mean = image.mean_img(imgs_fsn)
+    fname_img_mean = "../results/fsn/" + prefix + "/" + prefix + "_mean_fsn.nii.gz"
+    save(img_mean, fname_img_mean)
 
-# # %%
-# # Plot mean FSN image across filedrawers
-# imgs_knowledge = [
-#     image.load_img(
-#         "../results/fsn/knowledge/filedrawer" + str(fd) + "/knowledge_fsn.nii.gz"
-#     )
-#     for fd in range(nr_filedrawers)
-# ]
-# img_knowledge = image.mean_img(imgs_knowledge)
-# p = plotting.plot_glass_brain(None)
-# p.add_overlay(img_knowledge, colorbar=True, cmap="RdYlGn", vmin=0, vmax=100)
+    # Read FSN tables from all filedrawers
+    fnames_tabs = glob(
+        "../results/fsn/" + prefix + "/filedrawer*/" + prefix + "_fsn.tsv"
+    )
+    tabs_fsn = [pd.read_csv(fname, delimiter="\t") for fname in fnames_tabs]
+    tab_fsn = pd.concat(tabs_fsn)
+
+    # Compute summary statistics
+    agg = tab_fsn.groupby("Cluster ID")["FSN"].agg(["mean", "count", "std"])
+
+    # Compute confidence intervals
+    ci_level = 0.05
+    z_crit = abs(norm.ppf(ci_level / 2))
+    agg["se"] = [std / sqrt(count) for std, count in zip(agg["std"], agg["count"])]
+    agg["ci_lower"] = agg["mean"] - z_crit * agg["se"]
+    agg["ci_upper"] = agg["mean"] + z_crit * agg["se"]
+
+    # Save summary statistics
+    fname_agg = "../results/fsn/" + prefix + "/" + prefix + "_mean_fsn.csv"
+    agg.to_csv(fname_agg, float_format="%.3f")
