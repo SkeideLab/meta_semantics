@@ -279,6 +279,7 @@ def extract_value_at_peaks(img_peaks, img_values, colname_value):
     return df
 
 
+# %%
 # Apply to retrieve the jackknife values
 prefixes = ["all", "knowledge", "relatedness", "objects"]
 imgs_peaks = ["../results/ale/" + prefix + "_z_thresh.nii.gz" for prefix in prefixes]
@@ -294,3 +295,20 @@ dfs_jk = [
 for i in range(len(prefixes)):
     print("Mean:", dfs_jk[i]["jk"].mean())
     print("Range:", dfs_jk[i]["jk"].min(), "–", dfs_jk[i]["jk"].max())
+
+# %%
+# Apply to retrieve the FSN values
+imgs_peaks = ["../results/ale/" + prefix + "_z_thresh.nii.gz" for prefix in prefixes]
+imgs_values = [
+    "../results/fsn/" + prefix + "/" + prefix + "_mean_fsn.nii.gz"
+    for prefix in prefixes
+]
+dfs_fsn = [
+    extract_value_at_peaks(img_peaks, img_values, colname_value="fsn")
+    for img_peaks, img_values in zip(imgs_peaks, imgs_values)
+]
+
+# Display mean jackknife values and range
+for i in range(len(prefixes)):
+    print("Mean:", dfs_fsn[i]["fsn"].mean())
+    print("Range:", dfs_fsn[i]["fsn"].min(), "–", dfs_fsn[i]["fsn"].max())

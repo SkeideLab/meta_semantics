@@ -571,8 +571,10 @@ _ = fig8.subplots_adjust(**margins)
 for task, ax_jk in zip(
     ["all", "knowledge", "relatedness", "objects"], [ax1, ax2, ax3, ax4]
 ):
+    img_task = image.load_img("../results/ale/" + task + "_z_thresh.nii.gz")
+    img_mask = image.math_img("np.where(img > 0, 100, 0)", img=img_task)
     img_jk = image.load_img("../results/jackknife/" + task + "/mean_jk.nii.gz")
-    img_jk = image.math_img("img * 100", img=img_jk)
+    img_jk = image.math_img("img1 * img2", img1=img_jk, img2=img_mask)
     p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_jk)
     p.add_overlay(img_jk, cmap="RdYlGn", vmin=0, vmax=100)
 
@@ -615,16 +617,18 @@ ax4 = fig9.add_subplot(gs[76:101, :])
 # Specify smaller margins
 _ = fig9.subplots_adjust(**margins)
 
-# Plot mean FSN maps (scaled by the total number of experiments)
+# Plot mean FSN maps (scaled by the number of original experiments)
 n_studies_per_task = [len(exps)] + exps["task_type"].value_counts().to_list()
 for task, ax_fsn, n_studies in zip(
     ["all", "knowledge", "relatedness", "objects"],
     [ax1, ax2, ax3, ax4],
     n_studies_per_task,
 ):
+    img_task = image.load_img("../results/ale/" + task + "_z_thresh.nii.gz")
+    img_mask = image.math_img("np.where(img > 0, 100, 0)", img=img_task)
     img_fsn = image.load_img("../results/fsn/" + task + "/" + task + "_mean_fsn.nii.gz")
-    formula = "100 * img / " + str(n_studies)
-    img_perc = image.math_img(formula=formula, img=img_fsn)
+    formula = "img1 * img2 / " + str(n_studies)
+    img_perc = image.math_img(formula=formula, img1=img_fsn, img2=img_mask)
     p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_fsn)
     p.add_overlay(img_perc, cmap="RdYlGn", vmin=0, vmax=60)
 
