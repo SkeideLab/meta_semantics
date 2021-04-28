@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -13,6 +14,15 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
+#
+# # Notebook #07: Output Tables
+#
+# *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
+#
+# This notebooks contains a conveniency function that we've used to create all of the tables for our manuscript. We only comment on these sparsely since no substantial work is happening here and the solutions we've used are very idiosyncratic to the present meta-analysis. Also note that the tables still needed some post-processing, such as turning the anatomical peak labels from abbreviations into plain language.
+
 # %%
 from glob import glob
 from os import makedirs, path, remove
@@ -25,11 +35,14 @@ from atlasreader import get_statmap_info
 from nilearn import image, reporting
 from nimare.utils import mni2tal
 
+# %% [markdown]
+# Table 1 in the manuscript provides descriptive information about the experiments included in the meta-analysis. This information was originally stored in `data/literature_search/included.csv` and updated with some additional information in the previous notebooks and stored under as `results/exps.json`. Here we load this into a DataFrame and compute some summary statistics which are reported in the paper (such as the overall sample size of children and their mean age).
+
 # %%
 # Read included experiments (Table 1)
 exps = pd.read_json("../results/exps.json")
-exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
-exps["n_foci"] = [len(foci) for foci in exps["foci"]]
+exps["peaks"] = [np.array(peaks, dtype="float") for peaks in exps["peaks"]]
+exps["n_peaks"] = [len(peaks) for peaks in exps["peaks"]]
 
 # Compute summary statistics
 _ = [
@@ -46,7 +59,7 @@ _ = [
         "max",
         exps[col].max(),
     )
-    for col in ["n", "age_mean", "age_min", "age_max", "n_foci"]
+    for col in ["n", "age_mean", "age_min", "age_max", "n_peaks"]
 ]
 
 # Compute weighted mean age
@@ -64,11 +77,14 @@ print(len(tstats[tstats != "p"]) / len(tstats))
 print(len(tstats[tstats == "p"]))
 
 # Cut peaks in left vs. right hemisphere
-foci = exps["foci_mni"].explode()
-foci_x = [focus[0] for focus in foci]
-foci_left = [x for x in foci_x if x < 0]
-print(len(foci_left))
-print(len(foci_left) / len(foci_x))
+peaks = exps["peaks_mni"].explode()
+peaks_x = [focus[0] for focus in peaks]
+peaks_left = [x for x in peaks_x if x < 0]
+print(len(peaks_left))
+print(len(peaks_left) / len(peaks_x))
+
+# %% [markdown]
+# This next block is a helper function to create a cluster table from multiple *z* score maps. It also has an option to add ALE values if a corresponding ALE value map happens to be available (note that this is not the case for subtraction and SDM analyses). The function also looks up anatomical labels for each cluster and its peak based on the anatomic automatic labeling atlas (AAL2; Rolls et al., 2015, *NeuroImage*) as implemented in the AtlasReader package (Notter et al., 2019, *J Open Source Softw*).
 
 # %%
 # Define function to print the clusters from multiple images as a table
@@ -158,6 +174,9 @@ def combined_cluster_table(
     return df
 
 
+# %% [markdown]
+# We apply this function to create the cluster Tables 2–6 which present the results of all of our ALE, subtraction, and SDM analyses.
+
 # %%
 # Create Table 2 (ALE & SDM results)
 tab2 = combined_cluster_table(
@@ -219,7 +238,7 @@ tab4 = combined_cluster_table(
         "Relatedness > (knowledge + objects)",
         "Objects > (knowledge + relatedness)",
     ],
-    stub_colname="Subtraction",
+    stub_colname="Analysis",
     atlas="aal",
     output_file="../results/tables/tab4_subtraction.tsv",
 )
@@ -230,7 +249,7 @@ display(tab4)
 tab5 = combined_cluster_table(
     img_files_z=["../results/subtraction/older_minus_younger_z_thresh.nii.gz"],
     stub_keys=["Older > younger"],
-    stub_colname="Contrast",
+    stub_colname="Analysis",
     img_files_ale=[None],
     atlas="aal",
     output_file="../results/tables/tab5_age.tsv",
@@ -238,7 +257,7 @@ tab5 = combined_cluster_table(
 display(tab5)
 
 # %%
-# Create Table 5 (adults)
+# Create Table 6 (adults)
 tab6 = combined_cluster_table(
     img_files_z=[
         "../results/adults/adults_z_thresh.nii.gz",
@@ -253,6 +272,9 @@ tab6 = combined_cluster_table(
     output_file="../results/tables/tab6_adults.tsv",
 )
 display(tab6)
+
+# %% [markdown]
+# Finally, we also take care of the outputs from our two robustness checks (jackknife and FSN; see Notebooks #05 and #06). We decided to present these in figures only instead of creating separate tables or squeezing these values into the original cluster tables. However, with this code we could easily do so: It takes the original peak locations (based on the *z* score maps from ALE) and looks up the corresponding value (jackknife reliability or FSN) for these peaks. Based on these, we can also compute some summary statistics such as the average jackknife robustness or FSN across all clusters in a given map.
 
 # %%
 # Extract jackknife and FSN values from peaks
@@ -279,6 +301,7 @@ def extract_value_at_peaks(img_peaks, img_values, colname_value):
     return df
 
 
+# %%
 # Apply to retrieve the jackknife values
 prefixes = ["all", "knowledge", "relatedness", "objects"]
 imgs_peaks = ["../results/ale/" + prefix + "_z_thresh.nii.gz" for prefix in prefixes]
@@ -294,3 +317,20 @@ dfs_jk = [
 for i in range(len(prefixes)):
     print("Mean:", dfs_jk[i]["jk"].mean())
     print("Range:", dfs_jk[i]["jk"].min(), "–", dfs_jk[i]["jk"].max())
+
+# %%
+# Apply to retrieve the FSN values
+imgs_peaks = ["../results/ale/" + prefix + "_z_thresh.nii.gz" for prefix in prefixes]
+imgs_values = [
+    "../results/fsn/" + prefix + "/" + prefix + "_mean_fsn.nii.gz"
+    for prefix in prefixes
+]
+dfs_fsn = [
+    extract_value_at_peaks(img_peaks, img_values, colname_value="fsn")
+    for img_peaks, img_values in zip(imgs_peaks, imgs_values)
+]
+
+# Display mean jackknife values and range
+for i in range(len(prefixes)):
+    print("Mean:", dfs_fsn[i]["fsn"].mean())
+    print("Range:", dfs_fsn[i]["fsn"].min(), "–", dfs_fsn[i]["fsn"].max())

@@ -13,6 +13,15 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
+#
+# # Notebook #08: Output Figures
+#
+# *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
+#
+# This notebooks contains the code that we've used to create publication-ready figures from the statistical maps that we've created in the previous notebooks. We did not add any explanatory text because no substantial work is happening here and the solutions we've used are very idiosyncratic to the present meta-analysis. Also, most of what is happening should hopefully become clear from the code itself and the comments. For most figures, we rely heavily on Nilearn's `plot_glass_brain()` function and combine multiple of these glass brains using matplotlib's `gridspec` syntax. Note that there is no code for Figure 1 (showing the literature search and selection process in the form of a [PRISMA flowchart](https://doi.org/10.1136/bmj.n71)) because this figure was created manually using [LibreOffice Impress](https://www.libreoffice.org).
+
 # %%
 from os import makedirs
 
@@ -64,7 +73,7 @@ p = sns.scatterplot(
 handles, labels = plt.gca().get_legend_handles_labels()
 
 # %%
-# Create a new figure for the distributions of sample size, no. of foci, and mean age
+# Create empty figure for study-level descriptive variables
 figsize = (90 * scaling, 90 * scaling)
 fig2, axs = plt.subplots(nrows=3, ncols=3, figsize=figsize)
 
@@ -125,23 +134,23 @@ def plot_reg_coef(x, y, ax):
 
 # Specify separate bin widths for each variable
 bins_n = np.arange(0, 80, step=10)
-bins_foci = np.arange(0, 51, step=5)
+bins_peaks = np.arange(0, 51, step=5)
 bins_age = np.arange(4, 14, step=1)
 
 # Create the histograms
 histplot_custom(x="n", bins=bins_n, ax=axs[0][0])
-histplot_custom(x="foci_n", bins=bins_foci, ax=axs[1][1])
+histplot_custom(x="peaks_n", bins=bins_peaks, ax=axs[1][1])
 histplot_custom(x="age_mean", bins=bins_age, ax=axs[2][2])
 
 # Create the regression plots
-regplot_custom(x="n", y="foci_n", ax=axs[1][0], xbins=bins_n, ybins=bins_foci)
+regplot_custom(x="n", y="peaks_n", ax=axs[1][0], xbins=bins_n, ybins=bins_peaks)
 regplot_custom(x="n", y="age_mean", ax=axs[2][0], xbins=bins_n, ybins=bins_age)
-regplot_custom(x="foci_n", y="age_mean", ax=axs[2][1], xbins=bins_foci, ybins=bins_age)
+regplot_custom(x="peaks_n", y="age_mean", ax=axs[2][1], xbins=bins_peaks, ybins=bins_age)
 
 # Add the regression coefficients
-plot_reg_coef(x="foci_n", y="n", ax=axs[0][1])
+plot_reg_coef(x="peaks_n", y="n", ax=axs[0][1])
 plot_reg_coef(x="age_mean", y="n", ax=axs[0][2])
-plot_reg_coef(x="age_mean", y="foci_n", ax=axs[1][2])
+plot_reg_coef(x="age_mean", y="peaks_n", ax=axs[1][2])
 
 # Add the legend
 bbox = (0.9, 0.2, 0, 0)
@@ -159,17 +168,17 @@ axs[2][0].set_ylabel("Mean age")
 fig2.savefig("../results/figures/fig2.pdf")
 
 # %%
-# Extract all individual foci and their z-value
-foci_coords = np.array(exps["foci_mni"].explode().tolist())
-foci_zstat = [
+# Extract all individual peaks and their z score
+peaks_coords = np.array(exps["peaks_mni"].explode().tolist())
+peaks_zstat = [
     stats.norm.ppf(stats.t.cdf(tstat, df=n - 1)) if tstat else np.nan
     for tstat, n in zip(exps.explode("tstats")["tstats"], exps.explode("tstats")["n"])
 ]
 
-# Get indices of foci without an effect size
-idxs_p = np.where(np.isnan(foci_zstat))[0]
+# Get indices of peaks without an effect size
+idxs_p = np.where(np.isnan(peaks_zstat))[0]
 
-# Create a new figure with four subplots
+# Create empty figure for main ALE and SDM analyses
 figsize = (90 * scaling, 145 * scaling)
 fig3 = plt.figure(figsize=figsize)
 gs = fig3.add_gridspec(145, 90)
@@ -188,10 +197,10 @@ margins = {
 }
 _ = fig3.subplots_adjust(**margins)
 
-# Plot individual foci (without effect sizes)
+# Plot individual peaks (without effect sizes)
 p1_1 = plotting.plot_markers(  # left and right
     node_values=[0.5] * len(idxs_p),
-    node_coords=np.take(foci_coords, idxs_p, axis=0),
+    node_coords=np.take(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="binary",
     node_vmin=0,
@@ -203,7 +212,7 @@ p1_1 = plotting.plot_markers(  # left and right
 )
 p2_1 = plotting.plot_markers(  # coronal and horizontal
     node_values=[0.5] * len(idxs_p),
-    node_coords=np.take(foci_coords, idxs_p, axis=0),
+    node_coords=np.take(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="binary",
     node_vmin=0,
@@ -214,10 +223,10 @@ p2_1 = plotting.plot_markers(  # coronal and horizontal
     colorbar=False,
 )
 
-# Plot individual foci (with effect sizes)
+# Plot individual peaks (with effect sizes)
 p1_2 = plotting.plot_markers(  # left and right
-    node_values=np.delete(foci_zstat, idxs_p).astype("float"),
-    node_coords=np.delete(foci_coords, idxs_p, axis=0),
+    node_values=np.delete(peaks_zstat, idxs_p).astype("float"),
+    node_coords=np.delete(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="YlOrRd",
     node_vmin=0,
@@ -228,8 +237,8 @@ p1_2 = plotting.plot_markers(  # left and right
     colorbar=False,
 )
 p2_2 = plotting.plot_markers(  # coronal and horizontal
-    node_values=np.delete(foci_zstat, idxs_p).astype("float"),
-    node_coords=np.delete(foci_coords, idxs_p, axis=0),
+    node_values=np.delete(peaks_zstat, idxs_p).astype("float"),
+    node_coords=np.delete(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="YlOrRd",
     node_vmin=0,
@@ -288,10 +297,10 @@ _ = ax5.annotate("SDM + covariates", xy=(0.035, 0.96), xycoords="axes fraction")
 fig3.savefig("../results/figures/fig3.pdf")
 
 # %%
-# Get task types of individual foci
-foci_tasks = exps.explode("tstats")["task_type"].cat.codes
+# Get task types of individual peaks
+peaks_tasks = exps.explode("tstats")["task_type"].cat.codes
 
-# Create a new figure with four subplots
+# Create empty figure for task category-specific ALEs
 figsize = (90 * scaling, 145 * scaling)
 fig4 = plt.figure(figsize=figsize)
 gs = fig4.add_gridspec(145, 90)
@@ -304,10 +313,10 @@ ax5 = fig4.add_subplot(gs[120:145, :])
 # Specify smaller margins
 _ = fig4.subplots_adjust(**margins)
 
-# Plot individual foci
+# Plot individual peaks
 p1 = plotting.plot_markers(  # left and right
-    node_values=foci_tasks,
-    node_coords=foci_coords,
+    node_values=peaks_tasks,
+    node_coords=peaks_coords,
     node_size=10,
     node_cmap="viridis",
     node_vmin=0,
@@ -318,8 +327,8 @@ p1 = plotting.plot_markers(  # left and right
     colorbar=False,
 )
 p2 = plotting.plot_markers(  # coronal and horizontal
-    node_values=foci_tasks,
-    node_coords=foci_coords,
+    node_values=peaks_tasks,
+    node_coords=peaks_coords,
     node_size=10,
     node_cmap="viridis",
     node_vmin=0,
@@ -360,7 +369,7 @@ _ = ax5.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 fig4.savefig("../results/figures/fig4.pdf")
 
 # %%
-# Create a new figure with four subplots
+# Create empty figure for differences between task categories
 figsize = (90 * scaling, 87 * scaling)
 fig5 = plt.figure(figsize=figsize)
 gs = fig5.add_gridspec(85, 90)
@@ -414,7 +423,7 @@ _ = ax3.annotate("Objects > other", xy=(0.035, 0.96), xycoords="axes fraction")
 fig5.savefig("../results/figures/fig5.pdf")
 
 # %%
-# Create a new figure with two subplots
+# Create empty figure for age-related changes
 figsize = (90 * scaling, 62 * scaling)
 fig6 = plt.figure(figsize=figsize)
 gs = fig6.add_gridspec(60, 90)
@@ -477,7 +486,7 @@ _ = ax2.annotate(
 fig6.savefig("../results/figures/fig6.pdf")
 
 # %%
-# Create a new figure with three subplots
+# Create empty figure for comparison with adults
 figsize = (90 * scaling, 95 * scaling)
 fig7 = plt.figure(figsize=figsize)
 gs = fig7.add_gridspec(96, 90)
@@ -555,7 +564,7 @@ _ = ax3.annotate("Conjunction", xy=(0.035, 0.96), xycoords="axes fraction")
 fig7.savefig("../results/figures/fig7.pdf")
 
 # %%
-# Create a new figure with four subplots
+# Create empty figure for leave-one-out analysis
 figsize = (90 * scaling, 110 * scaling)
 fig8 = plt.figure(figsize=figsize)
 gs = fig8.add_gridspec(110, 90)
@@ -568,11 +577,13 @@ ax4 = fig8.add_subplot(gs[76:101, :])
 _ = fig8.subplots_adjust(**margins)
 
 # Plot mean jackknife reliability maps
-for task, ax_jk in zip(["all", "knowledge", "relatedness", "objects"], [ax1, ax2, ax3, ax4]):
-    img_jk = image.load_img(
-        "../results/jackknife/" + task + "/mean_jk.nii.gz"
-    )
-    img_jk = image.math_img("img * 100", img=img_jk)
+for task, ax_jk in zip(
+    ["all", "knowledge", "relatedness", "objects"], [ax1, ax2, ax3, ax4]
+):
+    img_task = image.load_img("../results/ale/" + task + "_z_thresh.nii.gz")
+    img_mask = image.math_img("np.where(img > 0, 100, 0)", img=img_task)
+    img_jk = image.load_img("../results/jackknife/" + task + "/mean_jk.nii.gz")
+    img_jk = image.math_img("img1 * img2", img1=img_jk, img2=img_mask)
     p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_jk)
     p.add_overlay(img_jk, cmap="RdYlGn", vmin=0, vmax=100)
 
@@ -601,3 +612,57 @@ _ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
 fig8.savefig("../results/figures/fig8.pdf")
+
+# %%
+# Create empty figure for FSN
+figsize = (90 * scaling, 110 * scaling)
+fig9 = plt.figure(figsize=figsize)
+gs = fig9.add_gridspec(110, 90)
+ax1 = fig9.add_subplot(gs[1:26, :])
+ax2 = fig9.add_subplot(gs[26:51, :])
+ax3 = fig9.add_subplot(gs[51:76, :])
+ax4 = fig9.add_subplot(gs[76:101, :])
+
+# Specify smaller margins
+_ = fig9.subplots_adjust(**margins)
+
+# Plot mean FSN maps (scaled by the number of original experiments)
+n_studies_per_task = [len(exps)] + exps["task_type"].value_counts().to_list()
+for task, ax_fsn, n_studies in zip(
+    ["all", "knowledge", "relatedness", "objects"],
+    [ax1, ax2, ax3, ax4],
+    n_studies_per_task,
+):
+    img_task = image.load_img("../results/ale/" + task + "_z_thresh.nii.gz")
+    img_mask = image.math_img("np.where(img > 0, 100, 0)", img=img_task)
+    img_fsn = image.load_img("../results/fsn/" + task + "/" + task + "_mean_fsn.nii.gz")
+    formula = "img1 * img2 / " + str(n_studies)
+    img_perc = image.math_img(formula=formula, img1=img_fsn, img2=img_mask)
+    p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_fsn)
+    p.add_overlay(img_perc, cmap="RdYlGn", vmin=0, vmax=60)
+
+# Add colorbar
+ax_cbar = fig9.add_subplot(gs[100:103, 36:54])
+cmap = plt.get_cmap("RdYlGn")
+norm = mpl.colors.Normalize(vmin=0, vmax=60)
+mpl.colorbar.ColorbarBase(
+    ax_cbar,
+    cmap=cmap,
+    norm=norm,
+    orientation="horizontal",
+    ticks=[0, 30, 60],
+    label="Fail-safe N (%)",
+)
+
+# Add subplot labels
+_ = ax1.annotate("A", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax4.annotate("D", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate("All semantic cognition", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax2.annotate("Knowledge", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax3.annotate("Relatedness", xy=(0.035, 0.96), xycoords="axes fraction")
+_ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
+
+# Save to PDF
+fig9.savefig("../results/figures/fig9.pdf")

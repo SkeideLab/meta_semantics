@@ -13,6 +13,17 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
+#
+# # Notebook #06: Fail-Safe N Analysis (fast version)
+#
+# *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
+#
+# This is just a faster and less accurate implementation of the FSN algorithm described in Notebook #06. It follows the logic of Acar et al. (2018, *PLOS ONE*; see their Figure 3): They suggest not estimating a new ALE iteratively for every possible number of null experiments added, but instead starting with a very high number of null experiments and then narrowing it down by taking upward or downward leaps based on whether or not the cluster has remained statistically significant. **Although this sounds promising, we eventually did not follow this road any further because we could not obtain reliable results with it**. The FSN was just widely different for different file drawers. This is most likely due to the fact that a cluster that failed to reach significant with a certain number of null experiments added (say, `k = 50`), may then show up as being (spuriously) significant again at `k = 55`. If we don't search the whole space of potential FSN values, we can never know if our search algorithm missed the real FSN value (i.e., the *first* one where the cluster was non-significant). We also found it difficult to choose the upper bound for our first simulation as this would sometimes need to be astrononmically high if some clusters are highly robust. Note that such large data sets may stall NiMARE's ALE algorithm.
+#
+# TL;DR: This approach could speed up the FSN process a lot but seems to lead to very imprecise results.
+
 # %%
 import logging
 import random
@@ -33,7 +44,7 @@ from scipy.stats import norm
 # %%
 # Define function to generate a new data set with k null studies added
 def generate_null(
-    text_file="foci.txt",
+    text_file="peaks.txt",
     space="ale_2mm",
     k_null=100,
     random_seed=None,
@@ -59,15 +70,15 @@ def generate_null(
     nr_subjects_dset = [n[0] for n in dset.metadata["sample_sizes"]]
     nr_subjects_null = random.choices(nr_subjects_dset, k=k_null)
 
-    # Do the same for the numbers of foci per experiment
-    nr_foci_dset = dset.coordinates["study_id"].value_counts().tolist()
-    nr_foci_null = random.choices(nr_foci_dset, k=k_null)
+    # Do the same for the numbers of peaks per experiment
+    nr_peaks_dset = dset.coordinates["study_id"].value_counts().tolist()
+    nr_peaks_null = random.choices(nr_peaks_dset, k=k_null)
 
-    # Create random foci
+    # Create random peaks
     idx_list = [
-        random.sample(range(len(within_mni)), k=k_foci) for k_foci in nr_foci_null
+        random.sample(range(len(within_mni)), k=k_peaks) for k_peaks in nr_peaks_null
     ]
-    foci_null = [within_mni[idx] for idx in idx_list]
+    peaks_null = [within_mni[idx] for idx in idx_list]
 
     # Create the destination Sleuth file
     makedirs(output_dir, exist_ok=True)
@@ -88,7 +99,7 @@ def generate_null(
             + str(nr_subjects_null[i])
             + "\n"
         )
-        np.savetxt(f, foci_null[i], fmt="%.3f", delimiter="\t")
+        np.savetxt(f, peaks_null[i], fmt="%.3f", delimiter="\t")
     f.close()
 
     # Read the file and return it as a NiMARE data set
@@ -99,7 +110,7 @@ def generate_null(
 # %%
 # Define function to compute the FSN for all clusters from a Sleuth file
 def compute_fsn(
-    text_file="foci.txt",
+    text_file="peaks.txt",
     space="ale_2mm",
     voxel_thresh=0.001,
     cluster_thresh=0.01,
