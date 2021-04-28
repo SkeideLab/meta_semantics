@@ -13,6 +13,17 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
+#
+# # Notebook #05: Jackknife analysis
+#
+# *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
+#
+# This notebook performs the first of two robustness checks that we're going to perform on our meta-analytic (ALE) results. This first one is called a "jackknife analysis" (or, also, a leave-one-out analysis). As the name says, we'll just repeat our original meta-analysis multiple times, each time leaving out a different one of original experiments that went into it. By examining if and how the results change across these simulations, we'll get an idea of how much our meta-analytic clusters hinge on any individual study (which may or may not report spurious peaks). Note that this involves running a large number of (synthetic) ALE analyses and may therefore take multiple hours, especially if only few cores are available on your local machine or cloud server.
+#
+# As usual, we start by loading all the packages we'll need in this notebook.
+
 # %%
 from os import makedirs
 
@@ -23,6 +34,11 @@ from nilearn import image, plotting, reporting
 from nimare import correct, io, meta
 from scipy.stats import norm
 
+
+# %% [markdown]
+# Because we want to perform the jackknife analysis for multiple ALEs (i.e., the main analysis and the three task category-specific analyses), let's again define a helper function. This takes as its input a Sleuth text file (the same that we've created in Notebook #01 to run the original ALE analysis) plus a couple of additional parameters that will be used for all ALE simulations. These, of course, should be the same as for the original analysis for the jackknife results to be meaningful.
+#
+# The logic of our function is to read the Sleuth file and re-create the original ALE analysis (with all experiments inlcuded). Then, it loops over all those experiments and, at each iteration, drops the current one from the sample and re-estimates the ALE. The resulting meta-analytic map is converted into a binary mask telling us which voxels remained statistically significant ($0$ = not signficant, $1$ = significant). Once we've done this for all experiments, these images are averaged into a "jackknife map," simply showing us for each cluster the percentage of simulations in which it has remained significant. This can be seen as an indicator for the robustness of the cluster against spurious results in the meta-analytic sample.
 
 # %%
 # Define function to perform a single jackknife analysis
@@ -84,6 +100,9 @@ def compute_jackknife(
     return img_mean
 
 
+# %% [markdown]
+# So far we've only defined the jackknife function; now let's apply it to our ALE analyses. We just need to list the Sleuth text file names and provide our default ALE thresholds and settings. The function will run for a couple of hours and return, for each input Sleuth file, an averaged jackknife map.
+
 # %%
 # List the Sleuth files for which to run a jackknife analysis
 prefixes = ["all", "knowledge", "relatedness", "objects"]
@@ -105,6 +124,9 @@ jks = [
     )
     for text_file, output_dir in zip(text_files, output_dirs)
 ]
+
+# %% [markdown]
+# Let's examine one of these maps, here for our main analysis containing all semantic knowledge experiments. Note that most clusters have a jackknife reliability of $1.0$, indicating strong robustness against the deletion of individual experiments. Only for two of the posterior clusters in the right hemisphere, the robustness is slightly reduced (but still high with approx. $0.85$).
 
 # %%
 # Glass brain example

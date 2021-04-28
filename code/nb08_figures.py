@@ -13,6 +13,15 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
+#
+# # Notebook #08: Output Figures
+#
+# *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
+#
+# This notebooks contains the code that we've used to create publication-ready figures from the statistical maps that we've created in the previous notebooks. We did not add any explanatory text because no substantial work is happening here and the solutions we've used are very idiosyncratic to the present meta-analysis. Also, most of what is happening should hopefully become clear from the code itself and the comments. For most figures, we rely heavily on Nilearn's `plot_glass_brain()` function and combine multiple of these glass brains using matplotlib's `gridspec` syntax. Note that there is no code for Figure 1 (showing the literature search and selection process in the form of a [PRISMA flowchart](https://doi.org/10.1136/bmj.n71)) because this figure was created manually using [LibreOffice Impress](https://www.libreoffice.org).
+
 # %%
 from os import makedirs
 
@@ -159,7 +168,7 @@ axs[2][0].set_ylabel("Mean age")
 fig2.savefig("../results/figures/fig2.pdf")
 
 # %%
-# Extract all individual foci and their z-value
+# Extract all individual foci and their z score
 foci_coords = np.array(exps["foci_mni"].explode().tolist())
 foci_zstat = [
     stats.norm.ppf(stats.t.cdf(tstat, df=n - 1)) if tstat else np.nan

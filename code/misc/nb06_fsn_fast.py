@@ -13,6 +13,17 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
+#
+# # Notebook #06: Fail-Safe N Analysis (fast version)
+#
+# *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
+#
+# This is just a faster and less accurate implementation of the FSN algorithm described in Notebook #06. It follows the logic of Acar et al. (2018, *PLOS ONE*; see their Figure 3): They suggest not estimating a new ALE iteratively for every possible number of null experiments added, but instead starting with a very high number of null experiments and then narrowing it down by taking upward or downward leaps based on whether or not the cluster has remained statistically significant. **Although this sounds promising, we eventually did not follow this road any further because we could not obtain reliable results with it**. The FSN was just widely different for different file drawers. This is most likely due to the fact that a cluster that failed to reach significant with a certain number of null experiments added (say, `k = 50`), may then show up as being (spuriously) significant again at `k = 55`. If we don't search the whole space of potential FSN values, we can never know if our search algorithm missed the real FSN value (i.e., the *first* one where the cluster was non-significant). We also found it difficult to choose the upper bound for our first simulation as this would sometimes need to be astrononmically high if some clusters are highly robust. Note that such large data sets may stall NiMARE's ALE algorithm.
+#
+# TL;DR: This approach could speed up the FSN process a lot but seems to lead to very imprecise results.
+
 # %%
 import logging
 import random

@@ -1,10 +1,10 @@
 .devcontainer/
-.idea/
 .vscode/
+code/.ipynb_checkpoints/
 code/__pycache__/
 code/slurm/
 data/literature_search/articles/
-results/
+results*/
 software/
 .DS_Store
 *.sif
