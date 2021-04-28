@@ -183,7 +183,7 @@ def run_ale(text_file, voxel_thresh, cluster_thresh, random_seed, n_iters, outpu
     img_clust_thresh = image.threshold_img(img=img_clust, threshold=cluster_thresh_z)
     img_mask = image.math_img("np.where(img > 0, 1, 0)", img=img_clust_thresh)
     img_z_thresh = image.math_img("img1 * img2", img1=img_mask, img2=img_z)
-    img_ale_thresh = image.math_ƒimg("img1 * img2", img1=img_mask, img2=img_ale)
+    img_ale_thresh = image.math_img("img1 * img2", img1=img_mask, img2=img_ale)
 
     # Save thresholded maps to the output directory
     save(img=img_z_thresh, filename=output_dir + "/" + prefix + "_z_thresh.nii.gz")
