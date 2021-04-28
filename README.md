@@ -1,10 +1,10 @@
-![meta-analytic results from ALE](code/misc/ale_brains.png)
-
 # A meta-analysis of fMRI studies of semantic cognition in children
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/alexenge/meta_semantics/HEAD)
+
+![meta-analytic results from ALE](code/misc/ale_brains.png)
 
 This repository contains the code, data, and results for the following paper:
 
