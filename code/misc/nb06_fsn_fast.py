@@ -44,7 +44,7 @@ from scipy.stats import norm
 # %%
 # Define function to generate a new data set with k null studies added
 def generate_null(
-    text_file="foci.txt",
+    text_file="peaks.txt",
     space="ale_2mm",
     k_null=100,
     random_seed=None,
@@ -70,15 +70,15 @@ def generate_null(
     nr_subjects_dset = [n[0] for n in dset.metadata["sample_sizes"]]
     nr_subjects_null = random.choices(nr_subjects_dset, k=k_null)
 
-    # Do the same for the numbers of foci per experiment
-    nr_foci_dset = dset.coordinates["study_id"].value_counts().tolist()
-    nr_foci_null = random.choices(nr_foci_dset, k=k_null)
+    # Do the same for the numbers of peaks per experiment
+    nr_peaks_dset = dset.coordinates["study_id"].value_counts().tolist()
+    nr_peaks_null = random.choices(nr_peaks_dset, k=k_null)
 
-    # Create random foci
+    # Create random peaks
     idx_list = [
-        random.sample(range(len(within_mni)), k=k_foci) for k_foci in nr_foci_null
+        random.sample(range(len(within_mni)), k=k_peaks) for k_peaks in nr_peaks_null
     ]
-    foci_null = [within_mni[idx] for idx in idx_list]
+    peaks_null = [within_mni[idx] for idx in idx_list]
 
     # Create the destination Sleuth file
     makedirs(output_dir, exist_ok=True)
@@ -99,7 +99,7 @@ def generate_null(
             + str(nr_subjects_null[i])
             + "\n"
         )
-        np.savetxt(f, foci_null[i], fmt="%.3f", delimiter="\t")
+        np.savetxt(f, peaks_null[i], fmt="%.3f", delimiter="\t")
     f.close()
 
     # Read the file and return it as a NiMARE data set
@@ -110,7 +110,7 @@ def generate_null(
 # %%
 # Define function to compute the FSN for all clusters from a Sleuth file
 def compute_fsn(
-    text_file="foci.txt",
+    text_file="peaks.txt",
     space="ale_2mm",
     voxel_thresh=0.001,
     cluster_thresh=0.01,

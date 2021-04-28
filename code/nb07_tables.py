@@ -41,8 +41,8 @@ from nimare.utils import mni2tal
 # %%
 # Read included experiments (Table 1)
 exps = pd.read_json("../results/exps.json")
-exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
-exps["n_foci"] = [len(foci) for foci in exps["foci"]]
+exps["peaks"] = [np.array(peaks, dtype="float") for peaks in exps["peaks"]]
+exps["n_peaks"] = [len(peaks) for peaks in exps["peaks"]]
 
 # Compute summary statistics
 _ = [
@@ -59,7 +59,7 @@ _ = [
         "max",
         exps[col].max(),
     )
-    for col in ["n", "age_mean", "age_min", "age_max", "n_foci"]
+    for col in ["n", "age_mean", "age_min", "age_max", "n_peaks"]
 ]
 
 # Compute weighted mean age
@@ -77,11 +77,11 @@ print(len(tstats[tstats != "p"]) / len(tstats))
 print(len(tstats[tstats == "p"]))
 
 # Cut peaks in left vs. right hemisphere
-foci = exps["foci_mni"].explode()
-foci_x = [focus[0] for focus in foci]
-foci_left = [x for x in foci_x if x < 0]
-print(len(foci_left))
-print(len(foci_left) / len(foci_x))
+peaks = exps["peaks_mni"].explode()
+peaks_x = [focus[0] for focus in peaks]
+peaks_left = [x for x in peaks_x if x < 0]
+print(len(peaks_left))
+print(len(peaks_left) / len(peaks_x))
 
 # %% [markdown]
 # This next block is a helper function to create a cluster table from multiple *z* score maps. It also has an option to add ALE values if a corresponding ALE value map happens to be available (note that this is not the case for subtraction and SDM analyses). The function also looks up anatomical labels for each cluster and its peak based on the anatomic automatic labeling atlas (AAL2; Rolls et al., 2015, *NeuroImage*) as implemented in the AtlasReader package (Notter et al., 2019, *J Open Source Softw*).

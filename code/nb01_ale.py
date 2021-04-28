@@ -76,21 +76,21 @@ if __name__ == "__main__":
 if __name__ == "__main__":
 
     # Read peak coordinates from .csv files
-    exps["csv"] = "../data/foci/" + exps["experiment"] + ".csv"
-    exps["foci"] = [
+    exps["csv"] = "../data/peaks/" + exps["experiment"] + ".csv"
+    exps["peaks"] = [
         np.genfromtxt(csv, delimiter=",", skip_header=1) for csv in exps["csv"]
     ]
 
-    # Make sure all foci are stored as 2D NumPy arrays
-    exps["foci"] = [
-        np.expand_dims(foci, axis=0) if np.ndim(foci) != 2 else foci
-        for foci in exps["foci"]
+    # Make sure all peaks are stored as 2D NumPy arrays
+    exps["peaks"] = [
+        np.expand_dims(peaks, axis=0) if np.ndim(peaks) != 2 else peaks
+        for peaks in exps["peaks"]
     ]
 
     # Convert coordinates from Talairach to MNI space if necessary
-    exps["foci_mni"] = [
-        utils.tal2mni(foci[:, 0:3]) if foci_space == "TAL" else foci[:, 0:3]
-        for foci, foci_space in zip(exps["foci"], exps["foci_space"])
+    exps["peaks_mni"] = [
+        utils.tal2mni(peaks[:, 0:3]) if peaks_space == "TAL" else peaks[:, 0:3]
+        for peaks, peaks_space in zip(exps["peaks"], exps["peaks_space"])
     ]
 
     # Backup the DataFrame for reuse in other notebooks
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
 # %%
 # Define function to write a certain subset of the experiments to a Sleuth text file
-def write_foci_to_sleuth(text_file, df, query):
+def write_peaks_to_sleuth(text_file, df, query):
 
     makedirs(path.dirname(text_file), exist_ok=True)
     f = open(file=text_file, mode="w")
@@ -110,11 +110,11 @@ def write_foci_to_sleuth(text_file, df, query):
     f.close()
     f = open(file=text_file, mode="a")
     df_sub = df.query(query)
-    for experiment, n, foci_mni in zip(
-        df_sub["experiment"], df_sub["n"], df_sub["foci_mni"]
+    for experiment, n, peaks_mni in zip(
+        df_sub["experiment"], df_sub["n"], df_sub["peaks_mni"]
     ):
         f.write("// " + experiment + "\n// Subjects=" + str(n) + "\n")
-        np.savetxt(f, foci_mni, fmt="%1.3f", delimiter="\t")
+        np.savetxt(f, peaks_mni, fmt="%1.3f", delimiter="\t")
         f.write("\n")
     f.close()
 
@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     # Use our function to write the Sleuth files
     for key, value in zip(ales.keys(), ales.values()):
-        write_foci_to_sleuth(text_file=key, df=exps, query=value)
+        write_peaks_to_sleuth(text_file=key, df=exps, query=value)
 
 
 # %% [markdown]

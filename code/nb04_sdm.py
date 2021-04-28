@@ -46,27 +46,27 @@ from nb02_subtraction import dual_thresholding
 # %%
 # Read table of experiments from ALE analysis
 exps = pd.read_json("../results/exps.json")
-exps["foci"] = [np.array(foci, dtype="float") for foci in exps["foci"]]
+exps["peaks"] = [np.array(peaks, dtype="float") for peaks in exps["peaks"]]
 
 # %% [markdown]
-# As introduced above, SDM will use the test statistic for each peak coordinate to estimate effect size maps. These need to be provided in the common metric of *t* scores. In the original papers, these are more frequently reqorted as *z* scores, which can easily be converted into *t* scores by knowing the sample size of the experiment (because $df=n_{children}-1$). When neither *t* scores nor *z* scores are available for the peaks from a given experiment, we write the letter `p` by convention of SDM. We also chop of some unrealistically high *t* scores ($>50$) as these are likely to result from errors in statistical reporting. Note that this only was the case for ~5% of all foci and did not alter the results in any meaningful way.
+# As introduced above, SDM will use the test statistic for each peak coordinate to estimate effect size maps. These need to be provided in the common metric of *t* scores. In the original papers, these are more frequently reqorted as *z* scores, which can easily be converted into *t* scores by knowing the sample size of the experiment (because $df=n_{children}-1$). When neither *t* scores nor *z* scores are available for the peaks from a given experiment, we write the letter `p` by convention of SDM. We also chop of some unrealistically high *t* scores ($>50$) as these are likely to result from errors in statistical reporting. Note that this only was the case for ~5% of all peaks and did not alter the results in any meaningful way.
 
 # %%
-# Extract test statistics of individal foci
+# Extract test statistics of individal peaks
 exps["tstats"] = [
     
     # If there are t scores, we can use them directly
-    foci[:, 3] if foci_stat == "tstat"
+    peaks[:, 3] if peaks_stat == "tstat"
     
     # If there are z scores, we convert them to t scores
     else (
-        stats.t.ppf(stats.norm.cdf(foci[:, 3]), df=n - 1)
-        if foci_stat == "zstat"
+        stats.t.ppf(stats.norm.cdf(peaks[:, 3]), df=n - 1)
+        if peaks_stat == "zstat"
         
         # If neither of these, write NaNs
-        else np.full(foci.shape[0], np.nan)
+        else np.full(peaks.shape[0], np.nan)
     )
-    for foci, foci_stat, n in zip(exps["foci"], exps["foci_stat"], exps["n"])
+    for peaks, peaks_stat, n in zip(exps["peaks"], exps["peaks_stat"], exps["n"])
 ]
 
 # Replace missing and unrealistically high t scores
@@ -80,26 +80,26 @@ tstats_expl = np.array(exps["tstats"].explode(), dtype="float")
 print(sum(np.isnan(tstats_expl)), sum(np.isnan(tstats_expl)) / tstats_expl.size)
 print(sum(tstats_expl > 50), sum(tstats_expl > 50) / tstats_expl.size)
 
-# Add new test statistics back to the foci
-exps["foci_sdm"] = [
-    np.c_[foci, tstats_corr]
-    for foci, tstats_corr in zip(exps["foci_mni"], exps["tstats_corr"])
+# Add new test statistics back to the peaks
+exps["peaks_sdm"] = [
+    np.c_[peaks, tstats_corr]
+    for peaks, tstats_corr in zip(exps["peaks_mni"], exps["tstats_corr"])
 ]
 
 # %% [markdown]
 # Unlike ALE, where all experiments are fed into the algorithm from a single text file (the "Sleuth" file), SDM wants one text file for every experiment. This file contains one row per peak with its x, y, and z coordinate as well as its *t* score (or the letter *p* if no *t* score is available). The file name of this `.txt` file contains the name of the experiment and the standard space in which the peak coordinates are reported. Note that in our case all coordinates are already in a common MNI space (as per Notebook #01), even though some of the experiments originally used the Talairach space.
 
 # %%
-# Write the foci of each experiment to a text file
+# Write the peaks of each experiment to a text file
 makedirs("../results/sdm/", exist_ok=True)
 _ = [
     np.savetxt(
         fname="../results/sdm/" + exp + ".other_mni.txt",
-        X=foci,
+        X=peaks,
         fmt="%s",
         delimiter=",",
     )
-    for exp, foci in zip(exps["experiment"], exps["foci_sdm"])
+    for exp, peaks in zip(exps["experiment"], exps["peaks_sdm"])
 ]
 
 # %% [markdown]

@@ -43,7 +43,7 @@ from scipy.stats import norm
 # %%
 # Define function to perform a single jackknife analysis
 def compute_jackknife(
-    text_file="foci.txt",
+    text_file="peaks.txt",
     space="ale_2mm",
     voxel_thresh=0.001,
     cluster_thresh=0.01,

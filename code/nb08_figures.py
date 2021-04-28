@@ -134,23 +134,23 @@ def plot_reg_coef(x, y, ax):
 
 # Specify separate bin widths for each variable
 bins_n = np.arange(0, 80, step=10)
-bins_foci = np.arange(0, 51, step=5)
+bins_peaks = np.arange(0, 51, step=5)
 bins_age = np.arange(4, 14, step=1)
 
 # Create the histograms
 histplot_custom(x="n", bins=bins_n, ax=axs[0][0])
-histplot_custom(x="foci_n", bins=bins_foci, ax=axs[1][1])
+histplot_custom(x="peaks_n", bins=bins_peaks, ax=axs[1][1])
 histplot_custom(x="age_mean", bins=bins_age, ax=axs[2][2])
 
 # Create the regression plots
-regplot_custom(x="n", y="foci_n", ax=axs[1][0], xbins=bins_n, ybins=bins_foci)
+regplot_custom(x="n", y="peaks_n", ax=axs[1][0], xbins=bins_n, ybins=bins_peaks)
 regplot_custom(x="n", y="age_mean", ax=axs[2][0], xbins=bins_n, ybins=bins_age)
-regplot_custom(x="foci_n", y="age_mean", ax=axs[2][1], xbins=bins_foci, ybins=bins_age)
+regplot_custom(x="peaks_n", y="age_mean", ax=axs[2][1], xbins=bins_peaks, ybins=bins_age)
 
 # Add the regression coefficients
-plot_reg_coef(x="foci_n", y="n", ax=axs[0][1])
+plot_reg_coef(x="peaks_n", y="n", ax=axs[0][1])
 plot_reg_coef(x="age_mean", y="n", ax=axs[0][2])
-plot_reg_coef(x="age_mean", y="foci_n", ax=axs[1][2])
+plot_reg_coef(x="age_mean", y="peaks_n", ax=axs[1][2])
 
 # Add the legend
 bbox = (0.9, 0.2, 0, 0)
@@ -168,15 +168,15 @@ axs[2][0].set_ylabel("Mean age")
 fig2.savefig("../results/figures/fig2.pdf")
 
 # %%
-# Extract all individual foci and their z score
-foci_coords = np.array(exps["foci_mni"].explode().tolist())
-foci_zstat = [
+# Extract all individual peaks and their z score
+peaks_coords = np.array(exps["peaks_mni"].explode().tolist())
+peaks_zstat = [
     stats.norm.ppf(stats.t.cdf(tstat, df=n - 1)) if tstat else np.nan
     for tstat, n in zip(exps.explode("tstats")["tstats"], exps.explode("tstats")["n"])
 ]
 
-# Get indices of foci without an effect size
-idxs_p = np.where(np.isnan(foci_zstat))[0]
+# Get indices of peaks without an effect size
+idxs_p = np.where(np.isnan(peaks_zstat))[0]
 
 # Create empty figure for main ALE and SDM analyses
 figsize = (90 * scaling, 145 * scaling)
@@ -197,10 +197,10 @@ margins = {
 }
 _ = fig3.subplots_adjust(**margins)
 
-# Plot individual foci (without effect sizes)
+# Plot individual peaks (without effect sizes)
 p1_1 = plotting.plot_markers(  # left and right
     node_values=[0.5] * len(idxs_p),
-    node_coords=np.take(foci_coords, idxs_p, axis=0),
+    node_coords=np.take(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="binary",
     node_vmin=0,
@@ -212,7 +212,7 @@ p1_1 = plotting.plot_markers(  # left and right
 )
 p2_1 = plotting.plot_markers(  # coronal and horizontal
     node_values=[0.5] * len(idxs_p),
-    node_coords=np.take(foci_coords, idxs_p, axis=0),
+    node_coords=np.take(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="binary",
     node_vmin=0,
@@ -223,10 +223,10 @@ p2_1 = plotting.plot_markers(  # coronal and horizontal
     colorbar=False,
 )
 
-# Plot individual foci (with effect sizes)
+# Plot individual peaks (with effect sizes)
 p1_2 = plotting.plot_markers(  # left and right
-    node_values=np.delete(foci_zstat, idxs_p).astype("float"),
-    node_coords=np.delete(foci_coords, idxs_p, axis=0),
+    node_values=np.delete(peaks_zstat, idxs_p).astype("float"),
+    node_coords=np.delete(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="YlOrRd",
     node_vmin=0,
@@ -237,8 +237,8 @@ p1_2 = plotting.plot_markers(  # left and right
     colorbar=False,
 )
 p2_2 = plotting.plot_markers(  # coronal and horizontal
-    node_values=np.delete(foci_zstat, idxs_p).astype("float"),
-    node_coords=np.delete(foci_coords, idxs_p, axis=0),
+    node_values=np.delete(peaks_zstat, idxs_p).astype("float"),
+    node_coords=np.delete(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="YlOrRd",
     node_vmin=0,
@@ -297,8 +297,8 @@ _ = ax5.annotate("SDM + covariates", xy=(0.035, 0.96), xycoords="axes fraction")
 fig3.savefig("../results/figures/fig3.pdf")
 
 # %%
-# Get task types of individual foci
-foci_tasks = exps.explode("tstats")["task_type"].cat.codes
+# Get task types of individual peaks
+peaks_tasks = exps.explode("tstats")["task_type"].cat.codes
 
 # Create empty figure for task category-specific ALEs
 figsize = (90 * scaling, 145 * scaling)
@@ -313,10 +313,10 @@ ax5 = fig4.add_subplot(gs[120:145, :])
 # Specify smaller margins
 _ = fig4.subplots_adjust(**margins)
 
-# Plot individual foci
+# Plot individual peaks
 p1 = plotting.plot_markers(  # left and right
-    node_values=foci_tasks,
-    node_coords=foci_coords,
+    node_values=peaks_tasks,
+    node_coords=peaks_coords,
     node_size=10,
     node_cmap="viridis",
     node_vmin=0,
@@ -327,8 +327,8 @@ p1 = plotting.plot_markers(  # left and right
     colorbar=False,
 )
 p2 = plotting.plot_markers(  # coronal and horizontal
-    node_values=foci_tasks,
-    node_coords=foci_coords,
+    node_values=peaks_tasks,
+    node_coords=peaks_coords,
     node_size=10,
     node_cmap="viridis",
     node_vmin=0,
