@@ -26,6 +26,7 @@
 
 # %%
 import random
+from glob import glob
 from math import sqrt
 from os import makedirs, path
 from re import sub
@@ -38,7 +39,6 @@ from nibabel import save
 from nilearn import image, plotting, reporting
 from nimare import correct, io, meta, utils
 from scipy.stats import norm
-
 
 # %% [markdown]
 # Our FSN simulations will heavily rely on the generation of so called "null experiments," i.e., fictional experiments with their peaks randomly distributed across the brain. We'll start by writing a helper function for this. It takes as its input a "real" ALE data set (in the form of a Sleuth text file, see Notebook #1 and [this example](http://www.brainmap.org/ale/foci2.txt)). It then creates a desired number (`k_null`) of null experiments that are similar to the real experiments in terms of sample sizes and number of peak coordinates, but have the location of these peaks drawn randomly from all voxels within our gray matter template. For these experiments, we know that the null hypothesis of no spatial convergence is true, thus providing a testing ground for the file drawer effect.
@@ -110,7 +110,7 @@ def generate_null(
 
 
 # %% [markdown]
-# With this helper function, we can implement the actual FSN simulation. This function will be rather long-winded and complex, but the overall logic is simple: Take the Sleuth file from the original ALE analysis, generate a large number of null experimetns, and add them iteratively to the analysis. At each step, re-estimate the ALE and record which voxel have remained statistically significant and which have not. Based on this, each (initially singificant) voxel will be assigned an FSN value which is equal to the highest number of null experiments that we were able to add before the voxel failed to reach significant for the first time. Because these simulations are going to take a really (!) long time, we implement two stopping rules: We either stop if there are no more significant voxels left *or* if we've added a sufficiently large number of null studies for our purpose (e.g., five times times the number of original studies in the meta-analysis). 
+# With this helper function, we can implement the actual FSN simulation. This function will be rather long-winded and complex, but the overall logic is simple: Take the Sleuth file from the original ALE analysis, generate a large number of null experimetns, and add them iteratively to the analysis. At each step, re-estimate the ALE and record which voxel have remained statistically significant and which have not. Based on this, each (initially singificant) voxel will be assigned an FSN value which is equal to the highest number of null experiments that we were able to add before the voxel failed to reach significant for the first time. Because these simulations are going to take a really (!) long time, we implement two stopping rules: We either stop if there are no more significant voxels left *or* if we've added a sufficiently large number of null studies for our purpose (e.g., five times times the number of original studies in the meta-analysis).
 
 # %%
 # Define function to compute the FSN for all voxels from a Sleuth file

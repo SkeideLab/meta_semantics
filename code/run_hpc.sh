@@ -6,7 +6,7 @@
 # Initial working directory:
 #SBATCH -D /ptmp/aenge/meta_semantics/
 # Job Name:
-#SBATCH -J meta_semantics_sing
+#SBATCH -J meta_semantics
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
@@ -24,9 +24,9 @@
 # Load singularity
 module load singularity
 
-# Store the parameters for all calls to singularity exec
-SINGEXEC=(
-    singularity exec
+# Create shorthand command for executing scripts inside the container
+EXEC=(
+    srun -N1 -n1 singularity exec
         --bind /ptmp/aenge/meta_semantics:/home/jovyan/meta_semantics
         --home /ptmp/aenge/home
         --pwd /home/jovyan/meta_semantics/code
@@ -34,19 +34,19 @@ SINGEXEC=(
 )
 
 # First, perform only the actual ALE analyses
-srun -n1 "${SINGEXEC[@]}" python3 nb01_ale.py
+"${EXEC[@]}" python3 nb01_ale.py
 
 # Then, perform all of the other analyses in parallel
-srun -n1 "${SINGEXEC[@]}" python3 nb02_subtraction.py &
-    srun -n1 "${SINGEXEC[@]}" python3 nb03_adults.py &
-    srun -n1 "${SINGEXEC[@]}" python3 nb04_sdm.py &
-    srun -n1 "${SINGEXEC[@]}" python3 nb05_jackknife.py &
-    srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn.py all 4 &
-    srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn.py all 3 &
-    srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn.py all 3 &
-    srun -n1 "${SINGEXEC[@]}" python3 nb06_fsn.py knowledge,relatedness,objects 10
+"${EXEC[@]}" python3 nb02_subtraction.py &
+    "${EXEC[@]}" python3 nb03_adults.py &
+    "${EXEC[@]}" python3 nb04_sdm.py &
+    "${EXEC[@]}" python3 nb05_jackknife.py &
+    "${EXEC[@]}" python3 nb06_fsn.py all 4 &
+    "${EXEC[@]}" python3 nb06_fsn.py all 3 &
+    "${EXEC[@]}" python3 nb06_fsn.py all 3 &
+    "${EXEC[@]}" python3 nb06_fsn.py knowledge,relatedness,objects 10
 wait
 
 # Create output tables and figures
-srun -n1 "${SINGEXEC[@]}" python3 nb07_tables.py &
-    srun -n1 "${SINGEXEC[@]}" python3 nb08_figures.py
+"${EXEC[@]}" python3 nb07_tables.py &
+    "${EXEC[@]}" python3 nb08_figures.py

@@ -71,7 +71,7 @@ run_subtraction(
     voxel_thresh=0.001,
     cluster_size_mm3=200,
     random_seed=1234,
-    n_iters=10000,
+    n_iters=20000,
     output_dir=output_dir,
 )
 
