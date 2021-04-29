@@ -15,7 +15,7 @@
 # ---
 
 # %% [markdown]
-# ![SkeideLab and MPI CBS logos](../misc/header_logos.png)
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
 #
 # # Notebook #04: Seed-Based *d* Mapping
 #

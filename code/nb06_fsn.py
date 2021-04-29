@@ -14,7 +14,7 @@
 # ---
 
 # %% [markdown]
-# ![SkeideLab and MPI CBS logos](../misc/header_logos.png)
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
 #
 # # Notebook #06: Fail-Safe N Analysis
 #

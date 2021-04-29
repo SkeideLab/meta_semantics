@@ -15,7 +15,7 @@
 # ---
 
 # %% [markdown]
-# ![SkeideLab and MPI CBS logos](../misc/header_logos.png)
+# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
 #
 # # Notebook #01: Activation Likelihood Estimation
 #
