@@ -1,0 +1,29 @@
+Analysis	Cluster #	Size (mm3)	Cluster labels	Mean z	Mean ALE	Peak z	Peak ALE	Peak X	Peak Y	Peak Z	Peak label
+Activation likelihood estimation	1	10,232	60.67% Frontal_Inf_Tri_L; 12.04% Precentral_L; 11.02% Frontal_Inf_Oper_L; 9.54% Frontal_Inf_Orb_2_L	3.93	0.022	6.45	0.043	-44	18	24	Frontal_Inf_Tri_L
+	2	5,736	60.11% Supp_Motor_Area_L; 29.43% Frontal_Sup_Medial_L	4.44	0.026	7.43	0.053	-4	16	50	Supp_Motor_Area_L
+	3	3,312	63.53% Fusiform_L; 21.01% Occipital_Inf_L; 12.56% Temporal_Inf_L	3.67	0.020	4.84	0.029	-40	-52	-20	Fusiform_L
+	4	2,872	48.47% Insula_R; 31.75% Frontal_Inf_Orb_2_R; 11.14% no_label; 8.08% OFCpost_R	4.46	0.027	7.49	0.053	36	22	-6	Insula_R
+	5	2,504	93.61% Temporal_Mid_L; 6.07% Temporal_Sup_L	4.37	0.026	7.05	0.049	-52	-38	4	Temporal_Mid_L
+	6	1,856	48.28% Occipital_Inf_R; 36.21% Calcarine_R; 13.36% Lingual_R	3.52	0.019	4.24	0.024	36	-90	-6	Occipital_Inf_R
+	7	1,464	87.98% Fusiform_R; 5.46% Temporal_Inf_R	3.64	0.020	4.88	0.029	40	-52	-18	Fusiform_R
+	8	88	100.00% Frontal_Inf_Tri_L	3.23	0.017	3.39	0.018	-38	36	6	Frontal_Inf_Tri_L
+Seed-based d mapping	1	22,672	36.80% Supp_Motor_Area_L; 21.49% Frontal_Sup_Medial_L; 17.96% Supp_Motor_Area_R; 7.13% Cingulate_Mid_L; 6.25% Frontal_Sup_Medial_R; 5.89% Cingulate_Mid_R	5.81		7.56		-4	-4	56	Supp_Motor_Area_L
+	2	20,568	40.26% Frontal_Inf_Tri_L; 15.36% Temporal_Pole_Sup_L; 15.09% Frontal_Inf_Orb_2_L; 9.33% Frontal_Inf_Oper_L; 8.63% Insula_L	6.13		9.62		-46	16	-10	Frontal_Inf_Orb_2_L
+	3	4,696	69.17% Temporal_Mid_L; 14.31% Temporal_Inf_L; 8.86% Occipital_Inf_L; 5.45% Fusiform_L	5.50		7.13		-54	-52	8	Temporal_Mid_L
+	4	3,912	33.74% Insula_R; 12.88% no_label; 12.68% Putamen_R; 11.45% Frontal_Inf_Tri_R; 11.04% Frontal_Inf_Oper_R; 10.63% Temporal_Pole_Sup_R; 6.54% Rolandic_Oper_R	5.40		6.43		48	20	4	Frontal_Inf_Tri_R
+	5	2,632	41.34% Cerebelum_6_L; 35.26% Fusiform_L; 15.81% Cerebelum_Crus1_L; 5.78% Temporal_Inf_L	5.36		6.19		-32	-52	-18	Fusiform_L
+	6	2,568	36.14% Cerebelum_6_R; 27.10% Temporal_Inf_R; 16.20% Fusiform_R; 11.84% Cerebelum_4_5_R; 8.72% Cerebelum_Crus1_R	5.42		6.59		28	-46	-26	Cerebelum_6_R
+	7	576	97.22% Angular_L	5.43		6.08		-40	-66	42	Angular_L
+	8	552	89.86% Precentral_L; 10.14% Frontal_Mid_2_L	5.37		6.21		-44	4	48	Precentral_L
+	9	416	59.62% Fusiform_L; 19.23% ParaHippocampal_L; 13.46% Lingual_L; 7.69% Cerebelum_4_5_L	5.24		5.73		-18	-42	-16	Fusiform_L
+With covariates	1	64,064	14.16% Temporal_Sup_L; 13.80% Temporal_Mid_L; 11.96% Frontal_Inf_Tri_L; 11.01% Fusiform_L; 6.86% Temporal_Pole_Sup_L; 6.04% Frontal_Inf_Orb_2_L; 5.27% Temporal_Inf_L; 5.17% Insula_L; 5.16% Cerebelum_6_L	6.20		9.31		-44	10	-6	Insula_L
+	2	30,848	28.66% Supp_Motor_Area_L; 25.21% Frontal_Sup_Medial_L; 14.19% Supp_Motor_Area_R; 11.05% Frontal_Sup_Medial_R; 8.95% Cingulate_Mid_R; 6.98% Cingulate_Mid_L	6.26		8.22		2	2	48	Supp_Motor_Area_R
+	3	14,824	23.31% Insula_R; 20.78% Putamen_R; 13.87% no_label; 10.96% Frontal_Inf_Tri_R; 7.77% Temporal_Sup_R; 7.45% Frontal_Inf_Oper_R; 6.31% Temporal_Pole_Sup_R; 5.13% Rolandic_Oper_R	5.98		7.64		38	16	6	Insula_R
+	4	13,512	33.75% Cerebelum_6_R; 26.64% Fusiform_R; 19.06% Temporal_Inf_R; 12.37% Cerebelum_Crus1_R	5.92		7.28		30	-44	-28	Cerebelum_6_R
+	5	1,600	28.00% Cingulate_Post_L; 24.50% Cingulate_Mid_L; 21.00% Cingulate_Mid_R; 18.00% Cingulate_Post_R; 5.50% Precuneus_L	5.68		6.28		-2	-44	40	Precuneus_L
+	6	1,440	71.11% Angular_L; 24.44% Parietal_Inf_L	6.00		7.03		-42	-64	44	Angular_L
+	7	1,416	61.58% Calcarine_R; 18.64% Occipital_Mid_R; 9.60% Lingual_R; 5.65% Cuneus_R	5.73		6.44		12	-90	8	Calcarine_R
+	8	1,368	52.63% Precentral_L; 38.60% Frontal_Mid_2_L; 8.19% Frontal_Inf_Oper_L	5.72		6.38		-38	6	50	Frontal_Mid_2_L
+	9	1,128	51.77% Occipital_Sup_L; 36.17% Occipital_Mid_L; 11.35% Calcarine_L	5.79		6.57		-18	-96	16	Occipital_Sup_L
+	10	1,104	62.32% Temporal_Mid_R; 37.68% Temporal_Sup_R	5.78		6.65		62	-38	4	Temporal_Mid_R
+	11	904	66.37% Occipital_Mid_L; 33.63% Occipital_Sup_L	5.85		6.67		-30	-80	34	Occipital_Mid_L

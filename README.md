@@ -2,9 +2,10 @@
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/alexenge/meta_semantics/HEAD)
 
-![meta-analytic results from ALE](https://raw.githubusercontent.com/alexenge/meta_semantics/main/code/misc/ale_brains.png)
+![meta-analytic results from ALE](https://raw.githubusercontent.com/alexenge/meta_semantics/main/misc/ale_brains.png)
 
 This repository contains the code, data, and results for the following paper:
 
@@ -22,11 +23,11 @@ If you want rerun or modify any of the code, you have three different options:
 
 #### a) Running the code on a cloud server
 
-Simply hit the "launch Binder" badge at the top or this [link](https://mybinder.org/v2/gh/alexenge/meta_semantics/HEAD) to open an interactive version of this repository on a cloud server (kindly provided by the [Binder project](https://mybinder.readthedocs.io/en/latest/about/about.html)). Please note (a) that launching the server may take a couple of minutes and (b) that the computational resources (CPU cores and memory) are limited.
+Simply hit the "launch Binder" badge at the top or [this link](https://mybinder.org/v2/gh/alexenge/meta_semantics/HEAD) to open an interactive version of the repository on a cloud server (kindly provided by the [Binder project](https://mybinder.readthedocs.io/en/latest/about/about.html)). Please note that launching the server may take a couple of minutes and that the computational resources (CPU cores and memory) are limited.
 
 #### b) Running the code in a local container
 
-If you instead want to run the code on your local computer, we suggest you do so using our [Docker container](https://hub.docker.com/repository/docker/alexenge/meta_semantics). This will create a small, Linux-based virtual machine that already has all the right software packages installed. To get this going, please download and install the [Docker Desktop software](https://www.docker.com/products/docker-desktop). Once Docker Desktop is running, open a command line window (called "Terminal" on Mac and Linux and "PowerShell" or "Git Bash" on Windows). Copy and paste the following one-liner and press enter:
+If you want to run the code on your local computer, we suggest you do so using our [Docker container](https://hub.docker.com/repository/docker/alexenge/meta_semantics). This will create a small, Linux-based virtual machine which already has all software packages installed. To do so, please first download and install [Docker Desktop](https://www.docker.com/products/docker-desktop). Once it is running, open a command line window (called "Terminal" on Mac and Linux and "PowerShell" or "Git Bash" on Windows). From there, execute the following one-liner:
 
 ```
 docker run --rm -p 8888:8888 alexenge/meta_semantics:latest
@@ -38,7 +39,7 @@ Note that [Singularity](https://sylabs.io/singularity/) is an open source altera
 
 #### c) Running the code in your local Python environment
 
-We recommend using one of the two containerized solutions above because they will ensure that you are executing the code in the exact same software environment which we have also used for our paper. However, you may for some reason prefer to execute the code directly on your local system.
+We recommend using one of the two containerized solutions above because they will ensure that you are executing the code in the exact same software environment which we have also used for our paper. However, you can also execute the code directly on your local system.
 
 To do so, please follow these three steps:
 
@@ -56,4 +57,4 @@ We are glad to receive any feedback, questions, or criticisms on this project. S
 
 Thanks a lot for your time and interest.
 
-![SkeideLab and MPI CBS logos](https://raw.githubusercontent.com/alexenge/meta_semantics/main/code/misc/header_logos.png)
+![SkeideLab and MPI CBS logos](https://raw.githubusercontent.com/alexenge/meta_semantics/main/misc/header_logos.png)

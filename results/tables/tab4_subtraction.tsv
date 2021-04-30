@@ -1,0 +1,11 @@
+Analysis	Cluster #	Size (mm3)	Cluster labels	Mean z	Peak z	Peak X	Peak Y	Peak Z	Peak label
+Knowledge > (relatedness + objects)	1	304	73.68% Insula_L; 26.32% no_label	3.62	4.06	-28	10	-16	Insula_L
+	2	256	93.75% Frontal_Mid_2_L; 6.25% Frontal_Inf_Oper_L	3.49	3.89	-40	14	36	Frontal_Mid_2_L
+Relatedness > (knowledge + objects)	1	1,960	89.39% Temporal_Mid_L; 10.20% no_label	3.72	4.06	-58	-50	0	Temporal_Mid_L
+	2	336	85.71% Frontal_Inf_Oper_L; 14.29% Frontal_Inf_Tri_L	3.42	3.62	-46	14	12	Frontal_Inf_Oper_L
+Objects > (knowledge + relatedness)	1	9,912	38.01% Temporal_Inf_R; 33.49% Occipital_Mid_R; 12.11% Calcarine_R; 5.41% no_label; 5.17% Occipital_Inf_R	3.71	0.00	46	-68	-4	Temporal_Inf_R
+	2	4,744	61.38% Parietal_Sup_R; 35.41% Postcentral_R	3.48	0.00	28	-46	66	Postcentral_R
+	3	4,048	45.45% Occipital_Mid_L; 42.29% Occipital_Sup_L; 8.30% Cuneus_L	3.45	3.89	-18	-84	26	Occipital_Sup_L
+	4	1,104	47.10% Occipital_Mid_L; 31.88% Occipital_Inf_L; 15.94% Temporal_Mid_L	3.65	4.06	-46	-70	-2	Occipital_Mid_L
+	5	312	76.92% Fusiform_R; 17.95% no_label; 5.13% ParaHippocampal_R	3.48	4.06	38	-40	-14	Fusiform_R
+	6	200	60.00% no_label; 40.00% Cingulate_Mid_L	-3.52	-3.54	-10	12	34	Cingulate_Mid_L

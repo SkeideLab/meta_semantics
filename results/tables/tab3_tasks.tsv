@@ -1,0 +1,12 @@
+Analysis	Cluster #	Size (mm3)	Cluster labels	Mean z	Mean ALE	Peak z	Peak ALE	Peak X	Peak Y	Peak Z	Peak label
+Knowledge	1	3,472	56.91% Supp_Motor_Area_L; 32.26% Frontal_Sup_Medial_L	4.06	0.017	6.76	0.036	-4	16	50	Supp_Motor_Area_L
+	2	3,096	33.33% Precentral_L; 31.27% Frontal_Inf_Tri_L; 24.29% Frontal_Inf_Oper_L; 11.11% Frontal_Mid_2_L	3.88	0.016	5.52	0.027	-44	16	24	Frontal_Inf_Tri_L
+	3	1,128	51.06% Insula_R; 39.01% Frontal_Inf_Orb_2_R; 8.51% OFCpost_R	3.69	0.015	4.81	0.022	36	24	-8	Frontal_Inf_Orb_2_R
+	4	128	100.00% Frontal_Inf_Tri_L	3.27	0.012	3.61	0.014	-56	20	22	Frontal_Inf_Tri_L
+Relatedness	1	6,048	81.75% Frontal_Inf_Tri_L; 11.11% Frontal_Inf_Orb_2_L; 6.88% Frontal_Inf_Oper_L	4.00	0.016	6.45	0.032	-48	22	10	Frontal_Inf_Tri_L
+	2	3,480	63.45% Supp_Motor_Area_L; 29.20% Frontal_Sup_Medial_L	4.01	0.016	6.61	0.034	-2	8	60	Supp_Motor_Area_L
+	3	2,760	99.13% Temporal_Mid_L	4.13	0.017	6.60	0.034	-54	-42	4	Temporal_Mid_L
+	4	1,888	48.73% Insula_R; 30.08% Frontal_Inf_Orb_2_R; 14.83% no_label; 5.93% OFCpost_R	3.97	0.016	5.74	0.027	36	22	-6	Insula_R
+Objects	1	3,408	45.31% Temporal_Inf_R; 41.31% Fusiform_R	3.66	0.013	4.99	0.020	42	-52	-20	Fusiform_R
+	2	2,720	40.59% Fusiform_L; 27.06% Occipital_Inf_L; 16.47% Temporal_Inf_L; 8.24% Occipital_Mid_L; 5.88% Temporal_Mid_L	3.67	0.013	4.71	0.019	-40	-52	-20	Fusiform_L
+	3	1,800	45.78% Calcarine_R; 23.11% Lingual_R; 21.78% Occipital_Inf_R; 5.78% Cuneus_R	3.62	0.013	4.95	0.020	24	-92	-4	Occipital_Inf_R

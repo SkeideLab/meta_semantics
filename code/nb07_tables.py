@@ -15,7 +15,7 @@
 # ---
 
 # %% [markdown]
-# ![SkeideLab and MPI CBS logos](misc/header_logos.png)
+# ![SkeideLab and MPI CBS logos](../misc/header_logos.png)
 #
 # # Notebook #07: Output Tables
 #
@@ -32,6 +32,7 @@ from subprocess import run
 import numpy as np
 import pandas as pd
 from atlasreader import get_statmap_info
+from IPython.display import display
 from nilearn import image, reporting
 from nimare.utils import mni2tal
 

@@ -1,0 +1,61 @@
+No.	Group identifier	Modality of presentation	Modality of response	"Soft-
+ware"	Field strength (T)	FHWM (mm3)	"Voxel
+thr."	Cluster thr.	Peak table	Peak space	Peak stat.
+1	"Chronological age-
+matched (CA/NC)"	Visual	Manual	AFNI	3	4	p < .005 (uncorr.)	p < .05; k > 400	Table 5: Categorize: NC	TAL	NA
+2	Reading-matched (RM)	Visual	Manual	AFNI	3	4	p < .005 (uncorr.)	p < .05; k > 400	Table 5: Categorize: RM	TAL	NA
+3	Younger children	Visual	None	MEDx	1.5	4	z > 2.4 (uncorr.)	p < .05	Table 2: Younger Group	TAL	NA
+4	Normals	Visual	Manual	SPM	1.5	8	p < .001 (uncorr.)	p < .05	Table 1: Semantic judgment: Normals	TAL	z
+5	Only one group	Auditory	Covert	SPM	1.5	8	p < .001 (corr.)	k > 10	Table 1	TAL	z
+6	Only one group	Auditory	Manual	SPM	1.5	8	p < .05 (corr.)	NA	Table 3	TAL	z
+7	Children	Visual	Covert	SPM	3	6	p < .005 (uncorr.)	p < .05; k > 42	Table 2: Child group: Semantic retrieval main effect	MNI	t
+8	Only one group	Auditory	Manual	SPM	3	8	p < .05 (corr.)	NA	Table II: Group map activation across all ages 4–12	MNI	t
+9	Children	"Auditory/
+visual"	Manual	SPM	1.5	7	z > 4.5 (uncorr.)	k > 12	Appendix A / B: Children: Semantic	TAL	z
+10	Children	"Auditory/
+visual"	Manual	SPM	1.5	7	p < .001 (uncorr.)	k > 15	Table 4: Meaning	MNI	z
+11	Controls	"Auditory/
+visual"	Manual	SPM	1.5	10	p < .001 (uncorr.)	k > 15	Table 3 / 4: Controls	MNI	z
+12	Children	Auditory	Manual	LIPSIA	3	4.239	z > 3.09 (uncorr.)	k > 10	Table 3: SEM vs. Baseline	TAL	z
+13	Children	Visual	Manual	SPM	2	7	p < .001 (uncorr.)	k > 20	Table IV: Children (meaning)	MNI	z
+14	Children	Visual	Manual	SPM	1.5	10	p < .001 (uncorr.)	k > 14	Table II	TAL	z
+15	Only one group	Auditory	Manual	SPM	1.5	10	p < .05 (corr.)	NA	Table 2	TAL	z
+16	Only one group	Visual	Manual	SPM	3	10	p < .05 (corr.)	k > 10	Table 2	MNI	z
+17	Only one group	Visual	Manual	SPM	3	10	p < .001 (uncorr.)	NA	Table 2: Time 1	MNI	z
+18	Typical	Visual	Manual	SPM	1.5	4	p < .001 (uncorr.)	NA	Table 4: Person > Control: Typical	MNI	NA
+19	9 to 10	Visual	Manual	FSL	1.5	5	z > 2.3 (uncorr.)	p < .05	Table A.2: 9-10	MNI	z
+20	7 to 8	Visual	Manual	FSL	1.5	5	z > 2.3 (uncorr.)	p < .05	Table A.2: 7-8	MNI	z
+21	Children	Visual	Manual	SPM	3	8	p < .05 (corr.)	k > 10	Supplementary Table 1: Children	MNI	z
+22	Only one group	Visual	Covert	SPM	1.5	NA	z > 3.09 (corr.)	p < .05	Table 1: Contrast 1	TAL	z
+23	Children	Visual	Covert	SPM	1.5	8	p < .0001 (corr.)	NA	Table I: Children	TAL	z
+24	Only one group	Audiovisual	Manual	FSL	3	8	z > 2.3 (corr.)	NA	Table 2	MNI	NA
+25	Children	Visual	Manual	"Brain-
+Voyager"	3	6	p < .005 (uncorr.)	NA	Table 1: Children	TAL	NA
+26	Children	Visual	Overt	FSL	1.5	6	z > 3.1 (uncorr.)	p < .05	Obtained from the authors	MNI	z
+27	Typically developing	Visual	Overt	FSL	3	5	z > 6 (uncorr.)	k > 50	Table 3: A. TD	MNI	z
+28	Visual–auditory judgment group	Audiovisual	Manual	SPM	3	10	p < .05 (corr.)	k > 10	Table 2: Visual-auditory	MNI	z
+29	Visual–visual judgment group	Visual	Manual	SPM	3	10	p < .05 (corr.)	k > 10	Table 2: Visual-visual	MNI	z
+30	Conjunction of children and adol.	Visual	Manual	SPM	3	6	p < .05 (corr.)	k > 10	Table 2	MNI	z
+31	Children	Visual	Manual	SPM	3	8	p < .01 (uncorr.)	p < .05; k > 8	Table 3: Children: F > (D and L)	MNI	z
+32	Only one group	Visual	Manual	SPM	3	8	p < .001 (uncorr.)	p < .05; k > 50	Table A1: SEMCAT	MNI	t
+33	Only one group	Visual	Manual	SPM	3	8	NA	p < .05; k > 20	Table 3	MNI	z
+34	Good readers	Visual	Manual	SPM	3	8	p < .002 (uncorr.)	k > 10	Obtained from the authors	MNI	t
+35	Normal readers	Visual	Manual	SPM	3	5	p < .001 (uncorr.)	p < .05	Table 2: Normal readers: Faces > others / Houses > others	MNI	z
+36	Children	Auditory	Manual	AFNI	3	6	t > 3.786 (uncorr.)	p < .05; k > 208	Table 2	TAL	t
+37	Typically developing children	Visual	Manual	SPM	1.5	8	p < .001 (uncorr.)	p < .05	Table 4: TD children	MNI	z
+38	Children	Visual	Manual	AFNI	1.5	NA	p < .001 (uncorr.)	k > 177	Table 1: Children: Face task	TAL	NA
+39	Term-born children	Visual	Manual	SPM	1.5	8	p < .01 (uncorr.)	p < .01; k > 102	Obtained from the authors	TAL	t
+40	Young adolescents	Visual	None	"Brain-
+Voyager"	3	0	t > 2.5 (uncorr.)	p < .05; k > 190	Table 2: Adolescents	TAL	NA
+41	Children	Visual	None	"Brain-
+Voyager"	3	0	t > 2.5 (uncorr.)	p < .05; k > 190	Table 2: Children	TAL	NA
+42	Typically developing	Visual	None	"Brain-
+Voyager"	3	0	t > 2.3 (uncorr.)	p < .05; k > 4	Table S2: TD adolescents	TAL	NA
+43	Normal readers	Visual	Manual	SPM	2	6	p < .05 (corr.)	k > 20	Table 1: Normal readers	MNI	t
+44	9-to-10-year olds	Audiovisual	Manual	SPM	3	4	p < .01 (corr.)	p < .05; k > 17	Table S3: C: Main effect semantic implausibility	MNI	z
+45	6-to-7-year olds	Audiovisual	Manual	SPM	3	4	p < .01 (corr.)	p < .05; k > 17	Table S3: B: Main effect semantic implausibility	MNI	z
+46	Only one group	Auditory	Covert	NA	3	6	z > 6 (uncorr.)	p < .05; k > 10	Table 2: Localization of BOLD signal changes in all healthy subjects	TAL	NA
+47	Controls	Auditory	Manual	ITT	3	NA	z > 7 (uncorr.)	p < .05; k > 30	Table 3: A. Semantic decision task: Group activation maps: Controls	TAL	NA
+48	Typically developing youths	Visual	Manual	SPM	3	10	p < .001 (uncorr.)	k > 10	Table S1: TD group	MNI	z
+49	Children	Auditory	None	SPM	3	6	p < .005 (uncorr.)	p < .05; k > 27	Table 1: Five-year-old children: (B) Main effect of animacy hierarchy	MNI	z
+50	Only one group	Visual	Manual	SPM	2	8	p < .0001 (uncorr.)	k > 5	Table 1: Chinese minus baseline	MNI	z
