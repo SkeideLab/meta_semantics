@@ -13,10 +13,12 @@ RUN pip install -U -r requirements.txt && \
     tar -xf ${SDM_PREFIX}.tar.gz && \
     chmod -R o+rX ${SDM_PREFIX}
 
-# Copy code and data into the container
+# Copy directories into the container
 WORKDIR ${PROJDIR}
 COPY code/ code/
 COPY data/ data/
+COPY misc/ misc/
+COPY results/ results/
 
 # Add permissions for default user
 USER root
