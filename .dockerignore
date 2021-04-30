@@ -1,6 +1,4 @@
 .git/
-.idea/
 .vscode/
 code/slurm/
-results/
-software/
+misc/software/
