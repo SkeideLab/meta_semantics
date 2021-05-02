@@ -1,56 +1,55 @@
 column_name,description,levels_comments
-experiment,Experiment ID (authors’ names and year of publication),NaN
-group,Group identifier as in the original article,NaN
-n,Sample size,NaN
-sex_female,Number of girls in the sample,NaN
-sex_male,Number of boys in the sample,NaN
-age_mean,Mean age of the sample,>= 3 and <= 12 as per criterion (3)
-age_sd,Standard deviation of the mean age of the sample,NaN
-age_min,Minimum age in the sample,>= 3 as per criterion (3)
 age_max,Maximum age in the sample,<= 15 as per criterion (3)
-hand_left,Number of left-handed children in the sample,NaN
-hand_right,Number of right-handed children in the sample,NaN
-task_semantic,Description of the semantic fMRI task,NaN
-task_control,Description of the control fMRI task,NaN
-task_type,Category of semantic fMRI task,knowledge; relatedness; objects
-modality_pres,Modality of stimulus presentation,auditory; auditory_visual (separate blocks); audiovisual; visual
-modality_resp,Modality of childrens’ response,covert; manual; none; overt
-tesla,Field strength of the MRI scanner in Tesla,NaN
-software,Software package for fMRI analysis in the original paper,NaN
-fhwm,Smoothing kernel full width at half in mm,NaN
-thresh_vox_p,Voxel-level p value threshold,NaN
-thresh_vox_z,Voxel-level t value threshold,NaN
-thresh_vox_t,voxel-level z value threshold,NaN
-threshold,type of voxel-level threshold,corrected; uncorrected
-thresh_clust_p,cluster-level p value threshold,NaN
-thresh_clust_k,cluster-level extent threshold in voxels,NaN
-peaks_table,Table with peak coordinates in the original table,NaN
-peaks_stat,Test statistic of peaks provided in the original paper,tstat; zstat
-peaks_n,Number of peaks reported in the original paper,NaN
-comment,Additional comments for this experiment or paper,NaN
-database,Name of the online database,NaN
-link,URL to the database search,NaN
-hits,Number of hits in the database,NaN
-date,Last date of the database search,NaN
+age_mean,Mean age of the sample,>= 3 and <= 12 as per criterion (3)
+age_min,Minimum age in the sample,>= 3 as per criterion (3)
+age_sd,Standard deviation of the mean age of the sample,NaN
 authors,List of authors on the original paper,NaN
-year,Year of publication of the original paper,NaN
-source,Source where the original paper was found,databases; manually
-title,Title of the original paper,NaN
-journal,Journal where the original paper was published,NaN
+comment,Additional comments for this experiment or paper,NaN
+contacted,Date of contact to the corresponding author to request missing coordinates,NaN
+corresponding,Corresponding author to request missing coordinates,NaN
+database,Name of the online database,NaN
+date,Last date of the database search,NaN
 doi,DOI link of the original paper,NaN
-abstract,Abstract of the original paper,NaN
-excl_lang,Paper excluded because not written in English,Exclusion criterion (1)
-excl_orig,Paper excluded because not original research,Exclusion criterion (2)
 excl_age,Paper excluded because not testing children in the age range,Exclusion criterion (3)
 excl_clin,Paper excluded because no typically developing children,Exclusion criterion (4)
 excl_fmri,Paper excluded because no task fMRI,Exclusion criterion (5)
-excl_sem,Paper excluded because no semantic task,Exclusion criterion (6)
 excl_glm,Paper excluded because no GLM analysis,Exclusion criterion (7)
-excl_whole,Paper excluded because no whole-brain analysis,Exclusion criterion (8)
+excl_lang,Paper excluded because not written in English,Exclusion criterion (1)
+excl_orig,Paper excluded because not original research,Exclusion criterion (2)
+excl_sem,Paper excluded because no semantic task,Exclusion criterion (6)
 excl_space,Paper excluded because coordinates not in standard space,Exclusion criterion (9)
+excl_whole,Paper excluded because no whole-brain analysis,Exclusion criterion (8)
 excl_within,Paper excluded because within-group coordinates not reported,Exclusion criterion (10)
-verdict,Decision on the paper,contacted; duplicate (group already included); exclude; include; obtained (within-group peaks obtained from the authors)
-corresponding,Corresponding author to request missing coordinates,NaN
+experiment,Experiment ID (authors’ names and year of publication),NaN
+fhwm,Smoothing kernel full width at half in mm,NaN
+group,Group identifier as in the original article,NaN
+hand_left,Number of left-handed children in the sample,NaN
+hand_right,Number of right-handed children in the sample,NaN
+hits,Number of hits in the database,NaN
+journal,Journal where the original paper was published,NaN
+link,URL to the database search,NaN
 mail,Mail address of the corresponding author to request missing coordinates,NaN
-contacted,Date of contact to the corresponding author to request missing coordinates,NaN
+modality_pres,Modality of stimulus presentation,auditory; auditory_visual (separate blocks); audiovisual; visual
+modality_resp,Modality of childrens’ response,covert; manual; none; overt
+n,Sample size,NaN
+peaks_n,Number of peaks reported in the original paper,NaN
+peaks_stat,Test statistic of peaks provided in the original paper,tstat; zstat
+peaks_table,Table with peak coordinates in the original table,NaN
+sex_female,Number of girls in the sample,NaN
+sex_male,Number of boys in the sample,NaN
+software,Software package for fMRI analysis in the original paper,NaN
+source,Source where the original paper was found,databases; manually
 status,Status of contact for missing coordinates,denied; obtained; published; received; sent
+task_control,Description of the control fMRI task,NaN
+task_semantic,Description of the semantic fMRI task,NaN
+task_type,Category of semantic fMRI task,knowledge; relatedness; objects
+tesla,Field strength of the MRI scanner in Tesla,NaN
+thresh_clust_k,Cluster-level extent threshold in voxels,NaN
+thresh_clust_p,Cluster-level p value threshold,NaN
+thresh_vox_p,Voxel-level p value threshold,NaN
+thresh_vox_t,voxel-level z value threshold,NaN
+thresh_vox_z,Voxel-level t value threshold,NaN
+threshold,Type of voxel-level threshold,corrected; uncorrected
+title,Title of the original paper,NaN
+verdict,Decision on the paper,contacted; duplicate (group already included); exclude; include; obtained (within-group peaks obtained from the authors)
+year,Year of publication of the original paper,NaN
