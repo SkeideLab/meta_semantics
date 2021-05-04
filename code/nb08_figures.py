@@ -20,7 +20,7 @@
 #
 # *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
-# This notebooks contains the code that we've used to create publication-ready figures from the statistical maps that we've created in the previous notebooks. We did not add any explanatory text because no substantial work is happening here and the solutions we've used are very idiosyncratic to the present meta-analysis. Also, most of what is happening should hopefully become clear from the code itself and the comments. For most figures, we rely heavily on Nilearn's `plot_glass_brain()` function and combine multiple of these glass brains using matplotlib's `gridspec` syntax. Note that there is no code for Figure 1 (showing the literature search and selection process in the form of a [PRISMA flowchart](https://doi.org/10.1136/bmj.n71)) because this figure was created manually using [LibreOffice Impress](https://www.libreoffice.org).
+# This notebooks contains the code that we've used to create publication-ready figures from the statistical maps that we've created in the previous notebooks. We did not add any explanatory text because no substantial work is happening here and the solutions we've used are very idiosyncratic to the present meta-analysis. Also, most of what is happening should hopefully become clear from the code itself and the comments. For most figures, we rely heavily on Nilearn's `plot_glass_brain()` function and combine multiple of these glass brains using matplotlib's `gridspec` syntax. Note that there is no code for Figure 1 (showing the literature search and selection process in the form of a [PRISMA flowchart](https://doi.org/10.1136/bmj.n71)). This is because this figure was created manually using [LibreOffice Impress](https://www.libreoffice.org).
 
 # %%
 from os import makedirs
@@ -73,7 +73,7 @@ p = sns.scatterplot(
 handles, labels = plt.gca().get_legend_handles_labels()
 
 # %%
-# Create empty figure for study-level descriptive variables
+# Create Figure 2 (study-level descriptive variables)
 figsize = (90 * scaling, 90 * scaling)
 fig2, axs = plt.subplots(nrows=3, ncols=3, figsize=figsize)
 
@@ -178,7 +178,7 @@ peaks_zstat = [
 # Get indices of peaks without an effect size
 idxs_p = np.where(np.isnan(peaks_zstat))[0]
 
-# Create empty figure for main ALE and SDM analyses
+# Create Figure 3 (main ALE and SDM analyses)
 figsize = (90 * scaling, 145 * scaling)
 fig3 = plt.figure(figsize=figsize)
 gs = fig3.add_gridspec(145, 90)
@@ -300,7 +300,7 @@ fig3.savefig("../results/figures/fig3.pdf")
 # Get task types of individual peaks
 peaks_tasks = exps.explode("tstats")["task_type"].cat.codes
 
-# Create empty figure for task category-specific ALEs
+# Create Figure 4 (task category-specific ALEs)
 figsize = (90 * scaling, 145 * scaling)
 fig4 = plt.figure(figsize=figsize)
 gs = fig4.add_gridspec(145, 90)
@@ -369,7 +369,7 @@ _ = ax5.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 fig4.savefig("../results/figures/fig4.pdf")
 
 # %%
-# Create empty figure for differences between task categories
+# Create Figure 5 (differences between task categories)
 figsize = (90 * scaling, 87 * scaling)
 fig5 = plt.figure(figsize=figsize)
 gs = fig5.add_gridspec(85, 90)
@@ -423,7 +423,7 @@ _ = ax3.annotate("Objects > other", xy=(0.035, 0.96), xycoords="axes fraction")
 fig5.savefig("../results/figures/fig5.pdf")
 
 # %%
-# Create empty figure for age-related changes
+# Create Figure 6 (age-related changes)
 figsize = (90 * scaling, 62 * scaling)
 fig6 = plt.figure(figsize=figsize)
 gs = fig6.add_gridspec(60, 90)
@@ -486,7 +486,7 @@ _ = ax2.annotate(
 fig6.savefig("../results/figures/fig6.pdf")
 
 # %%
-# Create empty figure for comparison with adults
+# Create Figure 7 (comparison with adults)
 figsize = (90 * scaling, 95 * scaling)
 fig7 = plt.figure(figsize=figsize)
 gs = fig7.add_gridspec(96, 90)
@@ -564,7 +564,7 @@ _ = ax3.annotate("Conjunction", xy=(0.035, 0.96), xycoords="axes fraction")
 fig7.savefig("../results/figures/fig7.pdf")
 
 # %%
-# Create empty figure for leave-one-out analysis
+# Create Figure 8 (leave-one-out analysis)
 figsize = (90 * scaling, 110 * scaling)
 fig8 = plt.figure(figsize=figsize)
 gs = fig8.add_gridspec(110, 90)
@@ -614,7 +614,7 @@ _ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 fig8.savefig("../results/figures/fig8.pdf")
 
 # %%
-# Create empty figure for FSN
+# Create Figure 9 (fail-safe N analaysis)
 figsize = (90 * scaling, 110 * scaling)
 fig9 = plt.figure(figsize=figsize)
 gs = fig9.add_gridspec(110, 90)

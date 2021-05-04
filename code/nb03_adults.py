@@ -20,9 +20,9 @@
 #
 # *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
-# Here we compare our ALE results for semantic cognition in children to the results from a previous meta-analysis that also used ALE to investigate semantic cognition in adults (Jackson, 2021, *NeuroImage*). The original author of this analysis was so kind to provide us with their Sleuth file, which contains the coordinates from more than 400 fMRI experiments with adults. Using the same techniques functions as in Notebook #01, we recreate the ALE analysis for the adult data and then, using the same functions as in Notebook #02, we contrast the two groups against one another.
+# Here we compare our ALE results for semantic cognition in children to the results from a previous meta-analysis that also used ALE to investigate semantic cognition in adults (Jackson, 2021, *NeuroImage*). The original author of this analysis was so kind to provide us with their Sleuth text file. This contains the coordinates from more than 400 fMRI experiments with adults. Using the same functions as in Notebook #01, we recreate the ALE analysis for the adult data and then, using the same functions as in Notebook #02, we contrast the two groups against one another.
 #
-# Let's again start by loading all the packages we need. Note that we're also importing two of the custom functions which we have created in the first two notebooks.
+# Let's start by loading all the packages we need. Note that we're also importing two of the custom functions which we have created in the first two notebooks.
 
 # %%
 from os import makedirs
@@ -37,7 +37,7 @@ from nb01_ale import run_ale
 from nb02_subtraction import run_subtraction
 
 # %% [markdown]
-# We create a new output directory and out our two pre-existing Sleuth files there: The child-specific Sleuth file was created with the help of Notebook #01 and the adult-specific Sleuth file was kindly provided to us by Dr Rebecca L. Jackson from MRC CBU at Cambridge (UK).
+# We create a new output directory and put our two pre-existing Sleuth files there: the child-specific Sleuth file that we created with the help of Notebook #01 and the adult-specific Sleuth file that was kindly provided to us by Dr Rebecca L. Jackson from MRC CBU at Cambridge (UK).
 
 # %%
 # Copy Sleuth text files to the results directory
@@ -47,7 +47,7 @@ _ = copy("../results/ale/all.txt", output_dir + "children.txt")
 _ = copy("../data/adults/adults.txt", output_dir + "adults.txt")
 
 # %% [markdown]
-# We can use our custom ALE function to recreate the adult-specific analysis. We use the same voxel- and cluster-level thresholds as for the children to allow for a meaningful group comparison.
+# We can use our custom ALE function to recreate the adult-specific analysis. We use the same voxel- and cluster-level thresholds as for the children so that our group comparison will be meaningful.
 
 # %%
 # Perform the ALE analysis for adults
@@ -76,7 +76,7 @@ run_subtraction(
 )
 
 # %% [markdown]
-# As a cosmetic measure, we split up the resulting difference map into two separte ones: One showing only the significant clusters for children > adults and one showing only the significant clusters for adults > children. This will make it easier later on to present these two sets of clusters in separate cluster tables.
+# As a cosmetic measure, we split up the resulting difference map into two separate ones: One showing only the significant clusters for children > adults and one showing only the significant clusters for adults > children. This will make it easier later on to present these two sets of clusters in separate cluster tables.
 
 # %%
 # Compute seperate difference maps for children > adults and adults > children
@@ -104,7 +104,7 @@ img_conj_ale = image.math_img(formula, img1=img_adults_ale, img2=img_children_al
 _ = save(img_conj_ale, output_dir + "children_conj_adults_ale.nii.gz")
 
 # %% [markdown]
-# Now let's look at the different maps that we've created in the previous steps. We started with adult-specific ALE analysis.
+# Now let's look at the different maps that we've created in the previous steps. We started with the adult-specific ALE analysis.
 
 # %%
 # Glass brain for adults only
@@ -135,7 +135,7 @@ t_sub = reporting.get_clusters_table(
 display(t_sub)
 
 # %% [markdown]
-# And, finally, let's also plot the conjunction map to show which clusters were engaged in semantic cognition in both children *and* adults.
+# And, finally, let's also plot the conjunction map to see which clusters were engaged in semantic cognition in both children *and* adults.
 
 # %%
 # Glass brain for conjunction

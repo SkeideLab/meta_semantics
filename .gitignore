@@ -4,6 +4,7 @@ code/.ipynb_checkpoints/
 code/__pycache__/
 code/slurm/
 misc/software/
+misc/.ipynb_checkpoints/
 data/literature_search/articles/
 results/sdm/analysis_mod*/mi/
 results_*/

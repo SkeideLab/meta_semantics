@@ -20,7 +20,7 @@
 #
 # *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
-# This notebook describes another type of robustness check for our meta-analytic results. Here, we ask what happens with our inferences under the (not unlikely) assumption that there are additional studies with inconsistent findings that we've failed to include because they never got published (also called the "file drawer" effect). As for the jackknife analysis, we cannot directly test or correct for the presence of this bias. We can, however, perform simulations to estimate the impact that such a bias *would* have *if* it existed. The logic is simple and has been peformed for classical (i.e., non-neuroimaging) meta-analyses for decades (Rosenthal et al., 1979, *Psychol Bull*): Just create fictional studies with non-significant effect sizes and see how many of these can be added to your meta-analysis until the statistical significance of your effect size is overturned. If that number (called fail-safe N or FSN) exceeds any plausible guess of studies that *could* actually be in the file drawer, this would speak to the robustness of the meta-analytic results. Acar and colleagues (2018; *PLOS ONE*) have extended this logic to ALE-based meta-analysis of neuroimaging experiments: Just create new (fictional) experiments with inconsistent results and see how many of these can added to the original ALE until the significance of your clusters is overturned. Here we'll perform such an analysis for our four ALEs of interest (main analysis, knowledge, relatedness, and objects).
+# This notebook describes another type of robustness check for our meta-analytic results. Here, we ask what happens with our inferences under the (not unlikely) assumption that there are additional studies with inconsistent findings that we've failed to include because they never got published (also called the "file drawer" effect). As for the jackknife analysis, we cannot directly test or correct for the presence of this bias. We can, however, perform simulations to estimate the impact that such a bias would have *if it existed*. The logic is simple and has been used for classical (i.e., non-neuroimaging) meta-analyses for decades (Rosenthal et al., 1979, *Psychol Bull*): Just create fictional studies with non-significant effect sizes and see how many of these can be added to your meta-analysis until the statistical significance of your effect size is overturned. If this number (called fail-safe N or FSN) exceeds any plausible guess of studies that *could* actually be in the file drawer, it would speak to the robustness of the meta-analytic results. Acar and colleagues (2018; *PLOS ONE*) have extended this logic to ALE-based meta-analysis of neuroimaging experiments: Just create new (fictional) experiments with inconsistent results and see how many of these can added to the original ALE until the significance of your clusters is overturned. Here we'll perform such an analysis for our four ALEs of interest (main analysis, knowledge, relatedness, and objects).
 #
 # As always, we start by loading the relevant packages.
 
@@ -41,7 +41,7 @@ from nimare import correct, io, meta, utils
 from scipy.stats import norm
 
 # %% [markdown]
-# Our FSN simulations will heavily rely on the generation of so called "null experiments," i.e., fictional experiments with their peaks randomly distributed across the brain. We'll start by writing a helper function for this. It takes as its input a "real" ALE data set (in the form of a Sleuth text file, see Notebook #1 and [this example](http://www.brainmap.org/ale/foci2.txt)). It then creates a desired number (`k_null`) of null experiments that are similar to the real experiments in terms of sample sizes and number of peak coordinates, but have the location of these peaks drawn randomly from all voxels within our gray matter template. For these experiments, we know that the null hypothesis of no spatial convergence is true, thus providing a testing ground for the file drawer effect.
+# Our FSN simulations will heavily rely on the generation of so called "null experiments," i.e., fictional experiments with their peaks randomly distributed across the brain. We'll start by writing a helper function for creating these. It takes as its input a "real" ALE data set (in the form of a Sleuth text file, see Notebook #1 and [this example](http://www.brainmap.org/ale/foci2.txt)). It then creates a desired number (`k_null`) of null experiments that are similar to the real experiments in terms of sample sizes and number of peak coordinates. However, the location of these peaks is drawn randomly from all voxels within our gray matter template. For these experiments, we know that the null hypothesis (i.e., no spatial convergence) is true, thus providing a testing ground for the file drawer effect.
 
 # %%
 # Define function to generate a new data set with k null studies added
@@ -64,7 +64,7 @@ def generate_null(
     # Read the original Sleuth file into a NiMARE data set
     dset = io.convert_sleuth_to_dataset(text_file, target=space)
 
-    # Set random seed if requested
+    # Set a random seed to make the results reproducible
     if random_seed:
         random.seed(random_seed)
 
@@ -76,7 +76,7 @@ def generate_null(
     nr_peaks_dset = dset.coordinates["study_id"].value_counts().tolist()
     nr_peaks_null = random.choices(nr_peaks_dset, k=k_null)
 
-    # Create random peaks
+    # Create random peak coordinates
     idx_list = [
         random.sample(range(len(within_mni)), k=k_peaks) for k_peaks in nr_peaks_null
     ]
@@ -110,7 +110,7 @@ def generate_null(
 
 
 # %% [markdown]
-# With this helper function, we can implement the actual FSN simulation. This function will be rather long-winded and complex, but the overall logic is simple: Take the Sleuth file from the original ALE analysis, generate a large number of null experimetns, and add them iteratively to the analysis. At each step, re-estimate the ALE and record which voxel have remained statistically significant and which have not. Based on this, each (initially singificant) voxel will be assigned an FSN value which is equal to the highest number of null experiments that we were able to add before the voxel failed to reach significant for the first time. Because these simulations are going to take a really (!) long time, we implement two stopping rules: We either stop if there are no more significant voxels left *or* if we've added a sufficiently large number of null studies for our purpose (e.g., five times times the number of original studies in the meta-analysis).
+# With this helper function, we can go on to implement the actual FSN simulation. This function will be rather long-winded and complex, but the overall logic is simple: Take the Sleuth file from the original ALE analysis, generate a large number of null experimetns, and add them iteratively to the analysis. At each step, re-estimate the ALE and record which voxel have remained statistically significant and which have not. Based on this, each (initially singificant) voxel will be assigned an FSN value which is equal to the highest number of null experiments that we were able to add before the voxel failed to reach significant for the first time. Because these simulations are going to take a really (!) long time, we implement two stopping rules: We either stop if there are no more significant voxels left *or* if we've added a sufficiently large number of null studies for our purpose (e.g., five times times the number of original studies in the meta-analysis).
 
 # %%
 # Define function to compute the FSN for all voxels from a Sleuth file
@@ -126,7 +126,7 @@ def compute_fsn(
     output_dir="./",
 ):
 
-    # Print what we're going to do
+    # Let's show the user what we are doing
     print("\nCOMPUTING FSN FOR " + text_file + " (seed: " + str(random_null_seed) + ")")
 
     # Set random seed for original ALE if requested
@@ -219,7 +219,7 @@ def compute_fsn(
 
 
 # %% [markdown]
-# Ideally, we want to perform all of this multiple times for different (random) filedrawers. Otherwise, the resulting FSN values would hinge a lot on the random patterns of these specific null experiments. However, doing all of these iterative simulations multiple times is extremly computationally expensive. We therefore wrote the next bit of the notebook in a way so that it can be run in parallel on our high performance computing (HPC) cluster. For this, we would call this notebook as a Python script from the command line and need to provide it with two additional parameters: The name of the original ALE analysis for which we want to compute the FSN and the number of different filedrawers we want to estimate (so we can always comput multiple filedrawers in parallel). If you don't happen to have access to an HPC and want to try the out the simulations directly withing the notebook, simply uncomment these two lines of code to define `prefixes` and `nr_filedrawers` locally. Note that here we're just setting things up so we can then compute a number of FSN maps for different file drawers for all of our ALE analyses.
+# Ideally, we want to perform all of this multiple times for different (random) filedrawers. Otherwise, the resulting FSN values would hinge a lot on the random patterns of these specific null experiments. However, doing all of these iterative simulations multiple times is extremly computationally expensive. We therefore wrote the next bit of the notebook in a way so that it can be run in parallel on our high performance computing (HPC) cluster. For this, we would call this notebook as a Python script from the command line and need to provide it with two additional parameters: The name of the original ALE analysis for which we want to compute the FSN and the number of different filedrawers we want to estimate (so we can always compute multiple filedrawers in parallel). If you don't happen to have access to an HPC and want to try the out the simulations directly withing the notebook, simply uncomment the two lines of code to define `prefixes` and `nr_filedrawers` locally.
 
 # %%
 # Get which FSN analyses to perform from the command line
@@ -230,7 +230,7 @@ nr_filedrawers = int(argv[2])
 
 # # Or define them here for debugging
 # prefixes = ["all", "knowledge", "relatedness", "objects"]
-# nr_filedrawers = 5
+# nr_filedrawers = 10
 
 # List the filenames of the Sleuth text files
 text_files = ["../results/ale/" + prefix + ".txt" for prefix in prefixes]
@@ -266,7 +266,7 @@ _ = [
 ]
 
 # %% [markdown]
-# Once the simulation are done, we need to aggregate the results that we've obtained for each analysis across multiple file drawers. Remember that for each file drawer, we've already stored an FSN map as well as a table that contains the FSN value for each of the original cluster peaks. Here we just average those maps and perform some summary statistics on those tables, such as computing the mean FSN and its 95% confidence interval across the multiple (in our case, ten) file drawers.
+# Once the simulation are done, we need to aggregate the results that we've obtained for each analysis across multiple file drawers. Remember that for each file drawer, we've already stored an FSN map as well as a table that contains the FSN value for each of the original cluster peaks. Here we just average these maps and perform some summary statistics on the tables, such as computing the mean FSN and its 95% confidence interval across the multiple file drawers (in our case, ten).
 
 # %%
 # Compute mean FSN across filedrawers

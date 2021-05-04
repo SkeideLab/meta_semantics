@@ -21,7 +21,7 @@
 #
 # *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
-# This first notebook computes multiple coordinate-based meta-analyses using the activation likelihood estimation (ALE) algorithm (Eickhoff et al., 2009, *Hum Brain Mapp*; 2012, *NeuroImage*; Turkeltaub et al., 2002, *NeuroImage*). Based on peak fMRI coordinates reported in a common standard space, ALE estimates where in the brain there is spatial convergence of activation across multiple experiments on a given topic (here: semantic cognition in children). We have listed all of these experiments together with some descriptive information (e.g., sample sizes, age of the children) in an `included.csv` spreadsheet. The peak coordinates for each of these experiments are stored in separate `.csv` files. To compute the ALE, these need to be converted into a common standard space and combined into single text file (called a "Sleuth" file; see [here](http://www.brainmap.org/ale/foci2.txt) for an example). This can then be fed into the ALE algorithm as implemented in the [NiMARE package](https://nimare.readthedocs.io). We do all of this once for our whole meta-analytic sample (including all semantic knowledge experiments) and once for each of three subgroups of experiments (semantic knowledge experiments, semantic relatedness experiments, and visual semantic object category experiments).
+# This first notebook computes multiple coordinate-based meta-analyses using the activation likelihood estimation (ALE) algorithm (Eickhoff et al., 2009, *Hum Brain Mapp*; Eickhoff et al., 2012, *NeuroImage*; Turkeltaub et al., 2002, *NeuroImage*). Based on peak fMRI coordinates reported in a common standard space, ALE estimates where in the brain there is spatial convergence of activation across multiple experiments on a given topic (here: semantic cognition in children). We have listed all of these experiments together with some descriptive information (e.g., sample sizes, age of the children) in an `included.csv` spreadsheet. The peak coordinates for each of these experiments are stored in separate `.csv` files. To compute the ALE, these need to be converted into a common standard space and combined into single text file (called a "Sleuth" file; see [here](http://www.brainmap.org/ale/foci2.txt) for an example). This can then be fed into the ALE algorithm as implemented in the [NiMARE package](https://nimare.readthedocs.io). We do all of this once for our whole meta-analytic sample (including all semantic knowledge experiments) and once for each of three subgroups of experiments (semantic knowledge experiments, semantic relatedness experiments, and visual semantic object category experiments).
 #
 # We start by loading the relevant packages.
 
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     display(exps)
 
 # %% [markdown]
-# Note that for two of these experiments, the `age_mean` has not been reported in the original article. Because we want to look at age-related changes later on, we need to fill in these missing values. As a proxy we simply use the midpoint of the age range (which has been reported for both of them). We also compute the median of `age_mean` across all experiments which we will use later on to perform a median split analysis (i.e., older vs. younger children).
+# Note that for two of these experiments, the `age_mean` has not been reported in the original article. Because we want to look at age-related changes later on, we need to fill in these missing values. As a proxy, we simply use the midpoint of the age range (which has been reported for both of them). We also compute the `median()` of `age_mean` across all experiments which we will use later on to perform a median split analysis (i.e., older vs. younger children).
 
 # %%
 if __name__ == "__main__":
@@ -70,13 +70,13 @@ if __name__ == "__main__":
     age_md = exps["age_mean"].median()
 
 # %% [markdown]
-# The next step is to get the actual peak coordinates for all experiments. We've already extracted these from the original papers and stored them into separte `.csv` files. From their, we can directly read them into a new column of our DataFrame. They are stored as $k\times3$ or $k\times4$ NumPy arrays (where $k$ is the number of reported peaks for this experiment). The first three columns contain the x, y, and z coordinates and the fourth column (if available) contains the peak test statistic (a *t* score or *z* score). Since some of the experiments reported the coordinates in Talairach space, we also need to convert those into our common standard MNI space using the *icbm2tal* transform (Lancaster et al., 2007, *Hum Brain Mapp*).
+# The next step is to get the actual peak coordinates for all experiments. We've already extracted these from the original papers and stored them into separte `.csv` files. From there, we can directly read them into a new column of our DataFrame. They are stored as $k\times3$ or $k\times4$ NumPy arrays (where $k$ is the number of reported peaks for this experiment). The first three columns contain the x, y, and z coordinates while the fourth column (if available) contains the peak test statistic (a *t* score or *z* score). Since some of the experiments reported the coordinates in Talairach space, we need to convert those into our common standard MNI space using the *icbm2tal* transform (Lancaster et al., 2007, *Hum Brain Mapp*).
 
 # %%
 if __name__ == "__main__":
 
     # Read peak coordinates from .csv files
-    exps["csv"] = "../data/peaks/" + exps["experiment"] + ".csv"
+    exps["csv"] = "../data/children/" + exps["experiment"] + ".csv"
     exps["peaks"] = [
         np.genfromtxt(csv, delimiter=",", skip_header=1) for csv in exps["csv"]
     ]
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     exps.to_json("../results/exps.json")
 
 # %% [markdown]
-# With this, we can go on to write the Sleuth text files on which the actual ALEs will be performed. Each of these text files needs to contain the coordinates from all the relevant experiments. We define a helper function that extracts these from our DataFrame and writes them into a new text file that has the required Sleuth format.
+# With this, we can go on to write the Sleuth text files on the basis of which the actual ALEs will be performed. Each of these text files needs to contain the coordinates from all the relevant experiments. We define a helper function that extracts these from our DataFrame and writes them into a new text file that has the required Sleuth format.
 
 # %%
 # Define function to write a certain subset of the experiments to a Sleuth text file
@@ -120,7 +120,7 @@ def write_peaks_to_sleuth(text_file, df, query):
 
 
 # %% [markdown]
-# We can than create a dictionary of output file names and queries to write the Sleuths files for all the ALEs we want to compute: One containing all experiments, one for each individual semantic task category (plus one for the two inverse categories), and one for older and younger children, respectively. Once we apply our function to this dictionary, the Sleuth files should show up in the `results/ale/` directory.
+# We can than create a dictionary of output file names and queries to write the Sleuths files for all the ALEs we want to compute: one containing all experiments, one for each individual semantic task category (plus one for the two inverse categories), and one for older and younger children, respectively. Once we apply our function to this dictionary, the Sleuth files should show up under the `results/ale/` directory.
 
 # %%
 if __name__ == "__main__":
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 
 
 # %% [markdown]
-# We are now ready to perform the actual ALE analyses with NiMARE. We write a custom function which takes a single Sleuth text file as its input and (a) calculates the ALE map, (b) corrects for multiple comparisons using a Monte Carlo-based FWE correction, and (c) stores the cluster level-thresholded maps into the output directory. We then apply this function to all the Sleuth files we have created in the previous step. Note that on a machine or cloud server with a limited number of CPUs (such as Binder), each ALE will take a couple of minutes due to the FWE correction.
+# We are now ready to perform the actual ALE analyses with NiMARE. We write a custom function which takes a single Sleuth text file as its input and (a) calculates the ALE map, (b) corrects for multiple comparisons using a Monte Carlo-based FWE correction, and (c) stores the cluster level-thresholded maps into the output directory. We then apply this function to all the Sleuth files we have created in the previous step. Note that on a local machine or cloud server with a limited number of CPUs (such as Binder), each ALE will take a couple of minutes to complete due to the FWE correction.
 
 # %%
 # Define function for performing a single ALE analysis with FWE correction
