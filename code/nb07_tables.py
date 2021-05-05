@@ -268,7 +268,7 @@ tab6 = combined_cluster_table(
     ],
     stub_keys=["Adults", "Children > adults", "Adults > children", "Conjunction"],
     stub_colname="Analysis",
-    img_files_ale=["../results/adults/adults_stat_thresh.nii.gz", None, None],
+    img_files_ale=["../results/adults/adults_stat_thresh.nii.gz", None, None, "../results/adults/children_conj_adults_ale.nii.gz"],
     atlas="aal",
     output_file="../results/tables/tab6_adults.tsv",
 )
