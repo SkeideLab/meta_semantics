@@ -3,6 +3,7 @@
 code/.ipynb_checkpoints/
 code/__pycache__/
 code/slurm/
+manuscript/
 misc/software/
 misc/.ipynb_checkpoints/
 data/literature_search/articles/
