@@ -3,13 +3,27 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Binder](https://img.shields.io/docker/cloud/build/alexenge/meta_semantics.svg)](https://hub.docker.com/r/alexenge/meta_semantics)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SkeideLab/meta_semantics/v1.0)
 
-![meta-analytic results from ALE](https://raw.githubusercontent.com/SkeideLab/meta_semantics/main/misc/ale_brains.png)
+[![meta-analytic results from ALE](https://raw.githubusercontent.com/SkeideLab/meta_semantics/main/misc/ale_brains.png)](https://github.com/SkeideLab/meta_semantics/tree/main/results)
 
 This repository contains the code, data, and results for the following paper:
 
-*APA style citation for the paper/preprint goes here*
+> Enge, A., Abdel Rahman, R., & Skeide, M. A. (2021). A meta-analysis of fMRI studies of semantic cognition in children. *BioRxiv*, 2021.05.17.442947. https://doi.org/10/gj3vcx
+
+[BibTeX](http://www.bibtex.org) citation:
+
+```
+@article{enge2021metasemantics,
+  title = {A meta-analysis of {{fMRI}} studies of semantic cognition in children},
+  author = {Enge, Alexander and Abdel Rahman, Rasha and Skeide, Michael A.},
+  year = {2021},
+  journal = {bioRxiv},
+  pages = {2021.05.17.442947},
+  doi = {10/gj3vcx},
+}
+```
 
 ## What you can do here:
 
@@ -57,4 +71,4 @@ We are glad to receive any feedback, questions, or criticisms on this project. S
 
 Thanks a lot for your time and interest.
 
-![SkeideLab and MPI CBS logos](https://raw.githubusercontent.com/SkeideLab/meta_semantics/main/misc/header_logos.png)
+[![SkeideLab and MPI CBS logos](https://raw.githubusercontent.com/SkeideLab/meta_semantics/main/misc/header_logos.png)](https://skeidelab.com)
