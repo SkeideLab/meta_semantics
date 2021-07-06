@@ -15,9 +15,9 @@ Children > adults	1	1,072	69.40% Temporal_Inf_R; 20.90% Cerebelum_Crus1_R; 7.46%
 	7	232	86.21% no_label; 6.90% Occipital_Mid_R; 6.90% Calcarine_R	3.69		3.39		32	-74	10	no_label
 Adults > children	1	2,632	86.02% Temporal_Mid_L; 11.25% Temporal_Inf_L	3.78		4.06		-58	-10	-22	Temporal_Mid_L
 	2	584	94.52% Calcarine_L; 5.48% Precuneus_L	3.49		4.06		-10	-62	10	Calcarine_L
-Conjunction	1	9,592	63.80% Frontal_Inf_Tri_L; 11.51% Frontal_Inf_Oper_L; 10.18% Frontal_Inf_Orb_2_L; 9.01% Precentral_L; 5.17% Insula_L	3.95		6.45		-44	18	24	Frontal_Inf_Tri_L
-	2	5,320	61.95% Supp_Motor_Area_L; 29.17% Frontal_Sup_Medial_L	4.41		7.43		-4	16	50	Supp_Motor_Area_L
-	3	2,480	94.52% Temporal_Mid_L; 5.16% Temporal_Sup_L	4.38		7.05		-52	-38	4	Temporal_Mid_L
-	4	2,232	46.95% Insula_R; 39.43% Frontal_Inf_Orb_2_R; 7.17% no_label; 6.45% OFCpost_R	4.23		6.74		36	24	-4	Insula_R
-	5	2,056	73.54% Fusiform_L; 14.79% Occipital_Inf_L; 10.12% Temporal_Inf_L	3.66		4.84		-40	-52	-20	Fusiform_L
-	6	48	100.00% Frontal_Inf_Tri_L	3.20		3.30		-40	36	6	Frontal_Inf_Tri_L
+Conjunction	1	9,592	63.80% Frontal_Inf_Tri_L; 11.51% Frontal_Inf_Oper_L; 10.18% Frontal_Inf_Orb_2_L; 9.01% Precentral_L; 5.17% Insula_L	3.95	0.023	6.45	0.043	-44	18	24	Frontal_Inf_Tri_L
+	2	5,320	61.95% Supp_Motor_Area_L; 29.17% Frontal_Sup_Medial_L	4.41	0.027	7.43	0.053	-4	16	50	Supp_Motor_Area_L
+	3	2,480	94.52% Temporal_Mid_L; 5.16% Temporal_Sup_L	4.38	0.026	7.05	0.049	-52	-38	4	Temporal_Mid_L
+	4	2,232	46.95% Insula_R; 39.43% Frontal_Inf_Orb_2_R; 7.17% no_label; 6.45% OFCpost_R	4.23	0.028	6.74	0.053	36	24	-4	Insula_R
+	5	2,056	73.54% Fusiform_L; 14.79% Occipital_Inf_L; 10.12% Temporal_Inf_L	3.66	0.021	4.84	0.029	-40	-52	-20	Fusiform_L
+	6	48	100.00% Frontal_Inf_Tri_L	3.20	0.017	3.30	0.018	-40	36	6	Frontal_Inf_Tri_L

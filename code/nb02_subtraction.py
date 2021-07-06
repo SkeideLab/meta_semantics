@@ -21,7 +21,7 @@
 #
 # *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
-# In this second notebook, we perform a couple of ALE subtraction analyses (also called contrast analyses; Laird et al., 2005, *Hum Brain Mapp*). These will inform us if and where there are reliable differences between two ALE images, e.g., for two different semantic task categories or for older as compared to younger children. The logic is to subtract the second ALE image from the first ALE image and compare the resulting difference scores to an empirical null distribution (derived from reshuffling the experiments into random groups and calculating new subtraction images under the null).
+# In this second notebook, we perform a couple of ALE subtraction analyses (also called contrast analyses; Laird et al., 2005, *Hum Brain Mapp*). These will inform us if and where there are reliable differences between two ALE images, e.g., for two different semantic task categories or for older as compared to younger children. The logic is to subtract one ALE image from another ALE image and compare the resulting difference scores to an empirical null distribution (derived from reshuffling the experiments into random groups and calculating new subtraction images under the null).
 #
 # We again start by loading the relevant packages.
 
@@ -35,9 +35,8 @@ from nilearn import glm, image, plotting, reporting
 from nimare import io, meta
 from numpy import random
 
-
 # %% [markdown]
-# Before starting with the actual subtraction analyses, let's define a helper function for statistical thresholding. Since no FWE correction method has been defined for subtraction analyses (yet), we use an uncorrected voxel-level threshold (usually $p<.001$) combined with a cluster-level extent threshold (in mm<sup>3</sup>). Note that we assume the voxel size to be $2\times2\times2$ mm<sup>3</sup> (the default in NiMARE).
+# Before doing the actual subtraction analyses, let's define a helper function for statistical thresholding. Since no FWE correction method has been defined for subtraction analyses (yet), we use an uncorrected voxel-level threshold (usually $p<.001$) combined with a cluster-level extent threshold (in mm<sup>3</sup>). Note that we assume the voxel size to be 2×2×2 mm<sup>3</sup> (the default in NiMARE).
 
 # %%
 # Define helper function for dual threshold based on voxel-p and cluster size (in mm3)
@@ -86,7 +85,7 @@ def dual_thresholding(
 
 
 # %% [markdown]
-# Now we can go on to perform the actual subtraction analyses. We again define a helper function for this so we can apply this two multiple Sleuth files with a single call (and also reuse it in later notebooks). We simply read two Sleuth files into NiMARE and let its `meta.cbma.ALESubtraction` do the rest as briefly described above. It outputs an unthresholded *z* score map which we then threshold using our helper function defined above.
+# Now we can go on to perform the actual subtraction analyses. We again define a helper function for this so we can apply this to multiple Sleuth files with a single call (and also reuse it in later notebooks). We simply read two Sleuth files into NiMARE and let its `meta.cbma.ALESubtraction()` function do the rest (as briefly described above). It outputs an unthresholded *z* score map which we then threshold using our helper function.
 
 # %%
 # Define function for performing a single ALE subtraction analysis
@@ -100,7 +99,7 @@ def run_subtraction(
     output_dir,
 ):
 
-    # Print the current analysis
+    # Let's show the user what we are doing
     print(
         'SUBTRACTION ANALYSIS FOR "'
         + text_file1
@@ -131,7 +130,7 @@ def run_subtraction(
     prefix = output_dir + "/" + name1 + "_minus_" + name2
     save(img_z, filename=prefix + "_z.nii.gz")
 
-    # Create and save thresholded z map
+    # Create and save the thresholded z map
     dual_thresholding(
         img_z=img_z,
         voxel_thresh=voxel_thresh,
@@ -142,7 +141,7 @@ def run_subtraction(
 
 
 # %% [markdown]
-# We create a dictionary of Sleuth file names which we want to subtract from one another and supply each of these contrast to the function that we ahve just defined. Note that large numbers (≥ 10,000) of Monte Carlo iterations seem to be necessary to get stable results, but this requires very large amounts of memory. You may therefore want to decrease `n_iters` when trying out this code on a small local machine or on a cloud service.
+# We create a dictionary of Sleuth file names which we want to subtract from one another and supply each of these contrasts to the function that we have just defined. Note that large numbers of Monte Carlo iterations (≥ 10,000) seem to be necessary to get stable results. However, this requires very large amounts of memory. You may therefore want to decrease `n_iters` when trying out this code on a small local machine or on a cloud server.
 
 # %%
 if __name__ == "__main__":
@@ -170,7 +169,7 @@ if __name__ == "__main__":
         )
 
 # %% [markdown]
-# Let's look at the results for one of the subtraction analyses (here the analysis contrasting visual object category experiments against semantic knowledge experiments and semantic relatedness experiments). Note that both increases in ALE scores (i.e., objects > knowledge + relatedness) and decreases in ALE scores (i.e., knowledge + relatedness > objects) may be present within the same map, so we need to display both positive and negative *z* scores.
+# Let's look at the results for one of the subtraction analyses (here the analysis contrasting visual object category experiments against semantic knowledge experiments + semantic relatedness experiments). Note that this map may include both increases in ALE values (i.e., objects > knowledge + relatedness) and decreases in ALE values (i.e., knowledge + relatedness > objects), so we need to display both positive and negative *z* scores.
 
 # %%
 if __name__ == "__main__":

@@ -20,7 +20,7 @@
 #
 # *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
-# This notebooks contains the code that we've used to create publication-ready figures from the statistical maps that we've created in the previous notebooks. We did not add any explanatory text because no substantial work is happening here and the solutions we've used are very idiosyncratic to the present meta-analysis. Also, most of what is happening should hopefully become clear from the code itself and the comments. For most figures, we rely heavily on Nilearn's `plot_glass_brain()` function and combine multiple of these glass brains using matplotlib's `gridspec` syntax. Note that there is no code for Figure 1 (showing the literature search and selection process in the form of a [PRISMA flowchart](https://doi.org/10.1136/bmj.n71)) because this figure was created manually using [LibreOffice Impress](https://www.libreoffice.org).
+# This notebooks contains the code that we've used to create publication-ready figures from the statistical maps that we've created in the previous notebooks. We did not add any explanatory text because no substantial work is happening here and the solutions we've used are very idiosyncratic to the present meta-analysis. Also, most of what is happening should hopefully become clear from the code itself and the comments. For most figures, we rely heavily on Nilearn's `plot_glass_brain()` function and combine multiple of these glass brains using matplotlib's `gridspec` syntax. Note that there is no code for Figure 1 (showing the literature search and selection process in the form of a [PRISMA flowchart](https://doi.org/10.1136/bmj.n71)). This is because this figure was created manually using [LibreOffice Impress](https://www.libreoffice.org).
 
 # %%
 from os import makedirs
@@ -60,6 +60,7 @@ exps["task_type"].cat.reorder_categories(tasks, inplace=True)
 tasks_int = exps["task_type"].cat.codes
 
 # Create a custom color palette for the task types
+alpha = 0.8
 vmax_viridis = 2 / 0.75
 norm = mpl.colors.Normalize(vmin=0, vmax=vmax_viridis, clip=True)
 mapper = mpl.cm.ScalarMappable(norm=norm, cmap="viridis")
@@ -68,12 +69,19 @@ palette = dict(zip(tasks, rgbas))
 
 # Create a dummy plot so we can create a legend from it later on
 p = sns.scatterplot(
-    data=exps, x="n", y="n", hue="task_type", palette=palette, hue_order=tasks
+    data=exps,
+    x="n",
+    y="n",
+    hue="task_type",
+    palette=palette,
+    hue_order=tasks,
 )
 handles, labels = plt.gca().get_legend_handles_labels()
+_ = [lh.set_linewidth(0) for lh in handles]
+_ = [lh.set_alpha(alpha) for lh in handles]
 
 # %%
-# Create empty figure for study-level descriptive variables
+# Create Figure 2 (study-level descriptive variables)
 figsize = (90 * scaling, 90 * scaling)
 fig2, axs = plt.subplots(nrows=3, ncols=3, figsize=figsize)
 
@@ -96,6 +104,7 @@ def histplot_custom(x, bins, ax):
         hue="task_type",
         hue_order=tasks,
         palette=palette,
+        alpha=alpha,
         multiple="stack",
         legend=False,
     )
@@ -115,7 +124,7 @@ def regplot_custom(x, y, ax, xbins, ybins):
         x=x,
         y=y,
         color="gray",
-        scatter_kws=dict({"linewidths": 0, "color": tasks_colors}),
+        scatter_kws=dict({"linewidths": 0, "color": tasks_colors, "alpha": alpha}),
     )
     p.set_xticks(xbins[0::2])
     p.set_yticks(ybins[0::2])
@@ -145,7 +154,9 @@ histplot_custom(x="age_mean", bins=bins_age, ax=axs[2][2])
 # Create the regression plots
 regplot_custom(x="n", y="peaks_n", ax=axs[1][0], xbins=bins_n, ybins=bins_peaks)
 regplot_custom(x="n", y="age_mean", ax=axs[2][0], xbins=bins_n, ybins=bins_age)
-regplot_custom(x="peaks_n", y="age_mean", ax=axs[2][1], xbins=bins_peaks, ybins=bins_age)
+regplot_custom(
+    x="peaks_n", y="age_mean", ax=axs[2][1], xbins=bins_peaks, ybins=bins_age
+)
 
 # Add the regression coefficients
 plot_reg_coef(x="peaks_n", y="n", ax=axs[0][1])
@@ -178,7 +189,7 @@ peaks_zstat = [
 # Get indices of peaks without an effect size
 idxs_p = np.where(np.isnan(peaks_zstat))[0]
 
-# Create empty figure for main ALE and SDM analyses
+# Create Figure 3 (main ALE and SDM analyses)
 figsize = (90 * scaling, 145 * scaling)
 fig3 = plt.figure(figsize=figsize)
 gs = fig3.add_gridspec(145, 90)
@@ -205,6 +216,7 @@ p1_1 = plotting.plot_markers(  # left and right
     node_cmap="binary",
     node_vmin=0,
     node_vmax=1,
+    alpha=alpha,
     display_mode="lr",
     axes=ax1,
     node_kwargs=dict({"linewidths": 0}),
@@ -217,6 +229,7 @@ p2_1 = plotting.plot_markers(  # coronal and horizontal
     node_cmap="binary",
     node_vmin=0,
     node_vmax=1,
+    alpha=alpha,
     display_mode="yz",
     axes=ax2,
     node_kwargs=dict({"linewidths": 0}),
@@ -224,13 +237,15 @@ p2_1 = plotting.plot_markers(  # coronal and horizontal
 )
 
 # Plot individual peaks (with effect sizes)
+vmin, vmax = 0, 8
 p1_2 = plotting.plot_markers(  # left and right
     node_values=np.delete(peaks_zstat, idxs_p).astype("float"),
     node_coords=np.delete(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="YlOrRd",
-    node_vmin=0,
-    node_vmax=8,
+    node_vmin=vmin,
+    node_vmax=vmax,
+    alpha=alpha,
     display_mode="lr",
     axes=ax1,
     node_kwargs=dict({"linewidths": 0}),
@@ -241,8 +256,9 @@ p2_2 = plotting.plot_markers(  # coronal and horizontal
     node_coords=np.delete(peaks_coords, idxs_p, axis=0),
     node_size=10,
     node_cmap="YlOrRd",
-    node_vmin=0,
-    node_vmax=8,
+    node_vmin=vmin,
+    node_vmax=vmax,
+    alpha=alpha,
     display_mode="yz",
     axes=ax2,
     node_kwargs=dict({"linewidths": 0}),
@@ -252,34 +268,26 @@ p2_2 = plotting.plot_markers(  # coronal and horizontal
 # Plot z-maps from ALE
 img_all = image.load_img("../results/ale/all_z_thresh.nii.gz")
 p3 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax3)
-p3.add_overlay(img_all, cmap="YlOrRd", vmin=0, vmax=8)
-
-# # Plot non-cluster thresholded map below
-# img = image.load_img("../results/ale/all_z.nii.gz")
-# thresh = image.load_img("../results/ale/all_z_thresh.nii.gz")
-# mask = image.math_img("np.where(img > 0, 1, 0)", img=thresh)
-# p3 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax3)
-# p3.add_overlay(img, cmap="YlOrRd", vmin=0, vmax=8)
-# p3.add_contours(mask, colors="black", linewidths=0.1, vmin=1, vmax=1)
+p3.add_overlay(img_all, cmap="YlOrRd", vmin=vmin, vmax=vmax)
 
 # Plot thresholded Z-map from SDM analysis without covariates
 img_sdm = image.load_img(
     "../results/sdm/analysis_mod1/mod1_z_voxelCorrected_p_0.00100_50.nii.gz"
 )
 p4 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax4)
-p4.add_overlay(img_sdm, cmap="YlOrRd", vmin=0, vmax=8)
+p4.add_overlay(img_sdm, cmap="YlOrRd", vmin=vmin, vmax=vmax)
 
 # Plot thresholded Z-map from SDM analysis with covariates
 img_sdm = image.load_img(
     "../results/sdm/analysis_mod2/mod2_z_voxelCorrected_p_0.00100_50.nii.gz"
 )
 p5 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax5)
-p5.add_overlay(img_sdm, cmap="YlOrRd", vmin=0, vmax=8)
+p5.add_overlay(img_sdm, cmap="YlOrRd", vmin=vmin, vmax=vmax)
 
 # Add a joint colorbar
 ax_cbar = fig3.add_subplot(gs[42:64, 43:46])
 cmap = plt.get_cmap("YlOrRd")
-norm = mpl.colors.Normalize(vmin=0, vmax=8)
+norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
 plt.axhline(y=3.1, color="black", linewidth=1)
 
@@ -300,7 +308,7 @@ fig3.savefig("../results/figures/fig3.pdf")
 # Get task types of individual peaks
 peaks_tasks = exps.explode("tstats")["task_type"].cat.codes
 
-# Create empty figure for task category-specific ALEs
+# Create Figure 4 (task category-specific ALEs)
 figsize = (90 * scaling, 145 * scaling)
 fig4 = plt.figure(figsize=figsize)
 gs = fig4.add_gridspec(145, 90)
@@ -321,6 +329,7 @@ p1 = plotting.plot_markers(  # left and right
     node_cmap="viridis",
     node_vmin=0,
     node_vmax=vmax_viridis,
+    alpha=alpha,
     display_mode="lr",
     axes=ax1,
     node_kwargs=dict({"linewidths": 0}),
@@ -333,6 +342,7 @@ p2 = plotting.plot_markers(  # coronal and horizontal
     node_cmap="viridis",
     node_vmin=0,
     node_vmax=vmax_viridis,
+    alpha=alpha,
     display_mode="yz",
     axes=ax2,
     node_kwargs=dict({"linewidths": 0}),
@@ -343,7 +353,7 @@ p2 = plotting.plot_markers(  # coronal and horizontal
 for task, ax_task in zip(["knowledge", "relatedness", "objects"], [ax3, ax4, ax5]):
     img_task = image.load_img("../results/ale/" + task + "_z_thresh.nii.gz")
     p_task = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_task)
-    p_task.add_overlay(img_task, cmap="YlOrRd", vmin=0, vmax=8)
+    p_task.add_overlay(img_task, cmap="YlOrRd", vmin=vmin, vmax=vmax)
 
 # Add a legend for the task types
 ax_leg = fig4.add_subplot(gs[33, 57])
@@ -369,7 +379,7 @@ _ = ax5.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 fig4.savefig("../results/figures/fig4.pdf")
 
 # %%
-# Create empty figure for differences between task categories
+# Create Figure 5 (differences between task categories)
 figsize = (90 * scaling, 87 * scaling)
 fig5 = plt.figure(figsize=figsize)
 gs = fig5.add_gridspec(85, 90)
@@ -381,6 +391,7 @@ ax3 = fig5.add_subplot(gs[51:76, :])
 _ = fig5.subplots_adjust(**margins)
 
 # Plot z maps for the subtraction analyses
+vmin, vmid, vmax = -4, 0, 4
 for task, ax_sub in zip(["knowledge", "relatedness", "objects"], [ax1, ax2, ax3]):
     img_sub = image.load_img(
         "../results/subtraction/" + task + "_minus_n" + task + "_z_thresh.nii.gz"
@@ -390,8 +401,8 @@ for task, ax_sub in zip(["knowledge", "relatedness", "objects"], [ax1, ax2, ax3]
         display_mode="lyrz",
         axes=ax_sub,
         cmap="RdYlBu_r",
-        vmin=0,
-        vmax=4,
+        vmin=vmid,
+        vmax=vmax,
         plot_abs=False,
         symmetric_cbar=True,
     )
@@ -399,13 +410,13 @@ for task, ax_sub in zip(["knowledge", "relatedness", "objects"], [ax1, ax2, ax3]
 # Add colorbar
 ax_cbar = fig5.add_subplot(gs[75:78, 36:54])
 cmap = plt.get_cmap("RdYlBu_r")
-norm = mpl.colors.Normalize(vmin=-4, vmax=4)
+norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(
     ax_cbar,
     cmap=cmap,
     norm=norm,
     orientation="horizontal",
-    ticks=np.arange(-4, 5, 2),
+    ticks=np.arange(vmin, vmax + 1, 2),
     label="$\it{z}$ score",
 )
 plt.axvline(x=-3.1, color="black", linewidth=1)
@@ -423,7 +434,7 @@ _ = ax3.annotate("Objects > other", xy=(0.035, 0.96), xycoords="axes fraction")
 fig5.savefig("../results/figures/fig5.pdf")
 
 # %%
-# Create empty figure for age-related changes
+# Create Figure 6 (age-related changes)
 figsize = (90 * scaling, 62 * scaling)
 fig6 = plt.figure(figsize=figsize)
 gs = fig6.add_gridspec(60, 90)
@@ -439,8 +450,8 @@ p1 = plotting.plot_glass_brain(
     display_mode="lyrz",
     axes=ax1,
     cmap="RdYlBu_r",
-    vmin=0,
-    vmax=4,
+    vmin=vmid,
+    vmax=vmax,
     plot_abs=False,
     symmetric_cbar=True,
 )
@@ -451,8 +462,8 @@ p2 = plotting.plot_glass_brain(
     display_mode="lyrz",
     axes=ax2,
     cmap="RdYlBu_r",
-    vmin=0,
-    vmax=4,
+    vmin=vmid,
+    vmax=vmax,
     plot_abs=False,
     symmetric_cbar=True,
 )
@@ -460,13 +471,13 @@ p2 = plotting.plot_glass_brain(
 # Add colorbar
 ax_cbar = fig6.add_subplot(gs[50:53, 36:54])
 cmap = plt.get_cmap("RdYlBu_r")
-norm = mpl.colors.Normalize(vmin=-4, vmax=4)
+norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(
     ax_cbar,
     cmap=cmap,
     norm=norm,
     orientation="horizontal",
-    ticks=np.arange(-4, 5, 2),
+    ticks=np.arange(vmin, vmax + 1, 2),
     label="$\it{z}$ score",
 )
 plt.axvline(x=-3.1, color="black", linewidth=1)
@@ -486,7 +497,7 @@ _ = ax2.annotate(
 fig6.savefig("../results/figures/fig6.pdf")
 
 # %%
-# Create empty figure for comparison with adults
+# Create Figure 7 (comparison with adults)
 figsize = (90 * scaling, 95 * scaling)
 fig7 = plt.figure(figsize=figsize)
 gs = fig7.add_gridspec(96, 90)
@@ -498,56 +509,67 @@ ax3 = fig7.add_subplot(gs[61:86, :])
 _ = fig7.subplots_adjust(**margins)
 
 # Plot ALE map for adults
+vmin_1, vmax_1 = 0, 12
 img_adults = image.load_img("../results/adults/adults_z_thresh.nii.gz")
 p1 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax1)
-p1.add_overlay(img_adults, cmap="YlOrRd", vmin=0, vmax=12)
+p1.add_overlay(img_adults, cmap="YlOrRd", vmin=vmin_1, vmax=vmax_1)
 
 # Plot children > adults & adults > children
+vmin_2, vmid_2, vmax_2 = -4, 0, 4
 img_sub = image.load_img("../results/adults/children_minus_adults_z_thresh.nii.gz")
 p2 = plotting.plot_glass_brain(
     img_sub,
     display_mode="lyrz",
     axes=ax2,
     cmap="RdYlBu_r",
-    vmin=0,
-    vmax=4,
+    vmin=vmid_2,
+    vmax=vmax_2,
     plot_abs=False,
     symmetric_cbar=True,
 )
 
 # Plot conjunction
+vmin_3, vmax_3 = 0, 8
 img_conj = image.load_img("../results/adults/children_conj_adults_z.nii.gz")
 p3 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax3)
-p3.add_overlay(img_conj, cmap="YlOrRd", vmin=0, vmax=8)
+p3.add_overlay(img_conj, cmap="YlOrRd", vmin=vmin_3, vmax=vmax_3)
 
 # Add colorbar for adults
 ax1_cbar = fig7.add_subplot(gs[25:28, 36:54])
 cmap1 = plt.get_cmap("YlOrRd")
-norm = mpl.colors.Normalize(vmin=0, vmax=12)
+norm = mpl.colors.Normalize(vmin=vmin_1, vmax=vmax_1)
 mpl.colorbar.ColorbarBase(
-    ax1_cbar, cmap=cmap1, norm=norm, orientation="horizontal", ticks=np.arange(0, 13, 4)
+    ax1_cbar,
+    cmap=cmap1,
+    norm=norm,
+    orientation="horizontal",
+    ticks=np.arange(vmin_1, vmax_1 + 1, 4),
 )
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add colorbar for children > adults & adults > children
 ax2_cbar = fig7.add_subplot(gs[55:58, 36:54])
 cmap2 = plt.get_cmap("RdYlBu_r")
-norm = mpl.colors.Normalize(vmin=-4, vmax=4)
+norm = mpl.colors.Normalize(vmin=vmin_2, vmax=vmax_2)
 mpl.colorbar.ColorbarBase(
-    ax2_cbar, cmap=cmap2, norm=norm, orientation="horizontal", ticks=np.arange(-4, 5, 2)
+    ax2_cbar,
+    cmap=cmap2,
+    norm=norm,
+    orientation="horizontal",
+    ticks=np.arange(vmin_2, vmax_2 + 1, 2),
 )
 plt.axvline(x=-3.1, color="black", linewidth=1)
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add colorbar for conjunction
 ax3_cbar = fig7.add_subplot(gs[85:88, 36:54])
-norm = mpl.colors.Normalize(vmin=0, vmax=8)
+norm = mpl.colors.Normalize(vmin=vmin_3, vmax=vmax_3)
 mpl.colorbar.ColorbarBase(
     ax3_cbar,
     cmap=cmap1,
     norm=norm,
     orientation="horizontal",
-    ticks=np.arange(0, 9, 2),
+    ticks=np.arange(vmin_3, vmax_3 + 1, 2),
     label="$\it{z}$ score",
 )
 plt.axvline(x=3.1, color="black", linewidth=1)
@@ -564,7 +586,7 @@ _ = ax3.annotate("Conjunction", xy=(0.035, 0.96), xycoords="axes fraction")
 fig7.savefig("../results/figures/fig7.pdf")
 
 # %%
-# Create empty figure for leave-one-out analysis
+# Create Figure 8 (leave-one-out analysis)
 figsize = (90 * scaling, 110 * scaling)
 fig8 = plt.figure(figsize=figsize)
 gs = fig8.add_gridspec(110, 90)
@@ -577,6 +599,7 @@ ax4 = fig8.add_subplot(gs[76:101, :])
 _ = fig8.subplots_adjust(**margins)
 
 # Plot mean jackknife reliability maps
+vmin, vmax = 0, 100
 for task, ax_jk in zip(
     ["all", "knowledge", "relatedness", "objects"], [ax1, ax2, ax3, ax4]
 ):
@@ -585,18 +608,18 @@ for task, ax_jk in zip(
     img_jk = image.load_img("../results/jackknife/" + task + "/mean_jk.nii.gz")
     img_jk = image.math_img("img1 * img2", img1=img_jk, img2=img_mask)
     p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_jk)
-    p.add_overlay(img_jk, cmap="RdYlGn", vmin=0, vmax=100)
+    p.add_overlay(img_jk, cmap="RdYlGn", vmin=vmin, vmax=vmax)
 
 # Add colorbar
 ax_cbar = fig8.add_subplot(gs[100:103, 36:54])
 cmap = plt.get_cmap("RdYlGn")
-norm = mpl.colors.Normalize(vmin=0, vmax=100)
+norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(
     ax_cbar,
     cmap=cmap,
     norm=norm,
     orientation="horizontal",
-    ticks=np.arange(0, 101, 50),
+    ticks=[vmin, vmax, (vmin + vmax) / 2],
     label="Leave-one-out robustness (%)",
 )
 
@@ -614,7 +637,7 @@ _ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 fig8.savefig("../results/figures/fig8.pdf")
 
 # %%
-# Create empty figure for FSN
+# Create Figure 9 (fail-safe N analaysis)
 figsize = (90 * scaling, 110 * scaling)
 fig9 = plt.figure(figsize=figsize)
 gs = fig9.add_gridspec(110, 90)
@@ -627,6 +650,7 @@ ax4 = fig9.add_subplot(gs[76:101, :])
 _ = fig9.subplots_adjust(**margins)
 
 # Plot mean FSN maps (scaled by the number of original experiments)
+vmin, vmax = 0, 60
 n_studies_per_task = [len(exps)] + exps["task_type"].value_counts().to_list()
 for task, ax_fsn, n_studies in zip(
     ["all", "knowledge", "relatedness", "objects"],
@@ -639,18 +663,18 @@ for task, ax_fsn, n_studies in zip(
     formula = "img1 * img2 / " + str(n_studies)
     img_perc = image.math_img(formula=formula, img1=img_fsn, img2=img_mask)
     p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax_fsn)
-    p.add_overlay(img_perc, cmap="RdYlGn", vmin=0, vmax=60)
+    p.add_overlay(img_perc, cmap="RdYlGn", vmin=vmin, vmax=vmax)
 
 # Add colorbar
 ax_cbar = fig9.add_subplot(gs[100:103, 36:54])
 cmap = plt.get_cmap("RdYlGn")
-norm = mpl.colors.Normalize(vmin=0, vmax=60)
+norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(
     ax_cbar,
     cmap=cmap,
     norm=norm,
     orientation="horizontal",
-    ticks=[0, 30, 60],
+    ticks=[vmin, vmax, (vmin + vmax) / 2],
     label="Fail-safe N (%)",
 )
 

@@ -21,7 +21,7 @@
 #
 # *Created April 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
-# This notebooks contains a conveniency function that we've used to create all of the tables for our manuscript. We only comment on these sparsely since no substantial work is happening here and the solutions we've used are very idiosyncratic to the present meta-analysis. Also note that the tables still needed some post-processing, such as turning the anatomical peak labels from abbreviations into plain language.
+# This notebook contains a convenience function that we've used to create all of the tables for our manuscript. We only comment on these sparsely since no substantial work is happening here and because the solutions we've used are very idiosyncratic to the present meta-analysis. Also note that the tables still required a bit of post-processing, such as turning the anatomical peak labels from abbreviations into plain language.
 
 # %%
 from glob import glob
@@ -37,7 +37,7 @@ from nilearn import image, reporting
 from nimare.utils import mni2tal
 
 # %% [markdown]
-# Table 1 in the manuscript provides descriptive information about the experiments included in the meta-analysis. This information was originally stored in `data/literature_search/included.csv` and updated with some additional information in the previous notebooks and stored under as `results/exps.json`. Here we load this into a DataFrame and compute some summary statistics which are reported in the paper (such as the overall sample size of children and their mean age).
+# Table 1 in the manuscript provides descriptive information about the experiments included in the meta-analysis. This information was originally stored in the file `data/literature_search/included.csv`. It was then updated with some additional information in the previous notebooks and stored as a new file called `results/exps.json`. Here we load this into a DataFrame and compute some summary statistics which are reported in the paper (such as the overall sample size of children and their mean age).
 
 # %%
 # Read included experiments (Table 1)
@@ -85,7 +85,7 @@ print(len(peaks_left))
 print(len(peaks_left) / len(peaks_x))
 
 # %% [markdown]
-# This next block is a helper function to create a cluster table from multiple *z* score maps. It also has an option to add ALE values if a corresponding ALE value map happens to be available (note that this is not the case for subtraction and SDM analyses). The function also looks up anatomical labels for each cluster and its peak based on the anatomic automatic labeling atlas (AAL2; Rolls et al., 2015, *NeuroImage*) as implemented in the AtlasReader package (Notter et al., 2019, *J Open Source Softw*).
+# This next block is a helper function to create a cluster table from multiple *z* score maps. It also has an option to add ALE values if a corresponding ALE value map happens to be available (note that this is not the case for subtraction analyses and SDM maps). The function also looks up anatomical labels for each cluster and its peak based on the anatomic automatic labeling atlas (AAL2; Rolls et al., 2015, *NeuroImage*) as implemented in the AtlasReader package (Notter et al., 2019, *J Open Source Softw*).
 
 # %%
 # Define function to print the clusters from multiple images as a table
@@ -176,7 +176,7 @@ def combined_cluster_table(
 
 
 # %% [markdown]
-# We apply this function to create the cluster Tables 2–6 which present the results of all of our ALE, subtraction, and SDM analyses.
+# We apply this function to create the Cluster Tables 2–6. These present the results of all of our ALE, subtraction, and SDM analyses.
 
 # %%
 # Create Table 2 (ALE & SDM results)
@@ -258,7 +258,7 @@ tab5 = combined_cluster_table(
 display(tab5)
 
 # %%
-# Create Table 6 (adults)
+# Create Table 6 (comparison with adults)
 tab6 = combined_cluster_table(
     img_files_z=[
         "../results/adults/adults_z_thresh.nii.gz",
@@ -268,14 +268,14 @@ tab6 = combined_cluster_table(
     ],
     stub_keys=["Adults", "Children > adults", "Adults > children", "Conjunction"],
     stub_colname="Analysis",
-    img_files_ale=["../results/adults/adults_stat_thresh.nii.gz", None, None],
+    img_files_ale=["../results/adults/adults_stat_thresh.nii.gz", None, None, "../results/adults/children_conj_adults_ale.nii.gz"],
     atlas="aal",
     output_file="../results/tables/tab6_adults.tsv",
 )
 display(tab6)
 
 # %% [markdown]
-# Finally, we also take care of the outputs from our two robustness checks (jackknife and FSN; see Notebooks #05 and #06). We decided to present these in figures only instead of creating separate tables or squeezing these values into the original cluster tables. However, with this code we could easily do so: It takes the original peak locations (based on the *z* score maps from ALE) and looks up the corresponding value (jackknife reliability or FSN) for these peaks. Based on these, we can also compute some summary statistics such as the average jackknife robustness or FSN across all clusters in a given map.
+# Finally, we also take care of the outputs from our two robustness checks (jackknife and FSN; see Notebooks #05 and #06). We decided to present these in figures only instead of creating separate tables or squeezing these values into the original cluster tables. However, with this code we could easily do so: It takes the original peak locations (based on the *z* score maps from ALE) and looks up the corresponding value (jackknife reliability or FSN) for these peaks. Based on these extracted values, we've computed some summary statistics such as the average jackknife robustness or FSN across all clusters in a given map.
 
 # %%
 # Extract jackknife and FSN values from peaks

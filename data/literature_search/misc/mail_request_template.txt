@@ -1,0 +1,27 @@
+SUBJECT: fMRI coordinates for meta-analysis
+
+Dear Dr/Prof XYZ,
+
+We are currently conducting a meta-analysis of fMRI studies on semantic knowledge in children. Our literature search revealed that one of your highly interesting studies meets our inclusion criteria:
+
+* APA citation of the paper goes here.
+
+To be able to include and cite this work in our analysis, we would need the following additional information (if available):
+
+* Whole-brain, within-group coordinates for the XYZ group in the XYZ task, i.e. a table of the x-, y-, and z-coordinates for all peaks of activation (for conditions X vs. Y) in standard space (Talairach or MNI) and, if possible, their respective t- or z-values.
+
+Could you please send us this information within the next 2 weeks (until 28 Sep 2020)? 
+
+Thank you very much for your effort to support replicable developmental cognitive neuroscience. Please do not hesitate to contact us in case you have any questions.
+
+All the best,
+Alexander Enge & Michael A. Skeide
+
+-- 
+Max Planck Institute for Human Cognitive & Brain Sciences
+Research Group Learning in Early Childhood
+Stephanstraße 1A
+04103 Leipzig, Germany
+
+E-Mail: enge@cbs.mpg.de
+Website: https://skeidelab.com/
