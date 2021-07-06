@@ -36,7 +36,7 @@ from sys import argv
 import numpy as np
 import pandas as pd
 from nibabel import save
-from nilearn import image, plotting, reporting
+from nilearn import image, reporting
 from nimare import correct, io, meta, utils
 from scipy.stats import norm
 

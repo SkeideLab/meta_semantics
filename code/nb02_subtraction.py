@@ -33,7 +33,6 @@ from IPython.display import display
 from nibabel import save
 from nilearn import glm, image, plotting, reporting
 from nimare import io, meta
-from numpy import random
 
 # %% [markdown]
 # Before doing the actual subtraction analyses, let's define a helper function for statistical thresholding. Since no FWE correction method has been defined for subtraction analyses (yet), we use an uncorrected voxel-level threshold (usually $p<.001$) combined with a cluster-level extent threshold (in mm<sup>3</sup>). Note that we assume the voxel size to be 2×2×2 mm<sup>3</sup> (the default in NiMARE).

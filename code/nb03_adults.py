@@ -31,7 +31,6 @@ from shutil import copy
 from IPython.display import display
 from nibabel import save
 from nilearn import image, plotting, reporting
-from nimare import io
 
 from nb01_ale import run_ale
 from nb02_subtraction import run_subtraction
