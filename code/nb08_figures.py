@@ -690,3 +690,13 @@ _ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
 fig9.savefig("../results/figures/fig9.pdf")
+
+# %% 
+# Create Supplementary Figure 1 (visual vs. auditory/audivisual presentation)
+
+
+
+
+
+# %%
+# Create Supplementary Figure 3 (manual vs. verbal response)

@@ -268,11 +268,56 @@ tab6 = combined_cluster_table(
     ],
     stub_keys=["Adults", "Children > adults", "Adults > children", "Conjunction"],
     stub_colname="Analysis",
-    img_files_ale=["../results/adults/adults_stat_thresh.nii.gz", None, None, "../results/adults/children_conj_adults_ale.nii.gz"],
+    img_files_ale=[
+        "../results/adults/adults_stat_thresh.nii.gz",
+        None,
+        None,
+        "../results/adults/children_conj_adults_ale.nii.gz",
+    ],
     atlas="aal",
     output_file="../results/tables/tab6_adults.tsv",
 )
 display(tab6)
+
+# %%
+# Create Supplementary Table 2 (visual vs. auditory/audivisual presentation)
+tabsupp2 = combined_cluster_table(
+    img_files_z=[
+        "../results/ale/visual_z_thresh.nii.gz",
+        "../results/ale/nvisual_z_thresh.nii.gz",
+        "../results/subtraction/visual_minus_nvisual_z_thresh.nii.gz",
+    ],
+    stub_keys=["Visual", "Non-visual", "Visual > non-visual"],
+    stub_colname="Analysis",
+    img_files_ale=[
+        "../results/ale/visual_stat_thresh.nii.gz",
+        "../results/ale/nvisual_stat_thresh.nii.gz",
+        None,
+    ],
+    atlas="aal",
+    output_file="../results/tables/tabsupp2_modality_pres.tsv",
+)
+display(tabsupp2)
+
+# %%
+# Create Supplementary Table 3 (manual vs. verbal response)
+tabsupp3 = combined_cluster_table(
+    img_files_z=[
+        "../results/ale/manual_z_thresh.nii.gz",
+        "../results/ale/nmanual_z_thresh.nii.gz",
+        "../results/subtraction/manual_minus_nmanual_z_thresh.nii.gz",
+    ],
+    stub_keys=["Manual", "Non-manual", "Manual > non-manual"],
+    stub_colname="Analysis",
+    img_files_ale=[
+        "../results/ale/manual_stat_thresh.nii.gz",
+        "../results/ale/nmanual_stat_thresh.nii.gz",
+        None,
+    ],
+    atlas="aal",
+    output_file="../results/tables/tabsupp3_modality_pres.tsv",
+)
+display(tabsupp3)
 
 # %% [markdown]
 # Finally, we also take care of the outputs from our two robustness checks (jackknife and FSN; see Notebooks #05 and #06). We decided to present these in figures only instead of creating separate tables or squeezing these values into the original cluster tables. However, with this code we could easily do so: It takes the original peak locations (based on the *z* score maps from ALE) and looks up the corresponding value (jackknife reliability or FSN) for these peaks. Based on these extracted values, we've computed some summary statistics such as the average jackknife robustness or FSN across all clusters in a given map.

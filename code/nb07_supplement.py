@@ -44,7 +44,7 @@ ales = dict(
         "../results/ale/visual.txt": 'modality_pres == "visual"',
         "../results/ale/nvisual.txt": 'modality_pres != "visual"',
         "../results/ale/manual.txt": 'modality_resp == "manual"',
-        "../results/ale/nmanual.txt": 'modality_resp == ["covert", "overt"]',
+        "../results/ale/nmanual.txt": 'modality_resp != "manual"',
     }
 )
 
