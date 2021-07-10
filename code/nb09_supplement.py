@@ -44,14 +44,18 @@ from nb02_subtraction import run_subtraction
 exps = pd.read_json("../results/exps.json")
 
 # %% Define ALE analyses based on presentation and response modalities
+basedir = "../results/supplement"
+alphabetic_languages = ["english", "dutch", "german", "french"]
 ales = dict(
     {
-        "../results/ale/visual.txt": 'modality_pres == "visual"',
-        "../results/ale/nvisual.txt": 'modality_pres != "visual"',
-        "../results/ale/manual.txt": 'modality_resp == "manual"',
-        "../results/ale/nmanual.txt": 'modality_resp != "manual"',
-        "../results/ale/spm.txt": 'software == "SPM"',
-        "../results/ale/nspm.txt": 'software != "SPM"',
+        f"{basedir}/alphabetic.txt": f"language == {alphabetic_languages}",
+        f"{basedir}/nalphabetic.txt": f"language != {alphabetic_languages}",
+        f"{basedir}/visual.txt": 'modality_pres == "visual"',
+        f"{basedir}/nvisual.txt": 'modality_pres != "visual"',
+        f"{basedir}/manual.txt": 'modality_resp == "manual"',
+        f"{basedir}/nmanual.txt": 'modality_resp != "manual"',
+        f"{basedir}/spm.txt": 'software == "SPM"',
+        f"{basedir}/nspm.txt": 'software != "SPM"',
     }
 )
 
@@ -75,9 +79,10 @@ for key in ales.keys():
 # Define subraction analyses
 subtrs = dict(
     {
-        "../results/ale/nvisual.txt": "../results/ale/visual.txt",
-        "../results/ale/nmanual.txt": "../results/ale/manual.txt",
-        "../results/ale/spm.txt": "../results/ale/nspm.txt",
+        f"{basedir}/alphabetic.txt": f"{basedir}/nalphabetic.txt",
+        f"{basedir}/visual.txt": f"{basedir}/nvisual.txt",
+        f"{basedir}/manual.txt": f"{basedir}/nmanual.txt",
+        f"{basedir}/spm.txt": f"{basedir}/nspm.txt",
     }
 )
 
@@ -94,31 +99,33 @@ for key, value in zip(subtrs.keys(), subtrs.values()):
     )
 
 # %%
-# Shared figure parameters
+# Create empty figure with subplots
 scaling = 2 / 30
-figsize = (90 * scaling, 101 * scaling)
+figsize = (90 * scaling, 110 * scaling)
+fig = plt.figure(figsize=figsize)
+gs = fig.add_gridspec(101, 90)
+ax1 = fig.add_subplot(gs[1:26, :])
+ax2 = fig.add_subplot(gs[26:51, :])
+ax3 = fig.add_subplot(gs[51:76, :])
+ax4 = fig.add_subplot(gs[76:101, :])
+
+# Smaller margins
 margins = {
     "left": 0,
     "bottom": 0,
     "right": 1 - 0.1 * scaling / figsize[0],
     "top": 1 - 0.1 * scaling / figsize[1],
 }
-vmin = 0
-vmax = 5
-
-# Create empty figure with subplots
-fig = plt.figure(figsize=figsize)
-gs = fig.add_gridspec(85, 90)
-ax1 = fig.add_subplot(gs[1:26, :])
-ax2 = fig.add_subplot(gs[26:51, :])
-ax3 = fig.add_subplot(gs[51:76, :])
 _ = fig.subplots_adjust(**margins)
 
 # Plot subtraction maps
-basedir = "../results/subtraction/"
-for condition, ax in zip(["visual", "manual", "spm"], [ax1, ax2, ax3]):
+conditions = ["alphabetic", "visual", "manual", "spm"]
+basedir = "../results/subtraction"
+vmin = 0
+vmax = 5
+for condition, ax in zip(conditions, [ax1, ax2, ax3, ax4]):
     ncondition = f"n{condition}"
-    fname_unthresh = f"{basedir}{condition}_minus_{ncondition}_z.nii.gz"
+    fname_unthresh = f"{basedir}/{condition}_minus_{ncondition}_z.nii.gz"
     p = plotting.plot_glass_brain(
         fname_unthresh,
         display_mode="lyrz",
@@ -132,20 +139,24 @@ for condition, ax in zip(["visual", "manual", "spm"], [ax1, ax2, ax3]):
     # # Voxel-level thresholding
     # thresh_voxel_p = 0.001
     # thresh_voxel_z = norm.ppf(thresh_voxel_p)
-    # fname_thresh = f"{basedir}{condition}_minus_{ncondition}_z_thresh.nii.gz"
+    # fname_thresh = f"{basedir}/{condition}_minus_{ncondition}_z_thresh.nii.gz"
     # p.add_contours(fname_thresh, threshold=thresh_voxel_z, colors="black")
 
 # Add subplot labels
 _ = ax1.annotate("A", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax3.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax4.annotate("D", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax1.annotate(
-    "Visual > auditory/audiovisual stimuli", xy=(0.035, 0.96), xycoords="axes fraction"
+    "Alphabetic > logographic language", xy=(0.035, 0.96), xycoords="axes fraction"
 )
 _ = ax2.annotate(
-    "Manual > varbal/no response", xy=(0.035, 0.96), xycoords="axes fraction"
+    "Visual > auditory/audiovisual stimuli", xy=(0.035, 0.96), xycoords="axes fraction"
 )
 _ = ax3.annotate(
+    "Manual > varbal/no response", xy=(0.035, 0.96), xycoords="axes fraction"
+)
+_ = ax4.annotate(
     "SPM > other analysis software", xy=(0.035, 0.96), xycoords="axes fraction"
 )
 
