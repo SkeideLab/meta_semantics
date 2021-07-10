@@ -166,11 +166,11 @@ def str_via_cat_to_int(series_in, categories):
     return series_out
 
 # %% [markdown]
-# We use this helper function to convert some of the columns that are already in our DataFrame into a numerical format that can be used by SDM. Covariates we may be interested include the semantic task category (knowledge, relatdness, or objects), the modality of stimulus presentation (e.g., visual, auditory), the modality of childrens' response (e.g., manual, covert speech), and the statistical software package used by the original authors for their analysis (SPM, FSL, or something else). We also include the mean sample age of the experiment and its square as additional (potential) covariates. Those are already in a numerical format and thus don't need to be converted.
+# We use this helper function to convert some of the columns that are already in our DataFrame into a numerical format that can be used by SDM. Covariates we may be interested include the semantic task category (knowledge, relatdness, or objects), the laungeage of the experiment, the modality of stimulus presentation (e.g., visual, auditory), the modality of childrens' response (e.g., manual, covert speech), and the statistical software package used by the original authors for their analysis (SPM, FSL, or something else). We also include the mean sample age of the experiment and its square as additional (potential) covariates. Those are already in a numerical format and thus don't need to be converted.
 
 # %%
 # Apply this function to convert some columns to integers
-cols_convert = ["task_type", "modality_pres", "modality_resp", "software"]
+cols_convert = ["task_type", "language", "modality_pres", "modality_resp", "software"]
 exps_sdm[cols_convert] = pd.DataFrame(
     [
         str_via_cat_to_int(series_in=exps[colname], categories=categories)
@@ -178,6 +178,7 @@ exps_sdm[cols_convert] = pd.DataFrame(
             cols_convert,
             [
                 ["relatedness", "knowledge", "objects"],
+                ["german", "dutch", "french", "english", "japanese", "chinese"],
                 ["visual", "audiovisual", "auditory_visual", "auditory"],
                 ["none", "manual", "covert", "overt"],
                 ["SPM", "FSL"],
@@ -204,6 +205,7 @@ exps_sdm[
         "age_mean_c",
         "age_mean_c_2",
         "task_type",
+        "language",
         "modality_pres",
         "modality_resp",
         "software",
@@ -237,7 +239,7 @@ call_pp = "sdm pp gray_matter,1.0,20,gray_matter,2"
 _ = run(call_pp, shell=True, cwd=cwd)
 
 # %% [markdown]
-# After the preprocessing is done, you can check the results by looking at the generated HTML report (to be found at `results/sdm/pp/pp.htm`) as well as the recreated *t* score maps. For now, however, let's move directly to the next step which is estimating our meta-analytic models. Our first model (`mod1`) simply computes the meta-analytic mean effect size across all experiments without any additional covariates. It should therefore resemble our ALE analysis from Notebook #01. In `mod2`, we've decided to add (and thereby, ideally, control for) four covariates of no interest: The mean age of the sample of each experiment (which we've already mean-centered above), the modality of stimulus presentation, the modality of childrens' response, and the software package used for statistical analysis by the original authors. Note that the latter three variables were converted from categorical factors to integer values (see above). Finally, our third model is a meta-regression in which we test if there are clusters whose meta-analytic effect size covaries with the (mean) age of the children. In other words, we are trying to test if there are linear changes in the cortical activation patterns for semantic cognition during childhood.
+# After the preprocessing is done, you can check the results by looking at the generated HTML report (to be found at `results/sdm/pp/pp.htm`) as well as the recreated *t* score maps. For now, however, let's move directly to the next step which is estimating our meta-analytic models. Our first model (`mod1`) simply computes the meta-analytic mean effect size across all experiments without any additional covariates. It should therefore resemble our ALE analysis from Notebook #01. In `mod2`, we've decided to add (and thereby, ideally, control for) four covariates of no interest: The language of the experiment, the modality of stimulus presentation, the modality of childrens' response, and the software package used for statistical analysis by the original authors. Note that the latter three variables were converted from categorical factors to integer values (see above). Finally, our third model is a meta-regression in which we test if there are clusters whose meta-analytic effect size covaries with the (mean) age of the children. In other words, we are trying to test if there are linear changes in the cortical activation patterns for semantic cognition during childhood.
 
 # %%
 # Run mean analysis without covariates
@@ -245,7 +247,7 @@ call_mod1 = "sdm mod1=mi " + str(n_imps) + ",,," + str(n_threads)
 _ = run(call_mod1, shell=True, cwd=cwd)
 
 # Run mean analysis with covariates
-str_covs = "age_mean_c+modality_pres+modality_resp+software"
+str_covs = "language+modality_pres+modality_resp+software"
 call_mod2 = "sdm mod2=mi " + str(n_imps) + "," + str_covs + ",," + str(n_threads)
 _ = run(call_mod2, shell=True, cwd=cwd)
 
