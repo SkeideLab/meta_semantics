@@ -17,7 +17,7 @@
 # %% [markdown]
 # ![SkeideLab and MPI CBS logos](../misc/header_logos.png)
 #
-# # Notebook #09: Appendix
+# # Notebook #09: Supplement
 #
 # *Created July 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
@@ -26,9 +26,12 @@
 # We start by loading the relevant packages.
 
 # %%
-import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-from nilearn import image, plotting
+import numpy as np
+import pandas as pd
+from nilearn import plotting
+from scipy.stats import norm
 
 from nb01_ale import run_ale, write_peaks_to_sleuth
 from nb02_subtraction import run_subtraction
@@ -91,66 +94,75 @@ for key, value in zip(subtrs.keys(), subtrs.values()):
     )
 
 # %%
-# # Shared figure parameters
-# scaling = 2 / 30
-# figsize = (90 * scaling, 101 * scaling)
-# margins = {
-#     "left": 0,
-#     "bottom": 0,
-#     "right": 1 - 0.1 * scaling / figsize[0],
-#     "top": 1 - 0.1 * scaling / figsize[1],
-# }
-# vmin = 0
-# vmax = 7
+# Shared figure parameters
+scaling = 2 / 30
+figsize = (90 * scaling, 101 * scaling)
+margins = {
+    "left": 0,
+    "bottom": 0,
+    "right": 1 - 0.1 * scaling / figsize[0],
+    "top": 1 - 0.1 * scaling / figsize[1],
+}
+vmin = 0
+vmax = 5
 
-# # Create two suppelmentary figures
-# for contrast in ["visual", "manual"]:
+# Create empty figure with subplots
+fig = plt.figure(figsize=figsize)
+gs = fig.add_gridspec(85, 90)
+ax1 = fig.add_subplot(gs[1:26, :])
+ax2 = fig.add_subplot(gs[26:51, :])
+ax3 = fig.add_subplot(gs[51:76, :])
+_ = fig.subplots_adjust(**margins)
 
-#     # Create empty figure with subplots
-#     fig = plt.figure(figsize=figsize)
-#     gs = fig.add_gridspec(101, 90)
-#     ax1 = fig.add_subplot(gs[1:26, :])
-#     ax2 = fig.add_subplot(gs[26:51, :])
-#     ax3 = fig.add_subplot(gs[51:76, :])
-#     ax4 = fig.add_subplot(gs[76:101, :])
-#     _ = fig.subplots_adjust(**margins)
+# Plot subtraction maps
+basedir = "../results/subtraction/"
+for condition, ax in zip(["visual", "manual", "spm"], [ax1, ax2, ax3]):
+    ncondition = f"n{condition}"
+    fname_unthresh = f"{basedir}{condition}_minus_{ncondition}_z.nii.gz"
+    p = plotting.plot_glass_brain(
+        fname_unthresh,
+        display_mode="lyrz",
+        axes=ax,
+        cmap="RdYlBu_r",
+        vmin=vmin,
+        vmax=vmax,
+        plot_abs=False,
+        symmetric_cbar=True,
+    )
+    # # Voxel-level thresholding
+    # thresh_voxel_p = 0.001
+    # thresh_voxel_z = norm.ppf(thresh_voxel_p)
+    # fname_thresh = f"{basedir}{condition}_minus_{ncondition}_z_thresh.nii.gz"
+    # p.add_contours(fname_thresh, threshold=thresh_voxel_z, colors="black")
 
-#     # Plot ALE maps
-#     ncontrast = f"n{contrast}"
-#     prefixes = [contrast, ncontrast]
-#     axs = [ax1, ax2]
-#     imgs = dict(zip(prefixes, [None] * len(prefixes)))
-#     for prefix, ax in zip(prefixes, axs):
-#         imgs[prefix] = image.load_img(f"../results/ale/{prefix}_z_thresh.nii.gz")
-#         p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax)
-#         _ = p.add_overlay(imgs[prefix], cmap="YlOrRd", vmin=vmin, vmax=vmax)
+# Add subplot labels
+_ = ax1.annotate("A", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax3.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
+_ = ax1.annotate(
+    "Visual > auditory/audiovisual stimuli", xy=(0.035, 0.96), xycoords="axes fraction"
+)
+_ = ax2.annotate(
+    "Manual > varbal/no response", xy=(0.035, 0.96), xycoords="axes fraction"
+)
+_ = ax3.annotate(
+    "SPM > other analysis software", xy=(0.035, 0.96), xycoords="axes fraction"
+)
 
-#     # Plot subtraction map
-#     p = plotting.plot_glass_brain(
-#         f"../results/subtraction/{contrast}_minus_n{contrast}_z_thresh.nii.gz",
-#         display_mode="lyrz",
-#         axes=ax3,
-#         cmap="RdYlBu_r",
-#         vmin=vmin,
-#         vmax=vmax,
-#         plot_abs=False,
-#         symmetric_cbar=True,
-#     )
+# Add colorbar
+ax_cbar = fig.add_subplot(gs[75:78, 36:54])
+cmap = plt.get_cmap("RdYlBu_r")
+norm = mpl.colors.Normalize(vmin=-vmax, vmax=vmax)
+mpl.colorbar.ColorbarBase(
+    ax_cbar,
+    cmap=cmap,
+    norm=norm,
+    orientation="horizontal",
+    ticks=np.arange(-vmax, vmax + 1, 2),
+    label="$\it{z}$ score",
+)
+# plt.axvline(x=-thresh_voxel_z, color="black", linewidth=1)
+# plt.axvline(x=thresh_voxel_z, color="black", linewidth=1)
 
-#     # Plot conjunction map
-#     formula = "np.where(img1 * img2 > 0, np.minimum(img1, img2), 0)"
-#     img_conj = image.math_img(formula, img1=imgs[contrast], img2=imgs[ncontrast])
-#     p = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax4)
-#     _ = p.add_overlay(img_conj, cmap="YlOrRd", vmin=vmin, vmax=vmax)
-
-#     # Add subplot labels
-#     _ = ax1.annotate("A", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
-#     _ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
-#     _ = ax3.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
-#     _ = ax4.annotate("D", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
-#     _ = ax1.annotate("Visual", xy=(0.035, 0.96), xycoords="axes fraction")
-#     _ = ax2.annotate(
-#         "Auditory & audivisual", xy=(0.035, 0.96), xycoords="axes fraction"
-#     )
-#     _ = ax3.annotate("Subtraction", xy=(0.035, 0.96), xycoords="axes fraction")
-#     _ = ax4.annotate("Conjunction", xy=(0.035, 0.96), xycoords="axes fraction")
+# Save to PDF
+fig.savefig("../results/figures/figsupp.pdf")
