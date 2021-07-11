@@ -81,12 +81,12 @@ _ = [lh.set_linewidth(0) for lh in handles]
 _ = [lh.set_alpha(alpha) for lh in handles]
 
 # %%
-# Create Figure 2 (study-level descriptive variables)
+# Create Figure 3 (study-level descriptive variables)
 figsize = (90 * scaling, 90 * scaling)
-fig2, axs = plt.subplots(nrows=3, ncols=3, figsize=figsize)
+fig3, axs = plt.subplots(nrows=3, ncols=3, figsize=figsize)
 
 # Specify custom margins
-_ = fig2.subplots_adjust(
+_ = fig3.subplots_adjust(
     left=8 * scaling / figsize[0],
     bottom=8 * scaling / figsize[1],
     right=1 - 1 * scaling / figsize[0],
@@ -176,7 +176,7 @@ axs[1][0].set_ylabel("No. of peaks")
 axs[2][0].set_ylabel("Mean age")
 
 # Save as PDF
-fig2.savefig("../results/figures/fig2.pdf")
+fig3.savefig("../results/figures/fig3.pdf")
 
 # %%
 # Extract all individual peaks and their z score
@@ -189,15 +189,15 @@ peaks_zstat = [
 # Get indices of peaks without an effect size
 idxs_p = np.where(np.isnan(peaks_zstat))[0]
 
-# Create Figure 3 (main ALE and SDM analyses)
+# Create Figure 4 (main ALE and SDM analyses)
 figsize = (90 * scaling, 145 * scaling)
-fig3 = plt.figure(figsize=figsize)
-gs = fig3.add_gridspec(145, 90)
-ax1 = fig3.add_subplot(gs[0:35, :])
-ax2 = fig3.add_subplot(gs[35:70, :])
-ax3 = fig3.add_subplot(gs[70:95, :])
-ax4 = fig3.add_subplot(gs[95:120, :])
-ax5 = fig3.add_subplot(gs[120:145, :])
+fig4 = plt.figure(figsize=figsize)
+gs = fig4.add_gridspec(145, 90)
+ax1 = fig4.add_subplot(gs[0:35, :])
+ax2 = fig4.add_subplot(gs[35:70, :])
+ax3 = fig4.add_subplot(gs[70:95, :])
+ax4 = fig4.add_subplot(gs[95:120, :])
+ax5 = fig4.add_subplot(gs[120:145, :])
 
 # Specify smaller margins
 margins = {
@@ -206,7 +206,7 @@ margins = {
     "right": 1 - 0.1 * scaling / figsize[0],
     "top": 1 - 0.1 * scaling / figsize[1],
 }
-_ = fig3.subplots_adjust(**margins)
+_ = fig4.subplots_adjust(**margins)
 
 # Plot individual peaks (without effect sizes)
 p1_1 = plotting.plot_markers(  # left and right
@@ -285,7 +285,7 @@ p5 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax5)
 p5.add_overlay(img_sdm, cmap="YlOrRd", vmin=vmin, vmax=vmax)
 
 # Add a joint colorbar
-ax_cbar = fig3.add_subplot(gs[42:64, 43:46])
+ax_cbar = fig4.add_subplot(gs[42:64, 43:46])
 cmap = plt.get_cmap("YlOrRd")
 norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
@@ -302,24 +302,24 @@ _ = ax4.annotate("SDM", xy=(0.035, 0.96), xycoords="axes fraction")
 _ = ax5.annotate("SDM + covariates", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
-fig3.savefig("../results/figures/fig3.pdf")
+fig4.savefig("../results/figures/fig4.pdf")
 
 # %%
 # Get task types of individual peaks
 peaks_tasks = exps.explode("tstats")["task_type"].cat.codes
 
-# Create Figure 4 (task category-specific ALEs)
+# Create Figure 5 (task category-specific ALEs)
 figsize = (90 * scaling, 145 * scaling)
-fig4 = plt.figure(figsize=figsize)
-gs = fig4.add_gridspec(145, 90)
-ax1 = fig4.add_subplot(gs[0:35, :])
-ax2 = fig4.add_subplot(gs[35:70, :])
-ax3 = fig4.add_subplot(gs[70:95, :])
-ax4 = fig4.add_subplot(gs[95:120, :])
-ax5 = fig4.add_subplot(gs[120:145, :])
+fig5 = plt.figure(figsize=figsize)
+gs = fig5.add_gridspec(145, 90)
+ax1 = fig5.add_subplot(gs[0:35, :])
+ax2 = fig5.add_subplot(gs[35:70, :])
+ax3 = fig5.add_subplot(gs[70:95, :])
+ax4 = fig5.add_subplot(gs[95:120, :])
+ax5 = fig5.add_subplot(gs[120:145, :])
 
 # Specify smaller margins
-_ = fig4.subplots_adjust(**margins)
+_ = fig5.subplots_adjust(**margins)
 
 # Plot individual peaks
 p1 = plotting.plot_markers(  # left and right
@@ -356,12 +356,12 @@ for task, ax_task in zip(["knowledge", "relatedness", "objects"], [ax3, ax4, ax5
     p_task.add_overlay(img_task, cmap="YlOrRd", vmin=vmin, vmax=vmax)
 
 # Add a legend for the task types
-ax_leg = fig4.add_subplot(gs[33, 57])
+ax_leg = fig5.add_subplot(gs[33, 57])
 ax_leg.legend(handles, labels, frameon=False, handlelength=0.5)
 ax_leg.set_axis_off()
 
 # Add a joint colorbar for the ALE maps
-ax_cbar = fig4.add_subplot(gs[48:70, 43:46])
+ax_cbar = fig5.add_subplot(gs[48:70, 43:46])
 mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap, norm=norm, label="$\it{z}$ score")
 plt.axhline(y=3.1, color="black", linewidth=1)
 
@@ -376,19 +376,19 @@ _ = ax4.annotate("Relatedness", xy=(0.035, 0.96), xycoords="axes fraction")
 _ = ax5.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
-fig4.savefig("../results/figures/fig4.pdf")
+fig5.savefig("../results/figures/fig5.pdf")
 
 # %%
-# Create Figure 5 (differences between task categories)
+# Create Figure 6 (differences between task categories)
 figsize = (90 * scaling, 87 * scaling)
-fig5 = plt.figure(figsize=figsize)
-gs = fig5.add_gridspec(85, 90)
-ax1 = fig5.add_subplot(gs[1:26, :])
-ax2 = fig5.add_subplot(gs[26:51, :])
-ax3 = fig5.add_subplot(gs[51:76, :])
+fig6 = plt.figure(figsize=figsize)
+gs = fig6.add_gridspec(85, 90)
+ax1 = fig6.add_subplot(gs[1:26, :])
+ax2 = fig6.add_subplot(gs[26:51, :])
+ax3 = fig6.add_subplot(gs[51:76, :])
 
 # Specify smaller margins
-_ = fig5.subplots_adjust(**margins)
+_ = fig6.subplots_adjust(**margins)
 
 # Plot z maps for the subtraction analyses
 vmin, vmid, vmax = -4, 0, 4
@@ -408,7 +408,7 @@ for task, ax_sub in zip(["knowledge", "relatedness", "objects"], [ax1, ax2, ax3]
     )
 
 # Add colorbar
-ax_cbar = fig5.add_subplot(gs[75:78, 36:54])
+ax_cbar = fig6.add_subplot(gs[75:78, 36:54])
 cmap = plt.get_cmap("RdYlBu_r")
 norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(
@@ -431,18 +431,18 @@ _ = ax2.annotate("Relatedness > other", xy=(0.035, 0.96), xycoords="axes fractio
 _ = ax3.annotate("Objects > other", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
-fig5.savefig("../results/figures/fig5.pdf")
+fig6.savefig("../results/figures/fig6.pdf")
 
 # %%
-# Create Figure 6 (age-related changes)
+# Create Figure 7 (age-related changes)
 figsize = (90 * scaling, 62 * scaling)
-fig6 = plt.figure(figsize=figsize)
-gs = fig6.add_gridspec(60, 90)
-ax1 = fig6.add_subplot(gs[1:26, :])
-ax2 = fig6.add_subplot(gs[26:51, :])
+fig7 = plt.figure(figsize=figsize)
+gs = fig7.add_gridspec(60, 90)
+ax1 = fig7.add_subplot(gs[1:26, :])
+ax2 = fig7.add_subplot(gs[26:51, :])
 
 # Specify smaller margins
-_ = fig6.subplots_adjust(**margins)
+_ = fig7.subplots_adjust(**margins)
 
 # Plot z map for ALE median split
 p1 = plotting.plot_glass_brain(
@@ -469,7 +469,7 @@ p2 = plotting.plot_glass_brain(
 )
 
 # Add colorbar
-ax_cbar = fig6.add_subplot(gs[50:53, 36:54])
+ax_cbar = fig7.add_subplot(gs[50:53, 36:54])
 cmap = plt.get_cmap("RdYlBu_r")
 norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(
@@ -494,19 +494,19 @@ _ = ax2.annotate(
 )
 
 # Save to PDF
-fig6.savefig("../results/figures/fig6.pdf")
+fig7.savefig("../results/figures/fig7.pdf")
 
 # %%
-# Create Figure 7 (comparison with adults)
+# Create Figure 8 (comparison with adults)
 figsize = (90 * scaling, 95 * scaling)
-fig7 = plt.figure(figsize=figsize)
-gs = fig7.add_gridspec(96, 90)
-ax1 = fig7.add_subplot(gs[1:26, :])
-ax2 = fig7.add_subplot(gs[31:56, :])
-ax3 = fig7.add_subplot(gs[61:86, :])
+fig8 = plt.figure(figsize=figsize)
+gs = fig8.add_gridspec(96, 90)
+ax1 = fig8.add_subplot(gs[1:26, :])
+ax2 = fig8.add_subplot(gs[31:56, :])
+ax3 = fig8.add_subplot(gs[61:86, :])
 
 # Specify smaller margins
-_ = fig7.subplots_adjust(**margins)
+_ = fig8.subplots_adjust(**margins)
 
 # Plot ALE map for adults
 vmin_1, vmax_1 = 0, 12
@@ -535,7 +535,7 @@ p3 = plotting.plot_glass_brain(None, display_mode="lyrz", axes=ax3)
 p3.add_overlay(img_conj, cmap="YlOrRd", vmin=vmin_3, vmax=vmax_3)
 
 # Add colorbar for adults
-ax1_cbar = fig7.add_subplot(gs[25:28, 36:54])
+ax1_cbar = fig8.add_subplot(gs[25:28, 36:54])
 cmap1 = plt.get_cmap("YlOrRd")
 norm = mpl.colors.Normalize(vmin=vmin_1, vmax=vmax_1)
 mpl.colorbar.ColorbarBase(
@@ -548,7 +548,7 @@ mpl.colorbar.ColorbarBase(
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add colorbar for children > adults & adults > children
-ax2_cbar = fig7.add_subplot(gs[55:58, 36:54])
+ax2_cbar = fig8.add_subplot(gs[55:58, 36:54])
 cmap2 = plt.get_cmap("RdYlBu_r")
 norm = mpl.colors.Normalize(vmin=vmin_2, vmax=vmax_2)
 mpl.colorbar.ColorbarBase(
@@ -562,7 +562,7 @@ plt.axvline(x=-3.1, color="black", linewidth=1)
 plt.axvline(x=3.1, color="black", linewidth=1)
 
 # Add colorbar for conjunction
-ax3_cbar = fig7.add_subplot(gs[85:88, 36:54])
+ax3_cbar = fig8.add_subplot(gs[85:88, 36:54])
 norm = mpl.colors.Normalize(vmin=vmin_3, vmax=vmax_3)
 mpl.colorbar.ColorbarBase(
     ax3_cbar,
@@ -583,20 +583,20 @@ _ = ax2.annotate("Children > adults", xy=(0.035, 0.96), xycoords="axes fraction"
 _ = ax3.annotate("Conjunction", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
-fig7.savefig("../results/figures/fig7.pdf")
+fig8.savefig("../results/figures/fig8.pdf")
 
 # %%
-# Create Figure 8 (leave-one-out analysis)
+# Create Figure 9 (leave-one-out analysis)
 figsize = (90 * scaling, 110 * scaling)
-fig8 = plt.figure(figsize=figsize)
-gs = fig8.add_gridspec(110, 90)
-ax1 = fig8.add_subplot(gs[1:26, :])
-ax2 = fig8.add_subplot(gs[26:51, :])
-ax3 = fig8.add_subplot(gs[51:76, :])
-ax4 = fig8.add_subplot(gs[76:101, :])
+fig9 = plt.figure(figsize=figsize)
+gs = fig9.add_gridspec(110, 90)
+ax1 = fig9.add_subplot(gs[1:26, :])
+ax2 = fig9.add_subplot(gs[26:51, :])
+ax3 = fig9.add_subplot(gs[51:76, :])
+ax4 = fig9.add_subplot(gs[76:101, :])
 
 # Specify smaller margins
-_ = fig8.subplots_adjust(**margins)
+_ = fig9.subplots_adjust(**margins)
 
 # Plot mean jackknife reliability maps
 vmin, vmax = 0, 100
@@ -611,7 +611,7 @@ for task, ax_jk in zip(
     p.add_overlay(img_jk, cmap="RdYlGn", vmin=vmin, vmax=vmax)
 
 # Add colorbar
-ax_cbar = fig8.add_subplot(gs[100:103, 36:54])
+ax_cbar = fig9.add_subplot(gs[100:103, 36:54])
 cmap = plt.get_cmap("RdYlGn")
 norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(
@@ -634,20 +634,20 @@ _ = ax3.annotate("Relatedness", xy=(0.035, 0.96), xycoords="axes fraction")
 _ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
-fig8.savefig("../results/figures/fig8.pdf")
+fig9.savefig("../results/figures/fig9.pdf")
 
 # %%
-# Create Figure 9 (fail-safe N analaysis)
+# Create Figure 10 (fail-safe N analaysis)
 figsize = (90 * scaling, 110 * scaling)
-fig9 = plt.figure(figsize=figsize)
-gs = fig9.add_gridspec(110, 90)
-ax1 = fig9.add_subplot(gs[1:26, :])
-ax2 = fig9.add_subplot(gs[26:51, :])
-ax3 = fig9.add_subplot(gs[51:76, :])
-ax4 = fig9.add_subplot(gs[76:101, :])
+fig10 = plt.figure(figsize=figsize)
+gs = fig10.add_gridspec(110, 90)
+ax1 = fig10.add_subplot(gs[1:26, :])
+ax2 = fig10.add_subplot(gs[26:51, :])
+ax3 = fig10.add_subplot(gs[51:76, :])
+ax4 = fig10.add_subplot(gs[76:101, :])
 
 # Specify smaller margins
-_ = fig9.subplots_adjust(**margins)
+_ = fig10.subplots_adjust(**margins)
 
 # Plot mean FSN maps (scaled by the number of original experiments)
 vmin, vmax = 0, 60
@@ -666,7 +666,7 @@ for task, ax_fsn, n_studies in zip(
     p.add_overlay(img_perc, cmap="RdYlGn", vmin=vmin, vmax=vmax)
 
 # Add colorbar
-ax_cbar = fig9.add_subplot(gs[100:103, 36:54])
+ax_cbar = fig10.add_subplot(gs[100:103, 36:54])
 cmap = plt.get_cmap("RdYlGn")
 norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 mpl.colorbar.ColorbarBase(
@@ -689,4 +689,4 @@ _ = ax3.annotate("Relatedness", xy=(0.035, 0.96), xycoords="axes fraction")
 _ = ax4.annotate("Objects", xy=(0.035, 0.96), xycoords="axes fraction")
 
 # Save to PDF
-fig9.savefig("../results/figures/fig9.pdf")
+fig10.savefig("../results/figures/fig10.pdf")
