@@ -145,22 +145,22 @@ _ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax3.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax4.annotate("D", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax1.annotate(
-    f"Alphabetic (n = {ns[0]}) > logographic language (n = {ns[1]})",
+    "Alphabetic > logographic language",
     xy=(0.035, 0.96),
     xycoords="axes fraction",
 )
 _ = ax2.annotate(
-    f"Visual (n = {ns[2]}) > auditory/audiovisual stimuli (n = {ns[3]})",
+    "Visual > auditory/audiovisual stimuli",
     xy=(0.035, 0.96),
     xycoords="axes fraction",
 )
 _ = ax3.annotate(
-    f"Manual (n = {ns[4]}) > varbal/no response (n = {ns[5]})",
+    "Manual > varbal/no response",
     xy=(0.035, 0.96),
     xycoords="axes fraction",
 )
 _ = ax4.annotate(
-    f"SPM (n = {ns[6]}) > other analysis software (n = {ns[7]})",
+    "SPM > other analysis software",
     xy=(0.035, 0.96),
     xycoords="axes fraction",
 )
