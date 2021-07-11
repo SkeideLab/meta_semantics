@@ -59,6 +59,9 @@ ales = dict(
     }
 )
 
+# Count number of experiments per ALE
+ns = [len(exps.query(value)) for value in ales.values()]
+
 # Write the relevant experiments to Sleuth text files
 for key, value in zip(ales.keys(), ales.values()):
     write_peaks_to_sleuth(text_file=key, df=exps, query=value)
@@ -103,7 +106,7 @@ for key, value in zip(subtrs.keys(), subtrs.values()):
 scaling = 2 / 30
 figsize = (90 * scaling, 110 * scaling)
 fig = plt.figure(figsize=figsize)
-gs = fig.add_gridspec(101, 90)
+gs = fig.add_gridspec(110, 90)
 ax1 = fig.add_subplot(gs[1:26, :])
 ax2 = fig.add_subplot(gs[26:51, :])
 ax3 = fig.add_subplot(gs[51:76, :])
@@ -119,13 +122,12 @@ margins = {
 _ = fig.subplots_adjust(**margins)
 
 # Plot subtraction maps
-conditions = ["alphabetic", "visual", "manual", "spm"]
-basedir = "../results/subtraction"
+covariates = ["alphabetic", "visual", "manual", "spm"]
+basedir = "../results/supplement"
 vmin = 0
 vmax = 5
-for condition, ax in zip(conditions, [ax1, ax2, ax3, ax4]):
-    ncondition = f"n{condition}"
-    fname_unthresh = f"{basedir}/{condition}_minus_{ncondition}_z.nii.gz"
+for covariate, ax in zip(covariates, [ax1, ax2, ax3, ax4]):
+    fname_unthresh = f"{basedir}/{covariate}_minus_n{covariate}_z.nii.gz"
     p = plotting.plot_glass_brain(
         fname_unthresh,
         display_mode="lyrz",
@@ -136,11 +138,6 @@ for condition, ax in zip(conditions, [ax1, ax2, ax3, ax4]):
         plot_abs=False,
         symmetric_cbar=True,
     )
-    # # Voxel-level thresholding
-    # thresh_voxel_p = 0.001
-    # thresh_voxel_z = norm.ppf(thresh_voxel_p)
-    # fname_thresh = f"{basedir}/{condition}_minus_{ncondition}_z_thresh.nii.gz"
-    # p.add_contours(fname_thresh, threshold=thresh_voxel_z, colors="black")
 
 # Add subplot labels
 _ = ax1.annotate("A", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
@@ -148,20 +145,28 @@ _ = ax2.annotate("B", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax3.annotate("C", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax4.annotate("D", xy=(0, 0.96), xycoords="axes fraction", weight="bold")
 _ = ax1.annotate(
-    "Alphabetic > logographic language", xy=(0.035, 0.96), xycoords="axes fraction"
+    f"Alphabetic (n = {ns[0]}) > logographic language (n = {ns[1]})",
+    xy=(0.035, 0.96),
+    xycoords="axes fraction",
 )
 _ = ax2.annotate(
-    "Visual > auditory/audiovisual stimuli", xy=(0.035, 0.96), xycoords="axes fraction"
+    f"Visual (n = {ns[2]}) > auditory/audiovisual stimuli (n = {ns[3]})",
+    xy=(0.035, 0.96),
+    xycoords="axes fraction",
 )
 _ = ax3.annotate(
-    "Manual > varbal/no response", xy=(0.035, 0.96), xycoords="axes fraction"
+    f"Manual (n = {ns[4]}) > varbal/no response (n = {ns[5]})",
+    xy=(0.035, 0.96),
+    xycoords="axes fraction",
 )
 _ = ax4.annotate(
-    "SPM > other analysis software", xy=(0.035, 0.96), xycoords="axes fraction"
+    f"SPM (n = {ns[6]}) > other analysis software (n = {ns[7]})",
+    xy=(0.035, 0.96),
+    xycoords="axes fraction",
 )
 
 # Add colorbar
-ax_cbar = fig.add_subplot(gs[75:78, 36:54])
+ax_cbar = fig.add_subplot(gs[100:103, 36:54])
 cmap = plt.get_cmap("RdYlBu_r")
 norm = mpl.colors.Normalize(vmin=-vmax, vmax=vmax)
 mpl.colorbar.ColorbarBase(
@@ -172,8 +177,6 @@ mpl.colorbar.ColorbarBase(
     ticks=np.arange(-vmax, vmax + 1, 2),
     label="$\it{z}$ score",
 )
-# plt.axvline(x=-thresh_voxel_z, color="black", linewidth=1)
-# plt.axvline(x=thresh_voxel_z, color="black", linewidth=1)
 
 # Save to PDF
-fig.savefig("../results/figures/figsupp.pdf")
+fig.savefig("../results/figures/appendix.pdf")
