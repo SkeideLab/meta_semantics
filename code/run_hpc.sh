@@ -14,7 +14,7 @@
 #SBATCH --partition=general
 
 # Number of nodes and MPI tasks per node
-#SBATCH --nodes=1
+#SBATCH --nodes=6
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=40
 
@@ -52,7 +52,7 @@ EXEC=(
     "${EXEC[@]}" python3 nb06_fsn.py all 3 &
     "${EXEC[@]}" python3 nb06_fsn.py all 3 &
     "${EXEC[@]}" python3 nb06_fsn.py knowledge,relatedness,objects 10 &
-    "${EXEC[@]}" python3 nb07_supplement.py
+    "${EXEC[@]}" python3 nb09_supplement.py
 wait
 
 # Create output tables and figures
