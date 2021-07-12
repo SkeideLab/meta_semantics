@@ -52,7 +52,7 @@ EXEC=(
 "${EXEC[@]}" python3 nb06_fsn.py all 3 &
 "${EXEC[@]}" python3 nb06_fsn.py all 3 &
 "${EXEC[@]}" python3 nb06_fsn.py knowledge,relatedness,objects 10 &
-"${EXEC[@]}" python3 nb09_supplement.py
+"${EXEC[@]}" python3 nb09_appendix.py
 wait
 
 # Create output tables and figures

@@ -179,4 +179,4 @@ mpl.colorbar.ColorbarBase(
 )
 
 # Save to PDF
-fig.savefig("../results/figures/figappendixb.pdf")
+fig.savefig("../results/figures/fig11.pdf")
