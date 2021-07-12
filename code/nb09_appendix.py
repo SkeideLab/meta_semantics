@@ -17,13 +17,11 @@
 # %% [markdown]
 # ![SkeideLab and MPI CBS logos](../misc/header_logos.png)
 #
-# # Notebook #09: Supplement
+# # Notebook #09: Appendix
 #
 # *Created July 2021 by Alexander Enge* ([enge@cbs.mpg.de](mailto:enge@cbs.mpg.de))
 #
-# Blablabla
-#
-# We start by loading the relevant packages.
+# Here we perform additional ALE analyses (see Notebook #01) and subtraction analyses (see Notebook #02) to explore the effect of four different experiment-level covariates, namely (a) the language used in the original experiment (alphabetic vs. logograpic), (b) the modality of stimulus presentation (visual vs. auditory/audiovisual), (c) the modality of children's response (manual vs. overt/covert/none), and (d) the toolbox used for fMRI analysis in the original article (SPM vs. other).
 
 # %%
 import matplotlib as mpl
@@ -36,15 +34,13 @@ from scipy.stats import norm
 from nb01_ale import run_ale, write_peaks_to_sleuth
 from nb02_subtraction import run_subtraction
 
-# %% [markdown]
-# Blablabla
-
 # %%
 # Read table of experiments from ALE analysis
 exps = pd.read_json("../results/exps.json")
 
-# %% Define ALE analyses based on presentation and response modalities
-basedir = "../results/supplement"
+# %%
+# Define ALE analyses for four different covariates
+basedir = "../results/appendix"
 alphabetic_languages = ["english", "dutch", "german", "french"]
 ales = dict(
     {
@@ -75,7 +71,7 @@ for key in ales.keys():
         cluster_thresh=0.01,
         random_seed=1234,
         n_iters=1000,
-        output_dir="../results/supplement/",
+        output_dir="../results/appendix/",
     )
 
 # %%
@@ -98,7 +94,7 @@ for key, value in zip(subtrs.keys(), subtrs.values()):
         cluster_size_mm3=200,
         random_seed=1234,
         n_iters=20000,
-        output_dir="../results/supplement",
+        output_dir="../results/appendix",
     )
 
 # %%
@@ -123,7 +119,7 @@ _ = fig.subplots_adjust(**margins)
 
 # Plot subtraction maps
 covariates = ["alphabetic", "visual", "manual", "spm"]
-basedir = "../results/supplement"
+basedir = "../results/appendix"
 vmin = 0
 vmax = 5
 for covariate, ax in zip(covariates, [ax1, ax2, ax3, ax4]):
