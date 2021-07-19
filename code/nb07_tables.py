@@ -24,17 +24,13 @@
 # This notebook contains a convenience function that we've used to create all of the tables for our manuscript. We only comment on these sparsely since no substantial work is happening here and because the solutions we've used are very idiosyncratic to the present meta-analysis. Also note that the tables still required a bit of post-processing, such as turning the anatomical peak labels from abbreviations into plain language.
 
 # %%
-from glob import glob
-from os import makedirs, path, remove
-from re import sub
-from subprocess import run
+from os import makedirs, path
 
 import numpy as np
 import pandas as pd
 from atlasreader import get_statmap_info
 from IPython.display import display
-from nilearn import image, reporting
-from nimare.utils import mni2tal
+from nilearn import image
 
 # %% [markdown]
 # Table 1 in the manuscript provides descriptive information about the experiments included in the meta-analysis. This information was originally stored in the file `data/literature_search/included.csv`. It was then updated with some additional information in the previous notebooks and stored as a new file called `results/exps.json`. Here we load this into a DataFrame and compute some summary statistics which are reported in the paper (such as the overall sample size of children and their mean age).

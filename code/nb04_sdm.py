@@ -35,7 +35,7 @@ from subprocess import run
 import numpy as np
 import pandas as pd
 from IPython.display import display
-from nilearn import image, plotting, reporting
+from nilearn import plotting, reporting
 from scipy import stats
 
 from nb02_subtraction import dual_thresholding
@@ -54,15 +54,12 @@ exps["peaks"] = [np.array(peaks, dtype="float") for peaks in exps["peaks"]]
 # %%
 # Extract test statistics of individal peaks
 exps["tstats"] = [
-    
     # If there are t scores, we can use them directly
     peaks[:, 3] if peaks_stat == "tstat"
-    
     # If there are z scores, we convert them to t scores
     else (
         stats.t.ppf(stats.norm.cdf(peaks[:, 3]), df=n - 1)
         if peaks_stat == "zstat"
-        
         # If neither of these, write NaNs
         else np.full(peaks.shape[0], np.nan)
     )
@@ -114,20 +111,16 @@ exps[cols_thresh] = exps[cols_thresh].apply(pd.to_numeric, errors="coerce")
 
 # Determine a t score threshold for each experiment
 exps["t_thr"] = [
-    
     # If there is a t score threshold in the paper, we can use it directly
     t if not np.isnan(t)
-    
     # If there is a z score threshold in the paper, we convert it to a t score
     else (
         stats.t.ppf(stats.norm.cdf(z), df=n - 1)
         if not np.isnan(z)
-        
         # If there is a p value threshold in the paper, we convert it to a t score
         else (
             abs(stats.t.ppf(p, df=n - 1))
             if not np.isnan(p)
-            
             # If none of these, use the lowest observed (significant) t score
             else pd.to_numeric(tstats).min()
         )
@@ -155,15 +148,15 @@ exps_sdm = exps.rename(columns=({"experiment": "study", "n": "n1"}))
 # Define function to convert string variables to integers (as dummies for categories)
 def str_via_cat_to_int(series_in, categories):
 
-
     # Convert strings to category codes (in the provided order), starting at 1
     series_out = np.array(
         pd.Categorical(series_in).set_categories(new_categories=categories).codes
     )
-    
+
     # Add another category code for any leftover categories
     series_out[series_out == -1] = series_out.max() + 1
     return series_out
+
 
 # %% [markdown]
 # We use this helper function to convert some of the columns that are already in our DataFrame into a numerical format that can be used by SDM. Covariates we may be interested include the semantic task category (knowledge, relatdness, or objects), the laungeage of the experiment, the modality of stimulus presentation (e.g., visual, auditory), the modality of childrens' response (e.g., manual, covert speech), and the statistical software package used by the original authors for their analysis (SPM, FSL, or something else). We also include the mean sample age of the experiment and its square as additional (potential) covariates. Those are already in a numerical format and thus don't need to be converted.
@@ -294,7 +287,7 @@ _ = [
 ]
 
 # %% [markdown]
-# The meta-analytic results can again be glanced at in an automatically generated HTML report. These reports can be found in the sub-directories that were created for each model (e.g., `results/sdm/analysis_mod1/`). With that, all the work is done for the SDM software. As a last and purely cosmetic step, we're performing another round of thresholding using the custom `dual_thresholding()` function which we've created back in Notebook #02. This is necessary because the thresholding function in SDM (which we've just used) doesn't *apply* the cluster-level extent threshold to the *z* score map. Instead, it uses it only for the HTML report. Because we want to plot the thresholded maps later on, we create them here with the same thresholds as above. 
+# The meta-analytic results can again be glanced at in an automatically generated HTML report. These reports can be found in the sub-directories that were created for each model (e.g., `results/sdm/analysis_mod1/`). With that, all the work is done for the SDM software. As a last and purely cosmetic step, we're performing another round of thresholding using the custom `dual_thresholding()` function which we've created back in Notebook #02. This is necessary because the thresholding function in SDM (which we've just used) doesn't *apply* the cluster-level extent threshold to the *z* score map. Instead, it uses it only for the HTML report. Because we want to plot the thresholded maps later on, we create them here with the same thresholds as above.
 
 # %%
 # Collect the filenames of the thresholded maps created in the previous step

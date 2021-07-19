@@ -5073,7 +5073,7 @@
         <VartMaxIterations>30</VartMaxIterations>
         <VartTol>0.0099999998</VartTol>
         <VartLearningScale>2</VartLearningScale>
-        <Var1>age_mean_c</Var1>
+        <Var1>language</Var1>
         <Var2>modality_pres</Var2>
         <Var3>modality_resp</Var3>
         <Var4>software</Var4>
