@@ -8,18 +8,18 @@
 
 [![meta-analytic results from ALE](https://raw.githubusercontent.com/SkeideLab/meta_semantics/main/misc/ale_brains.png)](https://github.com/SkeideLab/meta_semantics/tree/main/results)
 
-This repository contains the code, data, and results for the following paper: Enge, A., Abdel Rahman, R., & Skeide, M. A. (2021). A meta-analysis of fMRI studies of semantic cognition in children. *BioRxiv*, 2021.05.17.442947. https://doi.org/10/gj3vcx
-
-[BibTeX](http://www.bibtex.org) citation:
+This repository contains the code, data, and results for the following [paper](https://doi.org/10.1016/j.neuroimage.2021.118436):
 
 ```
-@article{enge2021metasemantics,
-  title = {A meta-analysis of {{fMRI}} studies of semantic cognition in children},
-  author = {Enge, Alexander and Abdel Rahman, Rasha and Skeide, Michael A.},
-  year = {2021},
-  journal = {bioRxiv},
-  pages = {2021.05.17.442947},
-  doi = {10/gj3vcx},
+@article{enge2021,
+title = {A meta-analysis of {{fMRI}} studies of semantic cognition in children},
+author = {Enge, Alexander and Abdel Rahman, Rasha and Skeide, Michael A.},
+year = {2021},
+journal = {NeuroImage},
+volume = {241},
+pages = {118436},
+issn = {1053-8119},
+doi = {https://doi.org/10.1016/j.neuroimage.2021.118436}
 }
 ```
 
