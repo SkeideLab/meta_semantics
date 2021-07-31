@@ -14,7 +14,7 @@
 #SBATCH --partition=general
 
 # Number of nodes and MPI tasks per node
-#SBATCH --nodes=6
+#SBATCH --nodes=8
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=40
 
