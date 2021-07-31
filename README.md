@@ -12,14 +12,14 @@ This repository contains the code, data, and results for the following [paper](h
 
 ```
 @article{enge2021,
-title = {A meta-analysis of {{fMRI}} studies of semantic cognition in children},
-author = {Enge, Alexander and Abdel Rahman, Rasha and Skeide, Michael A.},
-year = {2021},
-journal = {NeuroImage},
-volume = {241},
-pages = {118436},
-issn = {1053-8119},
-doi = {https://doi.org/10.1016/j.neuroimage.2021.118436}
+  title = {A meta-analysis of {{fMRI}} studies of semantic cognition in children},
+  author = {Enge, Alexander and Abdel Rahman, Rasha and Skeide, Michael A.},
+  year = {2021},
+  journal = {NeuroImage},
+  volume = {241},
+  pages = {118436},
+  issn = {1053-8119},
+  doi = {https://doi.org/10.1016/j.neuroimage.2021.118436}
 }
 ```
 
