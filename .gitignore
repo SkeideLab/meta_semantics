@@ -11,3 +11,4 @@ results/sdm/analysis_mod*/mi/
 results_*/
 .DS_Store
 *.sif
+*.tar.gz
