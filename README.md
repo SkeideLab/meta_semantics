@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Binder](https://img.shields.io/docker/cloud/build/alexenge/meta_semantics.svg)](https://hub.docker.com/r/alexenge/meta_semantics)
+[![Binder](https://img.shields.io/docker/cloud/build/skeidelab/meta_semantics.svg)](https://hub.docker.com/r/skeidelab/meta_semantics)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SkeideLab/meta_semantics/v1.1)
 
 [![meta-analytic results from ALE](https://raw.githubusercontent.com/SkeideLab/meta_semantics/main/misc/ale_brains.png)](https://github.com/SkeideLab/meta_semantics/tree/main/results)
@@ -39,10 +39,10 @@ Simply hit the "launch Binder" badge at the top or [this link](https://mybinder.
 
 #### b) Running the code in a local container
 
-If you want to run the code on your local computer, we suggest you do so using our [Docker container](https://hub.docker.com/repository/docker/alexenge/meta_semantics). This will create a small, Linux-based virtual machine which already has all software packages installed. To do so, first download and install [Docker Desktop](https://www.docker.com/products/docker-desktop). Once Docker Desktop is running, open a command line window (called "Terminal" on Linux/Mac or "PowerShell" on Windows). From there, execute the following:
+If you want to run the code on your local computer, we suggest you do so using our [Docker container](https://hub.docker.com/repository/docker/skeidelab/meta_semantics). This will create a small, Linux-based virtual machine which already has all software packages installed. To do so, first download and install [Docker Desktop](https://www.docker.com/products/docker-desktop). Once Docker Desktop is running, open a command line window (called "Terminal" on Linux/Mac or "PowerShell" on Windows). From there, execute the following:
 
 ```
-docker run --rm -p 8888:8888 alexenge/meta_semantics:v1.1
+docker run --rm -p 8888:8888 skeidelab/meta_semantics:v1.1
 ```
 
 You will see a couple of URLs, the last one of which you need to copy and paste into the search bar of your web browser. From there, you will be able to access, execute, and modify our Python notebooks interactively.
