@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Binder](https://img.shields.io/docker/cloud/build/skeidelab/meta_semantics.svg)](https://hub.docker.com/r/skeidelab/meta_semantics)
+[![GitHub workflow](https://github.com/skeidelab/meta_semantics/actions/workflows/main.yml/badge.svg)](https://github.com/SkeideLab/meta_semantics/actions)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SkeideLab/meta_semantics/v1.1)
 
 [![meta-analytic results from ALE](https://raw.githubusercontent.com/SkeideLab/meta_semantics/main/misc/ale_brains.png)](https://github.com/SkeideLab/meta_semantics/tree/main/results)
