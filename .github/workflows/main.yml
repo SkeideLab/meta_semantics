@@ -1,4 +1,4 @@
-name: Container autobuild
+name: Autobuild
 
 on:
   workflow_dispatch:
