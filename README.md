@@ -4,7 +4,7 @@
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![GitHub workflow](https://github.com/skeidelab/meta_semantics/actions/workflows/main.yml/badge.svg)](https://github.com/SkeideLab/meta_semantics/actions)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SkeideLab/meta_semantics/v1.1)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/SkeideLab/meta_semantics/v1.1?urlpath=tree)
 
 [![meta-analytic results from ALE](https://raw.githubusercontent.com/SkeideLab/meta_semantics/main/misc/ale_brains.png)](https://github.com/SkeideLab/meta_semantics/tree/main/results)
 
@@ -35,7 +35,7 @@ If you want rerun or modify any of the code, you have three different options.
 
 #### a) Running the code on a cloud server
 
-Simply hit the "launch Binder" badge at the top or [this link](https://mybinder.org/v2/gh/SkeideLab/meta_semantics/v1.1) to open an interactive version of the repository on a cloud server (kindly provided by the [Binder project](https://mybinder.readthedocs.io/en/latest/about/about.html)). Please note that launching the server may take a couple of minutes and that the computational resources (CPU cores and memory) are limited.
+Simply hit the "launch Binder" badge at the top or [this link](https://mybinder.org/v2/gh/SkeideLab/meta_semantics/v1.1?urlpath=tree) to open an interactive version of the repository on a cloud server (kindly provided by the [Binder project](https://mybinder.readthedocs.io/en/latest/about/about.html)). Please note that launching the server may take a couple of minutes and that the computational resources (CPU cores and memory) are limited.
 
 #### b) Running the code in a local container
 
